@@ -1,0 +1,3 @@
+*.gif !text !filter !merge !diff
+*.mp4 !text !filter !merge !diff
+*.webm !text !filter !merge !diff
