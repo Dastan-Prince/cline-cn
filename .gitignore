@@ -70,3 +70,7 @@ tests/**/cache
 *.db-wal
 .cline/**/managed.json
 .cline/**/bundle.json
+/apps/vscode/tmp-vsix
+/apps/vscode/tmp-protoc
+/apps/vscode/tmp-tar
+/apps/vscode/proto/google

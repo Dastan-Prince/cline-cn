@@ -45,6 +45,8 @@ import { VsCodeLmHandler } from "./providers/vscode-lm"
 import { WandbHandler } from "./providers/wandb"
 import { XAIHandler } from "./providers/xai"
 import { ZAiHandler } from "./providers/zai"
+import { XiaomiHandler } from "./providers/xiaomi"
+import { MimoTokenPlanHandler } from "./providers/mimo-token-plan"
 import { ApiStream, ApiStreamUsageChunk } from "./transform/stream"
 
 export type CommonApiHandlerOptions = {
@@ -460,6 +462,18 @@ function createHandlerForProvider(
 			return new WandbHandler({
 				onRetryAttempt: options.onRetryAttempt,
 				wandbApiKey: options.wandbApiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+			})
+		case "xiaomi":
+			return new XiaomiHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				xiaomiApiKey: options.xiaomiApiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+			})
+		case "mimo-tp":
+			return new MimoTokenPlanHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				mimoTokenPlanApiKey: options.mimoTokenPlanApiKey,
 				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
 			})
 		default:

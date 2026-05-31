@@ -14,6 +14,7 @@ import {
 	huggingFaceDefaultModelId,
 	internationalQwenDefaultModelId,
 	liteLlmDefaultModelId,
+	mimoTokenPlanDefaultModelId,
 	minimaxDefaultModelId,
 	moonshotDefaultModelId,
 	nousResearchDefaultModelId,
@@ -22,6 +23,7 @@ import {
 	requestyDefaultModelId,
 	sapAiCoreDefaultModelId,
 	wandbDefaultModelId,
+	xiaomiDefaultModelId,
 	xaiDefaultModelId,
 } from "../api"
 
@@ -85,6 +87,8 @@ export const ProviderToApiKeyMap: Partial<Record<ApiProvider, keyof Secrets | (k
 	nousResearch: "nousResearchApiKey",
 	sapaicore: ["sapAiCoreClientId", "sapAiCoreClientSecret"],
 	wandb: "wandbApiKey",
+	xiaomi: "xiaomiApiKey",
+	"mimo-tp": "mimoTokenPlanApiKey",
 } as const
 
 const ProviderDefaultModelMap: Partial<Record<ApiProvider, string>> = {
@@ -116,6 +120,8 @@ const ProviderDefaultModelMap: Partial<Record<ApiProvider, string>> = {
 	qwen: internationalQwenDefaultModelId,
 	deepseek: deepSeekDefaultModelId,
 	wandb: wandbDefaultModelId,
+	xiaomi: xiaomiDefaultModelId,
+	"mimo-tp": mimoTokenPlanDefaultModelId,
 } as const
 
 /**
