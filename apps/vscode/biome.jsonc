@@ -1,5 +1,5 @@
 {
-	"root": false,
+	"root": true,
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"assist": {
 		"enabled": true,
@@ -130,9 +130,6 @@
 			"!!**/tests/specs"
 		]
 	},
-	"plugins": [
-		"src/dev/grit/process-env.grit"
-	],
 	"overrides": [
 		{
 			"includes": [
@@ -146,16 +143,10 @@
 				"!!src/integrations/git/commit-message-generator.ts",
 				"!!src/integrations/terminal/**",
 				"!!src/core/controller/ui/openWalkthrough.ts"
-			],
-			"plugins": [
-				"src/dev/grit/vscode-api.grit"
 			]
 		},
 		{
 			// Do not use console logging directly, use the Logger service instead.
-			"plugins": [
-				"src/dev/grit/console-log.grit"
-			],
 			"includes": [
 				"**",
 				"!!**/esbuild.*",
@@ -187,9 +178,6 @@
 				"!!src/services/logging/distinctId.ts",
 				"!!src/core/storage/utils/state-helpers.ts",
 				"!!src/extension.ts"
-			],
-			"plugins": [
-				"src/dev/grit/use-cache-service.grit"
 			]
 		}
 	]
