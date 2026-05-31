@@ -1,5 +1,6 @@
 import { UpdateSettingsRequest } from "@shared/proto/cline/state"
 import { memo, type ReactNode, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -24,8 +25,8 @@ interface FeatureCheckboxProps {
 // Interface for feature toggle configuration
 interface FeatureToggle {
 	id: string
-	label: string
-	description: ReactNode
+	labelKey: string
+	descriptionKey: string
 	settingKey: keyof UpdateSettingsRequest
 	stateKey: string
 	/** If set, the setting value is nested with this key (e.g., "enabled" -> { enabled: checked }) */
@@ -35,43 +36,43 @@ interface FeatureToggle {
 const agentFeatures: FeatureToggle[] = [
 	{
 		id: "subagents",
-		label: "Subagents",
-		description: "Let Cline run focused subagents in parallel to explore the codebase for you.",
+		labelKey: "settings.features.enableSubagents",
+		descriptionKey: "settings.features.subagentsDescription",
 		stateKey: "subagentsEnabled",
 		settingKey: "subagentsEnabled",
 	},
 	{
 		id: "native-tool-call",
-		label: "Native Tool Call",
-		description: "Use native function calling when available",
+		labelKey: "settings.features.nativeToolCall",
+		descriptionKey: "settings.features.nativeToolCallDescription",
 		stateKey: "nativeToolCallSetting",
 		settingKey: "nativeToolCallEnabled",
 	},
 	{
 		id: "parallel-tool-calling",
-		label: "Parallel Tool Calling",
-		description: "Execute multiple tool calls simultaneously",
+		labelKey: "settings.features.parallelToolCalling",
+		descriptionKey: "settings.features.parallelToolCallingDescription",
 		stateKey: "enableParallelToolCalling",
 		settingKey: "enableParallelToolCalling",
 	},
 	{
 		id: "strict-plan-mode",
-		label: "Strict Plan Mode",
-		description: "Prevents file edits while in Plan mode",
+		labelKey: "settings.features.strictPlanMode",
+		descriptionKey: "settings.features.strictPlanModeDescription",
 		stateKey: "strictPlanModeEnabled",
 		settingKey: "strictPlanModeEnabled",
 	},
 	{
 		id: "auto-compact",
-		label: "Auto Compact",
-		description: "Automatically compress conversation history.",
+		labelKey: "settings.features.enableAutoCompact",
+		descriptionKey: "settings.features.autoCompactDescription",
 		stateKey: "useAutoCondense",
 		settingKey: "useAutoCondense",
 	},
 	{
 		id: "focus-chain",
-		label: "Focus Chain",
-		description: "Maintain context focus across interactions",
+		labelKey: "settings.features.enableFocusChain",
+		descriptionKey: "settings.features.focusChainDescription",
 		stateKey: "focusChainEnabled",
 		settingKey: "focusChainSettings",
 		nestedKey: "enabled",
@@ -80,73 +81,43 @@ const agentFeatures: FeatureToggle[] = [
 
 const editorFeatures: FeatureToggle[] = [
 	{
-		id: "show-feature-tips",
-		label: "Feature Tips",
-		description: "Show rotating tips during the thinking phase to help you discover Cline features.",
-		stateKey: "showFeatureTips",
-		settingKey: "showFeatureTips",
-	},
-	{
 		id: "background-edit",
-		label: "Background Edit",
-		description: "Allow edits without stealing editor focus",
+		labelKey: "settings.features.backgroundEdit",
+		descriptionKey: "settings.features.backgroundEditDescription",
 		stateKey: "backgroundEditEnabled",
 		settingKey: "backgroundEditEnabled",
 	},
 	{
 		id: "checkpoints",
-		label: "Checkpoints",
-		description: "Save progress at key points for easy rollback",
+		labelKey: "settings.features.enableCheckpoints",
+		descriptionKey: "settings.features.checkpointsDescription",
 		stateKey: "enableCheckpointsSetting",
 		settingKey: "enableCheckpointsSetting",
 	},
 	{
 		id: "cline-web-tools",
-		label: "Cline Web Tools",
-		description: "Access web browsing and search capabilities",
+		labelKey: "settings.features.enableWebTools",
+		descriptionKey: "settings.features.webToolsDescription",
 		stateKey: "clineWebToolsEnabled",
 		settingKey: "clineWebToolsEnabled",
-	},
-	{
-		id: "worktrees",
-		label: "Worktrees",
-		description: "Enables git worktree management for running parallel Cline tasks.",
-		stateKey: "worktreesEnabled",
-		settingKey: "worktreesEnabled",
 	},
 ]
 
 const experimentalFeatures: FeatureToggle[] = [
 	{
 		id: "yolo",
-		label: "Yolo Mode",
-		description:
-			"Execute tasks without user's confirmation. Auto-switches from Plan to Act mode and disables the ask question tool. Use with extreme caution.",
+		labelKey: "settings.features.enableYolo",
+		descriptionKey: "settings.features.yoloDescription",
 		stateKey: "yoloModeToggled",
 		settingKey: "yoloModeToggled",
-	},
-	{
-		id: "double-check-completion",
-		label: "Double-Check Completion",
-		description:
-			"Rejects the first completion attempt and asks the model to re-verify its work against the original task requirements before accepting.",
-		stateKey: "doubleCheckCompletionEnabled",
-		settingKey: "doubleCheckCompletionEnabled",
-	},
-	{
-		id: "lazy-teammate",
-		label: "Lazy Teammate Mode",
-		description: "Sometimes Cline just isn't feeling it today. For entertainment purposes only.",
-		stateKey: "lazyTeammateModeEnabled",
-		settingKey: "lazyTeammateModeEnabled",
 	},
 ]
 
 const advancedFeatures: FeatureToggle[] = [
 	{
 		id: "hooks",
-		label: "Hooks",
-		description: "Enable lifecycle and tool hooks during task execution.",
+		labelKey: "settings.features.enableHooks",
+		descriptionKey: "settings.features.hooksDescription",
 		stateKey: "hooksEnabled",
 		settingKey: "hooksEnabled",
 	},
@@ -209,6 +180,7 @@ interface FeatureSettingsSectionProps {
 }
 
 const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionProps) => {
+	const { t } = useTranslation()
 	const {
 		enableCheckpointsSetting,
 		hooksEnabled,
@@ -224,9 +196,6 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 		nativeToolCallSetting,
 		enableParallelToolCalling,
 		backgroundEditEnabled,
-		doubleCheckCompletionEnabled,
-		lazyTeammateModeEnabled,
-		showFeatureTips,
 	} = useExtensionState()
 
 	const handleFocusChainIntervalChange = useCallback(
@@ -240,7 +209,6 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 	// State lookup for mapped features
 	const featureState: Record<string, boolean | undefined> = {
-		showFeatureTips,
 		enableCheckpointsSetting,
 		strictPlanModeEnabled,
 		hooksEnabled,
@@ -252,8 +220,6 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 		worktreesEnabled: worktreesEnabled?.user,
 		enableParallelToolCalling,
 		backgroundEditEnabled,
-		doubleCheckCompletionEnabled,
-		lazyTeammateModeEnabled,
 		yoloModeToggled: isYoloRemoteLocked ? remoteConfigSettings?.yoloModeToggled : yoloModeToggled,
 	}
 
@@ -287,7 +253,9 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 				<div className="mb-5 flex flex-col gap-3">
 					{/* Core features */}
 					<div>
-						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Agent</div>
+						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">
+							{t("settings.features.agent")}
+						</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50"
 							id="agent-features">
@@ -295,10 +263,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								<div key={feature.id}>
 									<FeatureRow
 										checked={featureState[feature.stateKey]}
-										description={feature.description}
+										description={t(feature.descriptionKey)}
 										isVisible={featureVisibility[feature.stateKey] ?? true}
 										key={feature.id}
-										label={feature.label}
+										label={t(feature.labelKey)}
 										onChange={(checked) =>
 											feature.nestedKey === "enabled"
 												? handleFeatureChange(feature, checked)
@@ -307,7 +275,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 									/>
 									{feature.id === "focus-chain" && featureState[feature.stateKey] && (
 										<SettingsSlider
-											label="Reminder Interval (1-10)"
+											label={t("settings.features.focusChainReminderInterval")}
 											max={10}
 											min={1}
 											onChange={handleFocusChainIntervalChange}
@@ -323,17 +291,19 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 					{/* Editor features */}
 					<div>
-						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Editor</div>
+						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">
+							{t("settings.features.editor")}
+						</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50"
 							id="optional-features">
 							{editorFeatures.map((feature) => (
 								<FeatureRow
 									checked={featureState[feature.stateKey]}
-									description={feature.description}
+									description={t(feature.descriptionKey)}
 									isVisible={featureVisibility[feature.stateKey] ?? true}
 									key={feature.id}
-									label={feature.label}
+									label={t(feature.labelKey)}
 									onChange={(checked) => handleFeatureChange(feature, checked)}
 								/>
 							))}
@@ -342,21 +312,23 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 					{/* Experimental features */}
 					<div>
-						<div className="text-xs font-medium uppercase tracking-wider mb-3 text-warning/80">Experimental</div>
+						<div className="text-xs font-medium uppercase tracking-wider mb-3 text-warning/80">
+							{t("settings.features.experimental")}
+						</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50 w-full"
 							id="experimental-features">
 							{experimentalFeatures.map((feature) => (
 								<FeatureRow
 									checked={featureState[feature.stateKey]}
-									description={feature.description}
+									description={t(feature.descriptionKey)}
 									disabled={feature.id === "yolo" && isYoloRemoteLocked}
 									isRemoteLocked={feature.id === "yolo" && isYoloRemoteLocked}
 									isVisible={featureVisibility[feature.stateKey] ?? true}
 									key={feature.id}
-									label={feature.label}
+									label={t(feature.labelKey)}
 									onChange={(checked) => handleFeatureChange(feature, checked)}
-									remoteTooltip="This setting is managed by your organization's remote configuration"
+									remoteTooltip={t("settings.general.remoteConfigManaged")}
 								/>
 							))}
 						</div>
@@ -365,32 +337,34 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 				{/* Advanced */}
 				<div>
-					<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Advanced</div>
+					<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">
+						{t("settings.features.advanced")}
+					</div>
 					<div className="relative p-3 my-3 rounded-md border border-editor-widget-border/50" id="advanced-features">
 						<div className="space-y-3">
 							{advancedFeatures.map((feature) => (
 								<FeatureRow
 									checked={featureState[feature.stateKey]}
-									description={feature.description}
+									description={t(feature.descriptionKey)}
 									isVisible={featureVisibility[feature.stateKey] ?? true}
 									key={feature.id}
-									label={feature.label}
+									label={t(feature.labelKey)}
 									onChange={(checked) => handleFeatureChange(feature, checked)}
 								/>
 							))}
 
 							{/* MCP Display Mode */}
 							<div className="space-y-2">
-								<Label className="text-sm font-medium text-foreground">MCP Display Mode</Label>
-								<p className="text-xs text-muted-foreground">Controls how MCP responses are displayed</p>
+								<Label className="text-sm font-medium text-foreground">{t("settings.features.mcpDisplayMode")}</Label>
+								<p className="text-xs text-muted-foreground">{t("settings.features.mcpDisplayModeDescription")}</p>
 								<Select onValueChange={(v) => updateSetting("mcpDisplayMode", v)} value={mcpDisplayMode}>
 									<SelectTrigger className="w-full">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="plain">Plain Text</SelectItem>
-										<SelectItem value="rich">Rich Display</SelectItem>
-										<SelectItem value="markdown">Markdown</SelectItem>
+										<SelectItem value="plain">{t("settings.features.mcpDisplayModeOptions.plain")}</SelectItem>
+										<SelectItem value="rich">{t("settings.features.mcpDisplayModeOptions.rich")}</SelectItem>
+										<SelectItem value="markdown">{t("settings.features.mcpDisplayModeOptions.markdown")}</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>
