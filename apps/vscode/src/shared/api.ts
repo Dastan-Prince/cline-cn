@@ -44,6 +44,8 @@ export type ApiProvider =
 	| "hicap"
 	| "nousResearch"
 	| "wandb"
+	| "xiaomi"
+	| "mimo-tp"
 
 export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider
 
@@ -5299,5 +5301,75 @@ export const nousResearchModels = {
 		outputPrice: 0.2,
 		description:
 			"This incarnation of Hermes 4 balances scale and size. It handles complex reasoning tasks, while staying fast and cost effective. A versatile choice for many use cases.",
+	},
+} as const satisfies Record<string, ModelInfo>
+
+// Xiaomi Mimo
+// https://platform.xiaomimimo.com/#/docs/welcome
+export type XiaomiModelId = keyof typeof xiaomiModels
+export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2-flash"
+export const xiaomiModels = {
+	"mimo-v2-flash": {
+		maxTokens: 64_000,
+		contextWindow: 131_072,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+	"mimo-v2-pro": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+	"mimo-v2-omni": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+} as const satisfies Record<string, ModelInfo>
+
+// MiMo Token Plan
+// https://token-plan-cn.xiaomimimo.com/
+export type MimoTokenPlanModelId = keyof typeof mimoTokenPlanModels
+export const mimoTokenPlanDefaultModelId: MimoTokenPlanModelId = "mimo-v2.5"
+export const mimoTokenPlanModels = {
+	"mimo-v2.5": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+	"mimo-v2.5-pro": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+	"mimo-v2-pro": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+	"mimo-v2-omni": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
 	},
 } as const satisfies Record<string, ModelInfo>
