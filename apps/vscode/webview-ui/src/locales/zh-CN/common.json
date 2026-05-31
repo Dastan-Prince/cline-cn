@@ -171,7 +171,8 @@
 			"terminal": "终端",
 			"general": "常规",
 			"about": "关于",
-			"debug": "调试"
+			"debug": "调试",
+			"remoteConfig": "远程配置"
 		},
 		"general": {
 			"remoteConfigManaged": "此设置由您组织的远程配置管理",
@@ -227,6 +228,9 @@
 		},
 		"features": {
 			"new": "新",
+			"agent": "代理",
+			"editor": "编辑器",
+			"advanced": "高级",
 			"enableThinking": "启用思考",
 			"tokens": "tokens",
 			"subagentsDescription": "子代理需要安装 Cline CLI。请使用 <installCmd>npm install -g cline</installCmd> 安装，然后运行 <authCmd>cline auth</authCmd> 以使用 Cline 进行身份验证或配置 API 提供商。",
@@ -584,6 +588,8 @@
 	},
 	"history": {
 		"title": "历史记录",
+		"today": "今天",
+		"older": "更早",
 		"preview": {
 			"recentTasks": "最近任务",
 			"viewAll": "查看全部",

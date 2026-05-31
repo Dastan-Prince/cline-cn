@@ -171,7 +171,8 @@
 			"terminal": "Terminal",
 			"general": "General",
 			"about": "About",
-			"debug": "Debug"
+			"debug": "Debug",
+			"remoteConfig": "Remote Config"
 		},
 		"general": {
 			"remoteConfigManaged": "This setting is managed by your organization's remote configuration",
@@ -227,6 +228,9 @@
 		},
 		"features": {
 			"new": "NEW",
+			"agent": "Agent",
+			"editor": "Editor",
+			"advanced": "Advanced",
 			"enableThinking": "Enable Thinking",
 			"tokens": "tokens",
 			"subagentsDescription": "Cline for CLI is required for subagents. Install it with: <installCmd>npm install -g cline</installCmd>, then run <authCmd>cline auth</authCmd> To authenticate with Cline or configure an API provider.",
@@ -584,6 +588,8 @@
 	},
 	"history": {
 		"title": "History",
+		"today": "Today",
+		"older": "Older",
 		"preview": {
 			"recentTasks": "Recent Tasks",
 			"viewAll": "View All",
