@@ -5304,6 +5304,7 @@ export const nousResearchModels = {
 	},
 } as const satisfies Record<string, ModelInfo>
 
+
 // Xiaomi Mimo
 // https://platform.xiaomimimo.com/#/docs/welcome
 export type XiaomiModelId = keyof typeof xiaomiModels
@@ -5311,27 +5312,36 @@ export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2-flash"
 export const xiaomiModels = {
 	"mimo-v2-flash": {
 		maxTokens: 64_000,
-		contextWindow: 131_072,
+		contextWindow: 262144,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
+		inputPrice: 0.1,
+		outputPrice: 0.3,
+		cacheWritesPrice: 0.01,
+		cacheReadsPrice: 0.3,
+		description: "Xiaomi Mimo V2 Flash - Fast and efficient model with vision support, optimized for quick responses.",
 	},
-	"mimo-v2-pro": {
+	"mimo-v2.5": {
 		maxTokens: 128_000,
-		contextWindow: 262_144,
+		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
+		inputPrice: 0.12,
+		outputPrice: 0.12,
+		cacheWritesPrice: 0.12,
+		cacheReadsPrice: 0.12,
+		description: "MiMo Token Plan V2.5  - Multimodal model with advanced vision and reasoning capabilities.",
 	},
-	"mimo-v2-omni": {
+	"mimo-v2.5-pro": {
 		maxTokens: 128_000,
-		contextWindow: 262_144,
-		supportsImages: true,
+		contextWindow: 1048576,
+		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
+		inputPrice: 0.24,
+		outputPrice: 0.24,
+		cacheWritesPrice: 0.24,
+		cacheReadsPrice: 0.24,
+		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
 	},
 } as const satisfies Record<string, ModelInfo>
 
@@ -5342,34 +5352,25 @@ export const mimoTokenPlanDefaultModelId: MimoTokenPlanModelId = "mimo-v2.5"
 export const mimoTokenPlanModels = {
 	"mimo-v2.5": {
 		maxTokens: 128_000,
-		contextWindow: 262_144,
+		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
+		inputPrice: 0.12,
+		outputPrice: 0.12,
+		cacheWritesPrice: 0.12,
+		cacheReadsPrice: 0.12,
+		description: "MiMo Token Plan V2.5  - Multimodal model with advanced vision and reasoning capabilities.",
 	},
 	"mimo-v2.5-pro": {
 		maxTokens: 128_000,
-		contextWindow: 262_144,
+		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
+		inputPrice: 0.24,
+		outputPrice: 0.24,
+		cacheWritesPrice: 0.24,
+		cacheReadsPrice: 0.24,
+		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
 	},
-	"mimo-v2-pro": {
-		maxTokens: 128_000,
-		contextWindow: 262_144,
-		supportsImages: false,
-		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
-	},
-	"mimo-v2-omni": {
-		maxTokens: 128_000,
-		contextWindow: 262_144,
-		supportsImages: true,
-		supportsPromptCache: false,
-		inputPrice: 0,
-		outputPrice: 0,
-	},
+	
 } as const satisfies Record<string, ModelInfo>

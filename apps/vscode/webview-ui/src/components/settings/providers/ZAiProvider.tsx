@@ -30,7 +30,7 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 
 	// Determine which models to use based on API line selection
 	const zaiModels = useMemo(
-		() => (apiConfiguration?.zaiApiLine === "china" ? mainlandZAiModels : internationalZAiModels),
+		() => (apiConfiguration?.zaiApiLine === "international" ? internationalZAiModels : mainlandZAiModels),
 		[apiConfiguration?.zaiApiLine],
 	)
 
@@ -50,6 +50,7 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 					value={apiConfiguration?.zaiApiLine || "international"}>
 					<VSCodeOption value="international">api.z.ai</VSCodeOption>
 					<VSCodeOption value="china">open.bigmodel.cn</VSCodeOption>
+					<VSCodeOption value="coding">(Coding Plan)open.bigmodel.cn</VSCodeOption>
 				</VSCodeDropdown>
 			</DropdownContainer>
 			<p
@@ -59,14 +60,14 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 					color: "var(--vscode-descriptionForeground)",
 				}}>
 				Please select the appropriate API entrypoint based on your location. If you are in China, choose open.bigmodel.cn
-				. Otherwise, choose api.z.ai.
+				. Otherwise, choose api.z.ai. Use Coding Plan for GLM Coding Plan subscription.
 			</p>
 			<ApiKeyField
 				initialValue={apiConfiguration?.zaiApiKey || ""}
 				onChange={(value) => handleFieldChange("zaiApiKey", value)}
 				providerName="Z AI"
 				signupUrl={
-					apiConfiguration?.zaiApiLine === "china"
+					apiConfiguration?.zaiApiLine === "china" || apiConfiguration?.zaiApiLine === "coding"
 						? "https://open.bigmodel.cn/console/overview"
 						: "https://z.ai/manage-apikey/apikey-list"
 				}
