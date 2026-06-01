@@ -65,6 +65,14 @@
 			"label": "Mistral"
 		},
 		{
+			"value": "xiaomi",
+			"label": "Xiaomi MiMo"
+		},
+		{
+			"value": "mimo-tp",
+			"label": "MiMo Token Plan"
+		},
+		{
 			"value": "zai",
 			"label": "Z AI"
 		},

@@ -328,6 +328,10 @@ function convertApiProviderToProto(provider: string | undefined): ProtoApiProvid
 			return ProtoApiProvider.NOUSRESEARCH
 		case "openai-codex":
 			return ProtoApiProvider.OPENAI_CODEX
+		case "xiaomi":
+			return ProtoApiProvider.XIAOMI
+		case "mimo-tp":
+			return ProtoApiProvider.MIMO_TOKEN_PLAN
 		default:
 			return ProtoApiProvider.ANTHROPIC
 	}
@@ -420,6 +424,10 @@ export function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvid
 			return "nousResearch"
 		case ProtoApiProvider.OPENAI_CODEX:
 			return "openai-codex"
+		case ProtoApiProvider.XIAOMI:
+			return "xiaomi"
+		case ProtoApiProvider.MIMO_TOKEN_PLAN:
+			return "mimo-tp"
 		default:
 			return "anthropic"
 	}
@@ -501,6 +509,8 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		huaweiCloudMaasApiKey: config.huaweiCloudMaasApiKey,
 		zaiApiLine: config.zaiApiLine,
 		zaiApiKey: config.zaiApiKey,
+		xiaomiApiKey: config.xiaomiApiKey,
+		mimoTokenPlanApiKey: config.mimoTokenPlanApiKey,
 		difyApiKey: config.difyApiKey,
 		difyBaseUrl: config.difyBaseUrl,
 		ocaBaseUrl: config.ocaBaseUrl,
@@ -681,6 +691,8 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		huaweiCloudMaasApiKey: protoConfig.huaweiCloudMaasApiKey,
 		zaiApiLine: protoConfig.zaiApiLine,
 		zaiApiKey: protoConfig.zaiApiKey,
+		xiaomiApiKey: protoConfig.xiaomiApiKey,
+		mimoTokenPlanApiKey: protoConfig.mimoTokenPlanApiKey,
 		difyApiKey: protoConfig.difyApiKey,
 		difyBaseUrl: protoConfig.difyBaseUrl,
 		ocaBaseUrl: protoConfig.ocaBaseUrl,

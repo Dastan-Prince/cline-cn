@@ -38,6 +38,8 @@ import {
 	mainlandQwenModels,
 	mainlandZAiDefaultModelId,
 	mainlandZAiModels,
+	mimoTokenPlanDefaultModelId,
+	mimoTokenPlanModels,
 	minimaxDefaultModelId,
 	minimaxModels,
 	mistralDefaultModelId,
@@ -69,6 +71,8 @@ import {
 	wandbModels,
 	xaiDefaultModelId,
 	xaiModels,
+	xiaomiDefaultModelId,
+	xiaomiModels,
 } from "@shared/api"
 import { Mode } from "@shared/storage/types"
 import * as reasoningSupport from "@shared/utils/reasoning-support"
@@ -135,7 +139,11 @@ export function getModelsForProvider(
 		case "huawei-cloud-maas":
 			return huaweiCloudMaasModels
 		case "zai":
-			return apiConfiguration?.zaiApiLine === "china" ? mainlandZAiModels : internationalZAiModels
+			return apiConfiguration?.zaiApiLine === "international" ? internationalZAiModels : mainlandZAiModels
+		case "xiaomi":
+			return xiaomiModels
+		case "mimo-tp":
+			return mimoTokenPlanModels
 		case "fireworks":
 			return fireworksModels
 		case "minimax":
@@ -455,10 +463,14 @@ export function normalizeApiConfiguration(
 				selectedModelInfo: vercelModelInfo || openRouterDefaultModelInfo,
 			}
 		case "zai":
-			const zaiModels = apiConfiguration?.zaiApiLine === "china" ? mainlandZAiModels : internationalZAiModels
+			const zaiModels = apiConfiguration?.zaiApiLine === "international" ? internationalZAiModels : mainlandZAiModels
 			const zaiDefaultId =
-				apiConfiguration?.zaiApiLine === "china" ? mainlandZAiDefaultModelId : internationalZAiDefaultModelId
+				apiConfiguration?.zaiApiLine === "international" ? internationalZAiDefaultModelId : mainlandZAiDefaultModelId
 			return getProviderData(zaiModels, zaiDefaultId)
+		case "xiaomi":
+			return getProviderData(xiaomiModels, xiaomiDefaultModelId)
+		case "mimo-tp":
+			return getProviderData(mimoTokenPlanModels, mimoTokenPlanDefaultModelId)
 		case "fireworks":
 			const fireworksModelId =
 				currentMode === "plan" ? apiConfiguration?.planModeFireworksModelId : apiConfiguration?.actModeFireworksModelId
@@ -838,6 +850,8 @@ export async function syncModeConfigurations(
 		case "cerebras":
 		case "sapaicore":
 		case "zai":
+		case "xiaomi":
+		case "mimo-tp":
 		case "minimax":
 		default:
 			updates.planModeApiModelId = sourceFields.apiModelId

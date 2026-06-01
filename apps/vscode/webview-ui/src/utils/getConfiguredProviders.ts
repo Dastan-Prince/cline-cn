@@ -233,6 +233,16 @@ export function getConfiguredProviders(
 		configured.push("oca")
 	}
 
+	// Xiaomi - requires API key
+	if (apiConfiguration.xiaomiApiKey) {
+		configured.push("xiaomi")
+	}
+
+	// MiMo Token Plan - requires API key
+	if (apiConfiguration.mimoTokenPlanApiKey) {
+		configured.push("mimo-tp")
+	}
+
 	return configured
 }
 
