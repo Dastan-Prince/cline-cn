@@ -1,4 +1,9 @@
 {
+	"homeHeader": {
+		"defaultHeading": "我可以帮您做点什么？",
+		"lazyTeammateHeading": "我大概是来帮忙的吧",
+		"takeATour": "开始导览"
+	},
 	"welcome": {
 		"title": "您好，我是 Cline",
 		"description": "得益于 Claude 4 Sonnet 代理编码能力的突破，我可以完成各种任务。通过使用能够创建和编辑文件、探索复杂项目、使用浏览器以及执行终端命令（当然，需要您的许可）的工具，我甚至可以使用 MCP 来创建新工具并扩展我自己的能力。",
