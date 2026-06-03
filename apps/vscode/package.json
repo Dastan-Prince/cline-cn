@@ -115,7 +115,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"title": "CLINE CN",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -125,7 +125,7 @@
 				{
 					"type": "webview",
 					"id": "claude-dev.SidebarProvider",
-					"name": "",
+					"name": "CLINE CN",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
