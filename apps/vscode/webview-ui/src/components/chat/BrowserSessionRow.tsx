@@ -574,6 +574,7 @@ const BrowserSessionRowContent = memo(
 )
 
 const BrowserActionBox = ({ action, coordinate, text }: { action: BrowserAction; coordinate?: string; text?: string }) => {
+	const { t } = useTranslation()
 	const getBrowserActionText = (action: BrowserAction, coordinate?: string, text?: string) => {
 		switch (action) {
 			case "launch":

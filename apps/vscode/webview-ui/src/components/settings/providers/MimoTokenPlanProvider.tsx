@@ -32,7 +32,7 @@ export const MimoTokenPlanProvider = ({ showModelOptions, isPopup, currentMode }
 				initialValue={apiConfiguration?.mimoTokenPlanApiKey || ""}
 				onChange={(value) => handleFieldChange("mimoTokenPlanApiKey", value)}
 				providerName="MiMo Token Plan"
-				signupUrl="https://token-plan-cn.xiaomimimo.com/"
+				signupUrl="https://platform.xiaomimimo.com/token-plan"
 			/>
 
 			{showModelOptions && (

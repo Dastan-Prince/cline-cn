@@ -59,8 +59,7 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 					marginTop: 3,
 					color: "var(--vscode-descriptionForeground)",
 				}}>
-				Please select the appropriate API entrypoint based on your location. If you are in China, choose open.bigmodel.cn
-				. Otherwise, choose api.z.ai. Use Coding Plan for GLM Coding Plan subscription.
+				请根据您的所在位置选择合适的 API 入口点。如果您在中国，请选择 open.bigmodel.cn ；否则，请选择 api.z.ai 。使用 GLM Coding Plan订阅时，请使用(Coding Plan)入口。
 			</p>
 			<ApiKeyField
 				initialValue={apiConfiguration?.zaiApiKey || ""}
