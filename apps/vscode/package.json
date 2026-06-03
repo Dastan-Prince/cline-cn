@@ -2,7 +2,7 @@
 	"name": "cline-cn",
 	"displayName": "Cline CN",
 	"description": "%cline.description%",
-	"version": "3.86.0",
+	"version": "3.86.2",
 	"icon": "assets/icons/icon.png",
 	"workspaces": [
 		"."
