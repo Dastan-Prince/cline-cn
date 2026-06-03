@@ -219,6 +219,8 @@
 		"save": "保存",
 		"runCommand": "运行命令",
 		"resumeTask": "恢复任务",
+		"startNewTask": "开始新任务",
+		"startNewTaskWithContext": "使用上下文开始新任务",
 		"proceedAnyways": "继续执行",
 		"proceedWhileRunning": "运行时继续",
 		"condense": "压缩对话",
