@@ -1,6 +1,6 @@
 {
-	"name": "claude-dev",
-	"displayName": "Cline",
+	"name": "cline-cn",
+	"displayName": "Cline CN",
 	"description": "%cline.description%",
 	"version": "3.86.0",
 	"icon": "assets/icons/icon.png",
@@ -11,13 +11,13 @@
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "Dastan-Prince"
 	},
 	"license": "Apache-2.0",
-	"publisher": "saoudrizwan",
+	"publisher": "Dastan-Prince",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline"
+		"url": "https://github.com/Dastan-Prince/cline-cn"
 	},
 	"homepage": "https://cline.bot",
 	"categories": [
