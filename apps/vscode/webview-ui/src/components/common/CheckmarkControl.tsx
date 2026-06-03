@@ -4,6 +4,7 @@ import { Int64Request } from "@shared/proto/cline/common"
 import { ClineCheckpointRestore } from "@shared/WebviewMessage"
 import { BookmarkIcon } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { createPortal } from "react-dom"
 import styled from "styled-components"
 import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock"
@@ -18,6 +19,7 @@ interface CheckmarkControlProps {
 }
 
 export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: CheckmarkControlProps) => {
+	const { t } = useTranslation()
 	const [compareDisabled, setCompareDisabled] = useState(false)
 	const [restoreTaskDisabled, setRestoreTaskDisabled] = useState(false)
 	const [restoreWorkspaceDisabled, setRestoreWorkspaceDisabled] = useState(false)
@@ -183,7 +185,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 					className={cn("text-[9px] text-description shrink-0", {
 						"text-link": isCheckpointCheckedOut,
 					})}>
-					{isCheckpointCheckedOut ? "Checkpoint (restored)" : "Checkpoint"}
+					{isCheckpointCheckedOut ? t("checkpoint.labelRestored") : t("checkpoint.label")}
 				</span>
 				<DottedLine $isCheckedOut={isCheckpointCheckedOut} />
 				<ButtonGroup>
@@ -205,7 +207,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 							}
 						}}
 						style={{ cursor: compareDisabled ? "wait" : "pointer" }}>
-						Compare
+						{t("checkpoint.compare")}
 					</CustomButton>
 					<DottedLine $isCheckedOut={isCheckpointCheckedOut} small />
 					<div ref={refs.setReference} style={{ position: "relative", marginTop: -2 }}>
@@ -213,7 +215,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 							$isCheckedOut={isCheckpointCheckedOut}
 							isActive={showRestoreConfirm}
 							onClick={() => setShowRestoreConfirm(true)}>
-							Restore
+							{t("checkpoint.restore")}
 						</CustomButton>
 						{showRestoreConfirm &&
 							createPortal(
@@ -231,13 +233,13 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 												cursor: restoreBothDisabled ? "wait" : "pointer",
 											}}>
 											<i className="codicon codicon-debug-restart" style={{ marginRight: "6px" }} />
-											Restore Files & Task
+											{t("checkpoint.restoreBoth")}
 										</Button>
-										<p>Revert files and clear messages after this point</p>
+										<p>{t("checkpoint.restoreBothDescription")}</p>
 									</PrimaryRestoreOption>
 
 									<MoreOptionsToggle onClick={() => setShowMoreOptions(!showMoreOptions)}>
-										More options
+										{t("checkpoint.moreOptions")}
 										<i
 											className={`codicon codicon-chevron-${showMoreOptions ? "up" : "down"}`}
 											style={{ marginLeft: "4px", fontSize: "10px" }}
@@ -262,9 +264,9 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 														className="codicon codicon-file-symlink-directory"
 														style={{ marginRight: "6px" }}
 													/>
-													Restore Files Only
+													{t("checkpoint.restoreFiles")}
 												</Button>
-												<p>Revert files to this checkpoint</p>
+												<p>{t("checkpoint.restoreFilesDescription")}</p>
 											</RestoreOption>
 											<RestoreOption>
 												<Button
@@ -278,9 +280,9 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 														className="codicon codicon-comment-discussion"
 														style={{ marginRight: "6px" }}
 													/>
-													Restore Task Only
+													{t("checkpoint.restoreTask")}
 												</Button>
-												<p>Clear messages after this point</p>
+												<p>{t("checkpoint.restoreTaskDescription")}</p>
 											</RestoreOption>
 										</AdditionalOptions>
 									)}

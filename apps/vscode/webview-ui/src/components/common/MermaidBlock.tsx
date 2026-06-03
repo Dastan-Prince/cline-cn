@@ -2,6 +2,7 @@ import { StringRequest } from "@shared/proto/cline/common"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import mermaid from "mermaid"
 import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import styled from "styled-components"
 import { FileServiceClient } from "@/services/grpc-client"
 import { useDebounceEffect } from "@/utils/useDebounceEffect"
@@ -81,6 +82,7 @@ interface MermaidBlockProps {
 }
 
 export default function MermaidBlock({ code }: MermaidBlockProps) {
+	const { t } = useTranslation()
 	const containerRef = useRef<HTMLDivElement>(null)
 	const [isLoading, setIsLoading] = useState(false)
 
@@ -156,7 +158,7 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
 		<MermaidBlockContainer>
 			{isLoading && <LoadingMessage>Generating mermaid diagram...</LoadingMessage>}
 			<ButtonContainer>
-				<StyledVSCodeButton aria-label="Copy Code" onClick={handleCopyCode} title="Copy Code">
+				<StyledVSCodeButton aria-label={t("common.copyCode")} onClick={handleCopyCode} title={t("common.copyCode")}>
 					<span className="codicon codicon-copy"></span>
 				</StyledVSCodeButton>
 			</ButtonContainer>

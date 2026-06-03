@@ -1,5 +1,6 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { AccountServiceClient } from "@/services/grpc-client"
 
 const COOLDOWN_MS = 5 * 60 * 1000 // 5 minutes
@@ -37,6 +38,7 @@ interface SpendLimitErrorProps {
 }
 
 const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod, limitUsd, spentUsd, resetsAt }) => {
+	const { t } = useTranslation()
 	const displayMessage =
 		limitUsd != null && budgetPeriod ? `$${limitUsd.toFixed(2)} ${budgetPeriod} limit has been reached.` : message
 
@@ -96,7 +98,7 @@ const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod
 				<div className="mb-3">
 					{spentUsd != null && limitUsd != null && (
 						<div className="text-foreground" style={{ fontSize: "var(--vscode-font-size)", lineHeight: 1.3 }}>
-							{periodLabel ? `${periodLabel} usage` : "Usage"}:{" "}
+							{periodLabel ? `${periodLabel} ${t("spendLimit.usage")}` : t("spendLimit.usage")}:{" "}
 							<span className="font-bold">
 								${spentUsd.toFixed(2)} / ${limitUsd.toFixed(2)}
 							</span>
@@ -105,13 +107,13 @@ const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod
 
 					{resetsAtFormatted && (
 						<div className="text-foreground" style={{ fontSize: "var(--vscode-font-size)", lineHeight: 1.3 }}>
-							Resets: <span className="font-bold">{resetsAtFormatted}</span>
+							{t("spendLimit.resets")} <span className="font-bold">{resetsAtFormatted}</span>
 						</div>
 					)}
 
 					<div className="text-(--vscode-descriptionForeground) mt-2 text-xs inline-flex items-center">
 						<span className="codicon codicon-organization mr-1" />
-						Limits set by your organization.
+						{t("spendLimit.orgLimits")}
 					</div>
 				</div>
 			</div>
@@ -124,17 +126,17 @@ const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod
 				{buttonState === "sending" ? (
 					<>
 						<span className="codicon codicon-loading codicon-modifier-spin mr-1.5" />
-						Sending…
+						{t("spendLimit.sending")}
 					</>
 				) : buttonState === "sent" ? (
 					<>
 						<span className="codicon codicon-check mr-1.5" />
-						Request Sent
+						{t("spendLimit.requestSent")}
 					</>
 				) : (
 					<>
 						<span className="codicon codicon-arrow-up mr-1.5" />
-						Request Increase
+						{t("spendLimit.requestIncrease")}
 					</>
 				)}
 			</VSCodeButton>

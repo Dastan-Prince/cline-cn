@@ -43,7 +43,7 @@ export const ApiKeyField = ({
 					marginTop: 3,
 					color: "var(--vscode-descriptionForeground)",
 				}}>
-				{helpText || "This key is stored locally and only used to make API requests from this extension."}
+				{helpText || "此密钥存储在本地，仅用于从此扩展程序发出 API 请求。"}
 				{!localValue && signupUrl && (
 					<VSCodeLink
 						href={signupUrl}

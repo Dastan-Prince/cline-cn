@@ -3,6 +3,7 @@ import { isCompletedFocusChainItem, isFocusChainItem } from "@shared/focus-chain
 import { StringRequest } from "@shared/proto/cline/common"
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react"
 import React, { memo, useCallback, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import ChecklistRenderer from "@/components/common/ChecklistRenderer"
 import LightMarkdown from "@/components/common/LightMarkdown"
 import { FileServiceClient } from "@/services/grpc-client"
@@ -22,22 +23,17 @@ interface FocusChainProps {
 	readonly showPlaceholderWhenEmpty?: boolean
 }
 
-// Static strings to avoid recreating them
-const COMPLETED_MESSAGE = "All tasks have been completed!"
-const TODO_LIST_LABEL = "To-Do list"
-const NEW_STEPS_MESSAGE = "New steps will be generated if you continue the task"
-const CLICK_TO_EDIT_TITLE = "Click to edit to-do list in file"
-
 // Optimized header component with minimal re-renders
 const ToDoListHeader = memo<{
 	todoInfo: TodoInfo
 	isExpanded: boolean
 }>(({ todoInfo, isExpanded }) => {
+	const { t } = useTranslation()
 	const { currentTodo, currentIndex, totalCount, completedCount, progressPercentage } = todoInfo
 	const isCompleted = completedCount === totalCount
 
 	// Pre-compute display text
-	const displayText = isCompleted ? COMPLETED_MESSAGE : currentTodo?.text || TODO_LIST_LABEL
+	const displayText = isCompleted ? t("focusChain.allCompleted") : currentTodo?.text || t("focusChain.todoList")
 
 	return (
 		<div
@@ -159,6 +155,7 @@ const parseCurrentTodoInfo = (text: string): TodoInfo | null => {
 // Main component with aggressive optimization
 export const FocusChain: React.FC<FocusChainProps> = memo(
 	({ currentTaskItemId, lastProgressMessageText, showPlaceholderWhenEmpty }) => {
+		const { t } = useTranslation()
 		const [isExpanded, setIsExpanded] = useState(false)
 
 		// Parse todo info with caching
@@ -218,13 +215,13 @@ export const FocusChain: React.FC<FocusChainProps> = memo(
 					}
 				}}
 				tabIndex={0}
-				title={CLICK_TO_EDIT_TITLE}>
+				title={t("focusChain.clickToEdit")}>
 				<ToDoListHeader isExpanded={isExpanded} todoInfo={todoInfo} />
 				{isExpanded && (
 					<div className="mx-1 pb-2 px-1 relative" onClick={handleEditClick}>
 						<ChecklistRenderer text={lastProgressMessageText!} />
 						{isCompleted && (
-							<div className="mt-2 text-xs font-semibold text-muted-foreground">{NEW_STEPS_MESSAGE}</div>
+							<div className="mt-2 text-xs font-semibold text-muted-foreground">{t("focusChain.newStepsMessage")}</div>
 						)}
 					</div>
 				)}

@@ -1,6 +1,7 @@
 import { geminiModels, ModelInfo } from "@shared/api"
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import styled from "styled-components"
 import { ModelDescriptionMarkdown } from "../ModelDescriptionMarkdown"
 import { formatPrice, hasThinkingBudget, supportsBrowserUse, supportsImages, supportsPromptCache } from "../utils/pricingUtils"
@@ -186,6 +187,7 @@ export const ModelInfoView = ({
 	onProviderSortingChange,
 	showProviderRouting,
 }: ModelInfoViewProps) => {
+	const { t } = useTranslation()
 	const [advancedExpanded, setAdvancedExpanded] = useState(false)
 
 	const isGemini = Object.keys(geminiModels).includes(selectedModelId)
@@ -242,17 +244,17 @@ export const ModelInfoView = ({
 				<AdvancedSection>
 					{/* Capabilities */}
 					<AdvancedRow>
-						<AdvancedLabel>Images</AdvancedLabel>
-						<AdvancedValue>{hasImages ? "Yes" : "No"}</AdvancedValue>
+						<AdvancedLabel>{t("modelInfo.images")}</AdvancedLabel>
+						<AdvancedValue>{hasImages ? t("common.yes") : t("common.no")}</AdvancedValue>
 					</AdvancedRow>
 					<AdvancedRow>
-						<AdvancedLabel>Browser</AdvancedLabel>
-						<AdvancedValue>{hasBrowser ? "Yes" : "No"}</AdvancedValue>
+						<AdvancedLabel>{t("modelInfo.browser")}</AdvancedLabel>
+						<AdvancedValue>{hasBrowser ? t("common.yes") : t("common.no")}</AdvancedValue>
 					</AdvancedRow>
 					{!isGemini && (
 						<AdvancedRow>
-							<AdvancedLabel>Prompt Caching</AdvancedLabel>
-							<AdvancedValue>{hasCaching ? "Yes" : "No"}</AdvancedValue>
+							<AdvancedLabel>{t("modelInfo.promptCaching")}</AdvancedLabel>
+							<AdvancedValue>{hasCaching ? t("common.yes") : t("common.no")}</AdvancedValue>
 						</AdvancedRow>
 					)}
 
@@ -261,13 +263,13 @@ export const ModelInfoView = ({
 						<>
 							{modelInfo.cacheReadsPrice !== undefined && (
 								<AdvancedRow>
-									<AdvancedLabel>Cache Reads</AdvancedLabel>
+									<AdvancedLabel>{t("modelInfo.cacheReads")}</AdvancedLabel>
 									<AdvancedValue>{formatCompactPrice(modelInfo.cacheReadsPrice)}</AdvancedValue>
 								</AdvancedRow>
 							)}
 							{modelInfo.cacheWritesPrice !== undefined && (
 								<AdvancedRow>
-									<AdvancedLabel>Cache Writes</AdvancedLabel>
+									<AdvancedLabel>{t("modelInfo.cacheWrites")}</AdvancedLabel>
 									<AdvancedValue>{formatCompactPrice(modelInfo.cacheWritesPrice)}</AdvancedValue>
 								</AdvancedRow>
 							)}

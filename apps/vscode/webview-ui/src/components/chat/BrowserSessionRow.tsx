@@ -5,6 +5,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import deepEqual from "fast-deep-equal"
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react"
 import React, { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useSize } from "react-use"
 import styled from "styled-components"
 import { BrowserSettingsMenu } from "@/components/browser/BrowserSettingsMenu"
@@ -105,6 +106,7 @@ const headerStyle: CSSProperties = {
 }
 
 const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
+	const { t } = useTranslation()
 	const { messages, isLast, onHeightChange, lastModifiedMessage, onSetQuote } = props
 	const { browserSettings } = useExtensionState()
 	const prevHeightRef = useRef(0)
@@ -440,7 +442,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 							padding: `9px 8px ${consoleLogsExpanded ? 0 : 8}px 8px`,
 						}}>
 						{consoleLogsExpanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
-						<span style={consoleLogsTextStyle}>Console Logs</span>
+						<span style={consoleLogsTextStyle}>{t("browserSession.consoleLogs")}</span>
 					</div>
 					{consoleLogsExpanded && (
 						<CodeBlock source={`${"```"}shell\n${displayState.consoleLogs || "(No new logs)"}\n${"```"}`} />
@@ -506,6 +508,7 @@ const BrowserSessionRowContent = memo(
 		setMaxActionHeight,
 		onSetQuote,
 	}: BrowserSessionRowContentProps) => {
+		const { t } = useTranslation()
 		const handleToggle = useCallback(() => {
 			if (message.say === "api_req_started") {
 				setMaxActionHeight(0)
@@ -517,7 +520,7 @@ const BrowserSessionRowContent = memo(
 			return (
 				<>
 					<div style={headerStyle}>
-						<span style={browserSessionStartedTextStyle}>Browser Session Started</span>
+						<span style={browserSessionStartedTextStyle}>{t("browserSession.sessionStarted")}</span>
 					</div>
 					<div style={codeBlockContainerStyle}>
 						<CodeBlock forceWrap={true} source={`${"```"}shell\n${message.text}\n${"```"}`} />
@@ -580,11 +583,11 @@ const BrowserActionBox = ({ action, coordinate, text }: { action: BrowserAction;
 			case "type":
 				return `Type "${text}"`
 			case "scroll_down":
-				return "Scroll down"
+				return t("browserSession.scrollDown")
 			case "scroll_up":
-				return "Scroll up"
+				return t("browserSession.scrollUp")
 			case "close":
-				return "Close browser"
+				return t("browserSession.closeBrowser")
 			default:
 				return action
 		}
