@@ -35,7 +35,7 @@ const ApiConfigurationSection = ({ renderSectionHeader, initialModelTab }: ApiCo
 									opacity: 1,
 									cursor: "pointer",
 								}}>
-								Plan Mode
+								计划模式
 							</TabButton>
 							<TabButton
 								disabled={currentTab === "act"}
@@ -45,7 +45,7 @@ const ApiConfigurationSection = ({ renderSectionHeader, initialModelTab }: ApiCo
 									opacity: 1,
 									cursor: "pointer",
 								}}>
-								Act Mode
+								执行模式
 							</TabButton>
 						</div>
 
@@ -75,14 +75,14 @@ const ApiConfigurationSection = ({ renderSectionHeader, initialModelTab }: ApiCo
 									}),
 								)
 							} catch (error) {
-								console.error("Failed to update separate models setting:", error)
+								console.error("更新分离模型设置失败:", error)
 							}
 						}}>
-						Use different models for Plan and Act modes
+						为计划模式和执行模式使用不同的模型
 					</VSCodeCheckbox>
 					<p className="text-xs mt-[5px] text-(--vscode-descriptionForeground)">
-						Switching between Plan and Act mode will persist the API and model used in the previous mode. This may be
-						helpful e.g. when using a strong reasoning model to architect a plan for a cheaper coding model to act on.
+						在计划模式和执行模式之间切换时，将保留前一个模式使用的 API 和模型。这在使用强大的推理模型来规划方案，
+						然后使用更经济的编码模型来执行时会很有帮助。
 					</p>
 				</div>
 			</Section>
