@@ -219,6 +219,8 @@
 		"save": "Save",
 		"runCommand": "Run Command",
 		"resumeTask": "Resume Task",
+		"startNewTask": "Start New Task",
+		"startNewTaskWithContext": "Start New Task with Context",
 		"proceedAnyways": "Proceed Anyways",
 		"proceedWhileRunning": "Proceed While Running",
 		"condense": "Condense Conversation",
