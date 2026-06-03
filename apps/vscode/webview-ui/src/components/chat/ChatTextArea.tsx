@@ -1514,7 +1514,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					/>
 					{!inputValue && selectedImages.length === 0 && selectedFiles.length === 0 && (
 						<div className="text-xs absolute bottom-5 left-6.5 right-16 text-(--vscode-input-placeholderForeground)/50 whitespace-nowrap overflow-hidden text-ellipsis pointer-events-none z-1">
-							Type @ for context, / for slash commands & workflows, hold shift to drag in files/images
+							{t("chat.inputHint")}
 						</div>
 					)}
 					{(selectedImages.length > 0 || selectedFiles.length > 0) && (
@@ -1604,7 +1604,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 										onClick={handleModelButtonClick}
 										role="button"
 										tabIndex={0}
-										title="Open API Settings">
+										title={t("chat.selectModel")}>
 										<ModelButtonContent className="text-xs">{modelDisplayName}</ModelButtonContent>
 									</ModelDisplayButton>
 								</ModelButtonWrapper>
@@ -1617,25 +1617,31 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							className="text-xs px-2 flex flex-col gap-1"
 							hidden={shownTooltipMode === null}
 							side="top">
-							{`In ${shownTooltipMode === "act" ? "执行" : "计划"}  mode, Cline will ${shownTooltipMode === "act" ? "complete the task immediately" : "gather information to architect a plan"}`}
+							{t("chat.modeTooltip", {
+								mode: shownTooltipMode === "act" ? t("chat.act") : t("chat.plan"),
+								action: shownTooltipMode === "act" ? t("chat.modeActionAct") : t("chat.modeActionPlan"),
+							})}
 							<p className="text-description/80 text-xs mb-0">
-								Toggle w/ <kbd className="text-muted-foreground mx-1">{togglePlanActKeys}</kbd>
+								{t("chat.toggleWith")} <kbd className="text-muted-foreground mx-1">{togglePlanActKeys}</kbd>
 							</p>
 						</TooltipContent>
 						<TooltipTrigger>
 							<SwitchContainer data-testid="mode-switch" disabled={false} onClick={onModeToggle}>
 								<Slider isAct={mode === "act"} isPlan={mode === "plan"} />
-								{["计划", "执行"].map((m) => (
+								{[
+									{ key: "plan", label: t("chat.plan") },
+									{ key: "act", label: t("chat.act") },
+								].map((m) => (
 									<div
-										aria-checked={mode === m.toLowerCase()}
+										aria-checked={mode === m.key}
 										className={cn(
 											"pt-0.5 pb-px px-2 z-10 text-xs w-1/2 text-center bg-transparent",
-											mode === m.toLowerCase() ? "text-white" : "text-input-foreground",
+											mode === m.key ? "text-white" : "text-input-foreground",
 										)}
 										onMouseLeave={() => setShownTooltipMode(null)}
-										onMouseOver={() => setShownTooltipMode(m.toLowerCase() === "plan" ? "plan" : "act")}
+										onMouseOver={() => setShownTooltipMode(m.key as Mode)}
 										role="switch">
-										{m}
+										{m.label}
 									</div>
 								))}
 							</SwitchContainer>
