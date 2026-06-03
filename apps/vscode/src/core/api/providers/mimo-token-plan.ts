@@ -7,6 +7,7 @@ import { version as extensionVersion } from "../../../../package.json"
 import { ApiHandler, CommonApiHandlerOptions } from ".."
 import { withRetry } from "../retry"
 import { convertToOpenAiMessages } from "../transform/openai-format"
+import { addReasoningContent } from "../transform/r1-format"
 import { ApiStream } from "../transform/stream"
 import { getOpenAIToolParams, ToolCallProcessor } from "../transform/tool-call-processor"
 
@@ -67,9 +68,10 @@ export class MimoTokenPlanHandler implements ApiHandler {
 	async *createMessage(systemPrompt: string, messages: ClineStorageMessage[], tools?: OpenAITool[]): ApiStream {
 		const client = this.ensureClient()
 		const model = this.getModel()
+		const convertedMessages = convertToOpenAiMessages(messages)
 		const openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
 			{ role: "system", content: systemPrompt },
-			...convertToOpenAiMessages(messages),
+			...addReasoningContent(convertedMessages, messages),
 		]
 
 		const stream = await client.chat.completions.create({
@@ -94,6 +96,13 @@ export class MimoTokenPlanHandler implements ApiHandler {
 
 			if (delta?.tool_calls) {
 				yield* toolCallProcessor.processToolCallDeltas(delta.tool_calls)
+			}
+
+			if (delta && "reasoning_content" in delta && delta.reasoning_content) {
+				yield {
+					type: "reasoning",
+					reasoning: (delta.reasoning_content as string | undefined) || "",
+				}
 			}
 
 			if (chunk.usage) {
