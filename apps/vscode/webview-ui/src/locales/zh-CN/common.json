@@ -1,8 +1,86 @@
 {
+	"common": {
+		"copy": "复制",
+		"copied": "已复制",
+		"copyCode": "复制代码",
+		"cancel": "取消",
+		"save": "保存",
+		"delete": "删除",
+		"edit": "编辑",
+		"close": "关闭",
+		"confirm": "确认",
+		"loading": "加载中...",
+		"error": "错误",
+		"success": "成功",
+		"warning": "警告",
+		"info": "信息",
+		"yes": "是",
+		"no": "否",
+		"ok": "确定",
+		"back": "返回",
+		"next": "下一步",
+		"previous": "上一步",
+		"finish": "完成",
+		"retry": "重试",
+		"skip": "跳过",
+		"done": "完成",
+		"search": "搜索",
+		"noResults": "无结果",
+		"showMore": "显示更多",
+		"showLess": "收起",
+		"expand": "展开",
+		"collapse": "折叠"
+	},
+	"codeBlock": {
+		"collapse": "折叠代码块",
+		"expand": "展开代码块",
+		"userEdits": "用户编辑",
+		"consoleLogs": "控制台日志"
+	},
+	"searchResults": {
+		"collapse": "折叠搜索结果",
+		"expand": "展开搜索结果"
+	},
+	"diffEdit": {
+		"openFile": "在编辑器中打开文件"
+	},
+	"newTask": {
+		"task": "任务"
+	},
+	"contextWindow": {
+		"noData": "无 token 使用数据",
+		"autoCondenseThreshold": "自动压缩阈值",
+		"clickToSetThreshold": "点击上下文窗口栏设置新阈值。",
+		"thresholdDescription": "当上下文窗口使用量超过此阈值时，任务将被自动压缩。",
+		"contextWindow": "上下文窗口",
+		"used": "已使用：",
+		"total": "总计：",
+		"remaining": "剩余：",
+		"tokenUsage": "Token 使用量",
+		"promptTokens": "提示 Token",
+		"completionTokens": "补全 Token",
+		"cacheWrites": "缓存写入",
+		"cacheReads": "缓存读取"
+	},
+	"focusChain": {
+		"allCompleted": "所有任务已完成！",
+		"todoList": "待办清单",
+		"newStepsMessage": "如果继续任务，将生成新步骤",
+		"clickToEdit": "点击在文件中编辑待办清单"
+	},
 	"homeHeader": {
 		"defaultHeading": "我可以帮您做点什么？",
 		"lazyTeammateHeading": "我大概是来帮忙的吧",
 		"takeATour": "开始导览"
+	},
+	"navbar": {
+		"chat": "聊天",
+		"newTask": "新任务",
+		"mcp": "MCP",
+		"mcpServers": "MCP 服务器",
+		"history": "历史记录",
+		"account": "账户",
+		"settings": "设置"
 	},
 	"welcome": {
 		"title": "您好，我是 Cline",
@@ -46,6 +124,14 @@
 		"toggleWith": "切换快捷键：",
 		"plan": "计划",
 		"act": "执行"
+	},
+	"taskHeader": {
+		"compactTask": "压缩任务",
+		"copyText": "复制文本",
+		"startNewTask": "开始新任务",
+		"openConversationHistory": "打开对话历史文件",
+		"focusChain": "待办事项",
+		"tokenUsage": "无 token 使用数据"
 	},
 	"chatRow": {
 		"error": "错误",
@@ -165,6 +251,115 @@
 			"restoreBoth": "恢复文件和任务",
 			"restoreBothDescription": "恢复项目文件并删除此点之后的所有消息"
 		}
+	},
+	"errorBlock": {
+		"apiRequestLoading": "API 请求中...",
+		"apiRequestCancelled": "API 请求已取消",
+		"apiRequestFailed": "API 请求失败",
+		"apiRequest": "API 请求",
+		"creditLimitReached": "已达信用额度上限",
+		"spendLimitReached": "已达消费限额"
+	},
+	"errorRow": {
+		"loggedOut": "哎呀，看起来您已登出 - 点击下方按钮重新登录",
+		"signInToCline": "登录 Cline",
+		"clickRetry": "（点击下方「重试」）",
+		"powershellIssues": "看来您遇到了 Windows PowerShell 问题，请参阅此",
+		"troubleshootingGuide": "故障排除指南",
+		"diffError": "模型使用的搜索模式与文件中的内容不匹配。正在重试...",
+		"clineignoreError": "Cline 尝试访问 {{text}}，但该文件被 .clineignore 文件阻止了。"
+	},
+	"hookMessage": {
+		"hook": "钩子",
+		"running": "运行中",
+		"failed": "失败",
+		"aborted": "已中止",
+		"completed": "已完成",
+		"unknown": "未知",
+		"abort": "中止",
+		"timeoutError": "执行时间超过 30 秒。请检查是否存在无限循环，或为网络请求添加超时设置。",
+		"validationError": "钩子返回了无效的 JSON。请查看下方的错误详情了解更多信息。"
+	},
+	"planCompletion": {
+		"planCreated": "计划已创建"
+	},
+	"subagent": {
+		"statusUnavailable": "子代理状态更新不可用。",
+		"wantsToUseSingular": "Cline 想要使用子代理：",
+		"wantsToUsePlural": "Cline 想要使用子代理：",
+		"showOutput": "显示输出",
+		"hideOutput": "隐藏输出"
+	},
+	"creditLimit": {
+		"currentBalance": "当前余额：",
+		"totalSpent": "总消费：",
+		"totalPromotions": "总优惠：",
+		"buyCredits": "购买额度",
+		"retryRequest": "重试请求"
+	},
+	"spendLimit": {
+		"usage": "用量",
+		"resets": "重置时间：",
+		"orgLimits": "由您的组织设置的限额。",
+		"sending": "发送中…",
+		"requestSent": "请求已发送",
+		"requestIncrease": "请求提高限额"
+	},
+	"contextMenu": {
+		"problems": "问题",
+		"terminal": "终端",
+		"pasteUrl": "粘贴 URL 以获取内容",
+		"noResults": "未找到结果",
+		"gitCommits": "Git 提交"
+	},
+	"slashCommand": {
+		"defaultCommands": "默认命令",
+		"workflowCommands": "工作流命令",
+		"mcpPrompts": "MCP 提示",
+		"noMatchingCommands": "未找到匹配的命令"
+	},
+	"featureTip": {
+		"tip": "提示：",
+		"doubleCheck": "在设置中启用「双重检查完成」，让 Cline 在完成任务前验证其工作。",
+		"clinerules": "在项目根目录添加 .clinerules 文件，为 Cline 提供项目特定的指令。",
+		"planMode": "切换到计划模式，在 Cline 采取行动之前讨论和规划方案。",
+		"contextMention": "在聊天输入中使用 @ 添加文件、文件夹或 URL 作为任务的上下文。",
+		"mcpServers": "设置 MCP 服务器，让 Cline 能够访问外部工具和 API。",
+		"checkpoints": "Cline 在更改后会创建检查点 - 您随时可以恢复到之前的状态。",
+		"compact": "使用 /compact 压缩长对话，释放上下文窗口空间。",
+		"autoApprove": "为只读工具（如文件读取）启用自动批准，加快探索速度。",
+		"quoteButton": "使用引用按钮从 Cline 的回复中选择文本，并在您的回复中引用。",
+		"dragDrop": "您可以将图片拖放到聊天中，与 Cline 分享截图。",
+		"browseWeb": "Cline 可以浏览网页 - 请它在浏览器中测试您的本地开发服务器。",
+		"reportBug": "使用 /reportbug 快速提交包含诊断信息的 GitHub issue。",
+		"disableTips": "您可以在 设置 → 功能 → 功能提示 中禁用这些提示。"
+	},
+	"unsafeImage": {
+		"blocked": "外部图片已被阻止，等待授权",
+		"source": "来源：",
+		"alt": "替代文本：",
+		"loadImage": "加载图片"
+	},
+	"telemetry": {
+		"helpImprove": "帮助改进 Cline",
+		"experimentalFeatures": "（并访问实验性功能）",
+		"description": "Cline 收集错误和使用数据以帮助我们修复错误和改进扩展。绝不会发送代码、提示词或个人信息。",
+		"turnOff": "您可以在",
+		"settings": "设置",
+		"closeBanner": "关闭横幅并启用遥测"
+	},
+	"alertDialog": {
+		"unsavedChanges": "未保存的更改",
+		"unsavedDescription": "您有未保存的更改。确定要丢弃它们吗？",
+		"discardChanges": "丢弃更改",
+		"saveContinue": "保存并继续"
+	},
+	"browserSession": {
+		"consoleLogs": "控制台日志",
+		"sessionStarted": "浏览器会话已启动",
+		"scrollDown": "向下滚动",
+		"scrollUp": "向上滚动",
+		"closeBrowser": "关闭浏览器"
 	},
 	"settings": {
 		"title": "设置",
@@ -631,6 +826,11 @@
 	},
 	"mcp": {
 		"title": "MCP 服务器",
+		"servers": "MCP 服务器",
+		"manageServers": "管理 MCP 服务器",
+		"showServers": "显示 MCP 服务器",
+		"hideServers": "隐藏 MCP 服务器",
+		"goToSettings": "前往 MCP 服务器设置",
 		"tabs": {
 			"marketplace": "市场",
 			"remoteServers": "远程服务器",
@@ -852,6 +1052,9 @@
 		}
 	},
 	"banner": {
+		"dismiss": "关闭横幅",
+		"previous": "上一个横幅",
+		"next": "下一个横幅",
 		"infoBanner": {
 			"title": "💡 在右侧边栏使用 Cline",
 			"description": "与 Cline 聊天时保持文件可见。将 Cline 图标拖到右侧边栏面板以获得更好的体验。",
@@ -979,7 +1182,10 @@
 			"globalWorkflows": "全局工作流",
 			"workspaceWorkflows": "工作区工作流",
 			"globalHooks": "全局钩子",
-			"workspaceHooks": "工作区钩子"
+			"workspaceHooks": "工作区钩子",
+			"enterpriseSkills": "企业技能",
+			"globalSkills": "全局技能",
+			"workspaceSkills": "工作区技能"
 		},
 		"noRulesFound": "未找到规则",
 		"noWorkflowsFound": "未找到工作流",

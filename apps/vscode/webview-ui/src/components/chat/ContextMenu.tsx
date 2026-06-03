@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { cleanPathPrefix } from "@/components/common/CodeAccordian"
 import ScreenReaderAnnounce from "@/components/common/ScreenReaderAnnounce"
 import { useMenuAnnouncement } from "@/hooks/useMenuAnnouncement"
@@ -27,6 +28,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 	dynamicSearchResults = [],
 	isLoading = false,
 }) => {
+	const { t } = useTranslation()
 	const menuRef = useRef<HTMLDivElement>(null)
 
 	// State to show delayed loading indicator
@@ -95,10 +97,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 
 	// Shared label definitions for simple option types
 	const SIMPLE_OPTION_LABELS: Partial<Record<ContextMenuOptionType, string>> = {
-		[ContextMenuOptionType.Problems]: "Problems",
-		[ContextMenuOptionType.Terminal]: "Terminal",
-		[ContextMenuOptionType.URL]: "Paste URL to fetch contents",
-		[ContextMenuOptionType.NoResults]: "No results found",
+		[ContextMenuOptionType.Problems]: t("contextMenu.problems"),
+		[ContextMenuOptionType.Terminal]: t("contextMenu.terminal"),
+		[ContextMenuOptionType.URL]: t("contextMenu.pasteUrl"),
+		[ContextMenuOptionType.NoResults]: t("contextMenu.noResults"),
 	}
 
 	// Get accessible label for an option (used for screen readers and aria-label)
@@ -114,7 +116,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 				if (option.value) {
 					return `${option.label}${option.description ? `, ${option.description}` : ""}`
 				}
-				return "Git Commits"
+				return t("contextMenu.gitCommits")
 			case ContextMenuOptionType.File:
 			case ContextMenuOptionType.Folder:
 				if (option.value) {
@@ -156,7 +158,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 						</div>
 					)
 				}
-				return <span>Git Commits</span>
+				return <span>{t("contextMenu.gitCommits")}</span>
 			case ContextMenuOptionType.File:
 			case ContextMenuOptionType.Folder:
 				if (option.value) {
