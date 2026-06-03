@@ -1,6 +1,7 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { AlertTriangle } from "lucide-react"
 import React, { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 import { OPENROUTER_MODEL_PICKER_Z_INDEX } from "../settings/OpenRouterModelPicker"
 
 interface AlertDialogProps {
@@ -79,10 +80,10 @@ export function UnsavedChangesDialog({
 	onConfirm,
 	onCancel,
 	onSave,
-	title = "Unsaved Changes",
-	description = "You have unsaved changes. Are you sure you want to discard them?",
-	confirmText = "Discard Changes",
-	saveText = "Save & Continue",
+	title,
+	description,
+	confirmText,
+	saveText,
 	showSaveOption = false,
 }: {
 	open: boolean
@@ -96,21 +97,22 @@ export function UnsavedChangesDialog({
 	saveText?: string
 	showSaveOption?: boolean
 }) {
+	const { t } = useTranslation()
 	return (
 		<AlertDialog onOpenChange={onOpenChange} open={open}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
 						<AlertTriangle className="w-5 h-5 text-(--vscode-errorForeground)" />
-						{title}
+						{title || t("alertDialog.unsavedChanges")}
 					</AlertDialogTitle>
-					<AlertDialogDescription>{description}</AlertDialogDescription>
+					<AlertDialogDescription>{description || t("alertDialog.unsavedDescription")}</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-					{showSaveOption && onSave && <AlertDialogAction onClick={onSave}>{saveText}</AlertDialogAction>}
+					<AlertDialogCancel onClick={onCancel}>{t("common.cancel")}</AlertDialogCancel>
+					{showSaveOption && onSave && <AlertDialogAction onClick={onSave}>{saveText || t("alertDialog.saveContinue")}</AlertDialogAction>}
 					<AlertDialogAction appearance={showSaveOption ? "secondary" : "primary"} onClick={onConfirm}>
-						{confirmText}
+						{confirmText || t("alertDialog.discardChanges")}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

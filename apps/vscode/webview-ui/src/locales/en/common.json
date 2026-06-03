@@ -1,8 +1,86 @@
 {
+	"common": {
+		"copy": "Copy",
+		"copied": "Copied",
+		"copyCode": "Copy Code",
+		"cancel": "Cancel",
+		"save": "Save",
+		"delete": "Delete",
+		"edit": "Edit",
+		"close": "Close",
+		"confirm": "Confirm",
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"warning": "Warning",
+		"info": "Info",
+		"yes": "Yes",
+		"no": "No",
+		"ok": "OK",
+		"back": "Back",
+		"next": "Next",
+		"previous": "Previous",
+		"finish": "Finish",
+		"retry": "Retry",
+		"skip": "Skip",
+		"done": "Done",
+		"search": "Search",
+		"noResults": "No results",
+		"showMore": "Show more",
+		"showLess": "Show less",
+		"expand": "Expand",
+		"collapse": "Collapse"
+	},
+	"codeBlock": {
+		"collapse": "Collapse code block",
+		"expand": "Expand code block",
+		"userEdits": "User Edits",
+		"consoleLogs": "Console Logs"
+	},
+	"searchResults": {
+		"collapse": "Collapse search results",
+		"expand": "Expand search results"
+	},
+	"diffEdit": {
+		"openFile": "Open file in editor"
+	},
+	"newTask": {
+		"task": "Task"
+	},
+	"contextWindow": {
+		"noData": "No token usage data available",
+		"autoCondenseThreshold": "Auto Condense Threshold",
+		"clickToSetThreshold": "Click on the context window bar to set a new threshold.",
+		"thresholdDescription": "When the context window usage exceeds this threshold, the task will be automatically condensed.",
+		"contextWindow": "Context Window",
+		"used": "Used:",
+		"total": "Total:",
+		"remaining": "Remaining:",
+		"tokenUsage": "Token Usage",
+		"promptTokens": "Prompt Tokens",
+		"completionTokens": "Completion Tokens",
+		"cacheWrites": "Cache Writes",
+		"cacheReads": "Cache Reads"
+	},
+	"focusChain": {
+		"allCompleted": "All tasks have been completed!",
+		"todoList": "To-Do list",
+		"newStepsMessage": "New steps will be generated if you continue the task",
+		"clickToEdit": "Click to edit to-do list in file"
+	},
 	"homeHeader": {
 		"defaultHeading": "What can I do for you?",
 		"lazyTeammateHeading": "I guess I'm here to help",
 		"takeATour": "Take a Tour"
+	},
+	"navbar": {
+		"chat": "Chat",
+		"newTask": "New Task",
+		"mcp": "MCP",
+		"mcpServers": "MCP Servers",
+		"history": "History",
+		"account": "Account",
+		"settings": "Settings"
 	},
 	"welcome": {
 		"title": "Hi, I'm Cline",
@@ -46,6 +124,14 @@
 		"toggleWith": "Toggle w/",
 		"plan": "Plan",
 		"act": "Act"
+	},
+	"taskHeader": {
+		"compactTask": "Compact Task",
+		"copyText": "Copy Text",
+		"startNewTask": "Start a New Task",
+		"openConversationHistory": "Open Conversation History File",
+		"focusChain": "TODOs",
+		"tokenUsage": "No token usage data available"
 	},
 	"chatRow": {
 		"error": "Error",
@@ -165,6 +251,115 @@
 			"restoreBoth": "Restore Files & Task",
 			"restoreBothDescription": "Restores your project's files and deletes all messages after this point"
 		}
+	},
+	"errorBlock": {
+		"apiRequestLoading": "API Request...",
+		"apiRequestCancelled": "API Request Cancelled",
+		"apiRequestFailed": "API Request Failed",
+		"apiRequest": "API Request",
+		"creditLimitReached": "Credit Limit Reached",
+		"spendLimitReached": "Spend Limit Reached"
+	},
+	"errorRow": {
+		"loggedOut": "Whoops looks like you're logged out – click below to sign in",
+		"signInToCline": "Sign in to Cline",
+		"clickRetry": "(Click \"Retry\" below)",
+		"powershellIssues": "It seems like you're having Windows PowerShell issues, please see this",
+		"troubleshootingGuide": "troubleshooting guide",
+		"diffError": "The model used search patterns that don't match anything in the file. Retrying...",
+		"clineignoreError": "Cline tried to access {{text}} which is blocked by the .clineignore file."
+	},
+	"hookMessage": {
+		"hook": "Hook",
+		"running": "Running",
+		"failed": "Failed",
+		"aborted": "Aborted",
+		"completed": "Completed",
+		"unknown": "Unknown",
+		"abort": "Abort",
+		"timeoutError": "Took longer than 30 seconds. Check for infinite loops or add timeouts to network requests.",
+		"validationError": "Hook returned invalid JSON. See error details below for more information."
+	},
+	"planCompletion": {
+		"planCreated": "Plan Created"
+	},
+	"subagent": {
+		"statusUnavailable": "Subagent status update unavailable.",
+		"wantsToUseSingular": "Cline wants to use a subagent:",
+		"wantsToUsePlural": "Cline wants to use subagents:",
+		"showOutput": "Show output",
+		"hideOutput": "Hide output"
+	},
+	"creditLimit": {
+		"currentBalance": "Current Balance:",
+		"totalSpent": "Total Spent:",
+		"totalPromotions": "Total Promotions:",
+		"buyCredits": "Buy Credits",
+		"retryRequest": "Retry Request"
+	},
+	"spendLimit": {
+		"usage": "usage",
+		"resets": "Resets:",
+		"orgLimits": "Limits set by your organization.",
+		"sending": "Sending…",
+		"requestSent": "Request Sent",
+		"requestIncrease": "Request Increase"
+	},
+	"contextMenu": {
+		"problems": "Problems",
+		"terminal": "Terminal",
+		"pasteUrl": "Paste URL to fetch contents",
+		"noResults": "No results found",
+		"gitCommits": "Git Commits"
+	},
+	"slashCommand": {
+		"defaultCommands": "Default Commands",
+		"workflowCommands": "Workflow Commands",
+		"mcpPrompts": "MCP Prompts",
+		"noMatchingCommands": "No matching commands found"
+	},
+	"featureTip": {
+		"tip": "Tip:",
+		"doubleCheck": "Enable \"Double-Check Completion\" in settings to have Cline verify its work before finishing a task.",
+		"clinerules": "Add a .clinerules file to your project root to give Cline project-specific instructions.",
+		"planMode": "Switch to Plan Mode to discuss and plan an approach before Cline takes action.",
+		"contextMention": "Use @ in the chat input to add files, folders, or URLs as context for your task.",
+		"mcpServers": "Set up MCP Servers to give Cline access to external tools and APIs.",
+		"checkpoints": "Cline creates checkpoints after changes — you can always restore to a previous state.",
+		"compact": "Use /compact to condense long conversations and free up context window space.",
+		"autoApprove": "Enable auto-approve for read-only tools like file reads to speed up exploration.",
+		"quoteButton": "Use the quote button to select text from Cline's response and reference it in your reply.",
+		"dragDrop": "You can drag and drop images into the chat to share screenshots with Cline.",
+		"browseWeb": "Cline can browse websites — ask it to test your local dev server in the browser.",
+		"reportBug": "Use /reportbug to quickly file a GitHub issue with diagnostic context included.",
+		"disableTips": "You can disable these tips in Settings → Features → \"Feature Tips\"."
+	},
+	"unsafeImage": {
+		"blocked": "External image blocked pending consent",
+		"source": "Source:",
+		"alt": "Alt:",
+		"loadImage": "Load image"
+	},
+	"telemetry": {
+		"helpImprove": "Help Improve Cline",
+		"experimentalFeatures": "(and access experimental features)",
+		"description": "Cline collects error and usage data to help us fix bugs and improve the extension. No code, prompts, or personal information is ever sent.",
+		"turnOff": "You can turn this setting off in",
+		"settings": "settings",
+		"closeBanner": "Close banner and enable telemetry"
+	},
+	"alertDialog": {
+		"unsavedChanges": "Unsaved Changes",
+		"unsavedDescription": "You have unsaved changes. Are you sure you want to discard them?",
+		"discardChanges": "Discard Changes",
+		"saveContinue": "Save & Continue"
+	},
+	"browserSession": {
+		"consoleLogs": "Console Logs",
+		"sessionStarted": "Browser Session Started",
+		"scrollDown": "Scroll down",
+		"scrollUp": "Scroll up",
+		"closeBrowser": "Close browser"
 	},
 	"settings": {
 		"title": "Settings",
@@ -631,6 +826,11 @@
 	},
 	"mcp": {
 		"title": "MCP Servers",
+		"servers": "MCP Servers",
+		"manageServers": "Manage MCP Servers",
+		"showServers": "Show MCP Servers",
+		"hideServers": "Hide MCP Servers",
+		"goToSettings": "Go to MCP server settings",
 		"tabs": {
 			"marketplace": "Marketplace",
 			"remoteServers": "Remote Servers",
@@ -852,6 +1052,9 @@
 		}
 	},
 	"banner": {
+		"dismiss": "Dismiss banner",
+		"previous": "Previous banner",
+		"next": "Next banner",
 		"infoBanner": {
 			"title": "💡 Cline in the Right Sidebar",
 			"description": "Keep your files visible when chatting with Cline. Drag the Cline icon to the right sidebar panel for a better experience.",
@@ -979,7 +1182,10 @@
 			"globalWorkflows": "Global Workflows",
 			"workspaceWorkflows": "Workspace Workflows",
 			"globalHooks": "Global Hooks",
-			"workspaceHooks": "Workspace Hooks"
+			"workspaceHooks": "Workspace Hooks",
+			"enterpriseSkills": "Enterprise Skills",
+			"globalSkills": "Global Skills",
+			"workspaceSkills": "Workspace Skills"
 		},
 		"noRulesFound": "No rules found",
 		"noWorkflowsFound": "No workflows found",

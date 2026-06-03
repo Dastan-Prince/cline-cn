@@ -1,4 +1,5 @@
 import { memo } from "react"
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { MarkdownRow } from "./MarkdownRow"
 import { Int64Request } from "@shared/proto/cline/common"
@@ -36,6 +37,7 @@ export const CompletionOutputRow = memo(
 		messageTs,
 		handleQuoteClick,
 	}: CompletionOutputRowProps) => {
+		const { t } = useTranslation()
 		return (
 			<div>
 				<div className="rounded-sm border border-success/20 overflow-visible bg-success/10 p-2 pt-3">
@@ -43,7 +45,7 @@ export const CompletionOutputRow = memo(
 					<div className={cn(headClassNames, "justify-between px-1")}>
 						<div className="flex gap-2 items-center">
 							<CheckIcon className="size-3 text-success" />
-							<span className="text-success font-bold">Task Completed</span>
+							<span className="text-success font-bold">{t("chatRow.taskCompleted")}</span>
 						</div>
 						<CopyButton className="text-success" textToCopy={text} />
 					</div>
@@ -88,6 +90,7 @@ const CompletionOutputActionRow = memo(
 		setExplainChangesDisabled: (value: boolean) => void
 		messageTs: number
 	}) => {
+		const { t } = useTranslation()
 		return (
 			<div style={{ paddingTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
 				<SuccessButton
@@ -105,7 +108,7 @@ const CompletionOutputActionRow = memo(
 						width: "100%",
 					}}>
 					<i className="codicon codicon-new-file" style={{ marginRight: 6 }} />
-					View Changes
+					{t("chatRow.viewChanges")}
 				</SuccessButton>
 
 				{PLATFORM_CONFIG.type === PlatformType.VSCODE && (
@@ -126,7 +129,7 @@ const CompletionOutputActionRow = memo(
 							width: "100%",
 						}}>
 						<i className="codicon codicon-comment-discussion" style={{ marginRight: 6 }} />
-						{explainChangesDisabled ? "Explaining..." : "Explain Changes"}
+						{explainChangesDisabled ? t("chatRow.explaining") : t("chatRow.explainChanges")}
 					</SuccessButton>
 				)}
 			</div>
