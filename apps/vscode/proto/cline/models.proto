@@ -201,6 +201,9 @@ message ModelsApiSecrets {
   optional string aihubmix_api_key = 39;
   optional string xiaomi_api_key = 40;
   optional string mimo_token_plan_api_key = 41;
+  optional string xiaomi_athrapi_key = 42;
+  optional string mimo_tp_athrapi_key = 43;
+  optional string zhipu_athrapi_key = 44;
 }
 
 // API configuration options (non-secret settings)
@@ -465,6 +468,9 @@ enum ApiProvider {
   WANDB = 41;
   XIAOMI = 42;
   MIMO_TOKEN_PLAN = 43;
+  XIAOMI_ATHRAPI = 44;
+  MIMO_TP_ATHRAPI = 45;
+  ZHIPU_ATHRAPI = 46;
 }
 
 enum ApiFormat {
@@ -606,6 +612,9 @@ message ModelsApiConfiguration {
   optional string wandb_api_key = 87;
   optional string xiaomi_api_key = 88;
   optional string mimo_token_plan_api_key = 89;
+  optional string xiaomi_athrapi_key = 90;
+  optional string mimo_tp_athrapi_key = 91;
+  optional string zhipu_athrapi_key = 92;
 
   // Plan mode configurations
   optional ApiProvider plan_mode_api_provider = 100;

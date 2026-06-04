@@ -251,7 +251,8 @@
 			"restoreTask": "仅恢复任务",
 			"restoreTaskDescription": "删除此点之后的消息（不影响工作区文件）",
 			"restoreBoth": "恢复文件和任务",
-			"restoreBothDescription": "恢复项目文件并删除此点之后的所有消息"
+			"restoreBothDescription": "恢复项目文件并删除此点之后的所有消息",
+			"moreOptions": "更多选项"
 		}
 	},
 	"errorBlock": {

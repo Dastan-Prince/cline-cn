@@ -352,6 +352,9 @@ const SECRETS_KEYS = [
 	"wandbApiKey",
 	"xiaomiApiKey",
 	"mimoTokenPlanApiKey",
+	"xiaomiAthrapiKey",
+	"mimoTpAthrapiKey",
+	"zhipuAthrapiKey",
 ] as const
 
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker

@@ -185,7 +185,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 					className={cn("text-[9px] text-description shrink-0", {
 						"text-link": isCheckpointCheckedOut,
 					})}>
-					{isCheckpointCheckedOut ? t("checkpoint.labelRestored") : t("checkpoint.label")}
+					{isCheckpointCheckedOut ? t("chatRow.checkpoint.labelRestored") : t("chatRow.checkpoint.label")}
 				</span>
 				<DottedLine $isCheckedOut={isCheckpointCheckedOut} />
 				<ButtonGroup>
@@ -207,7 +207,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 							}
 						}}
 						style={{ cursor: compareDisabled ? "wait" : "pointer" }}>
-						{t("checkpoint.compare")}
+						{t("chatRow.checkpoint.compare")}
 					</CustomButton>
 					<DottedLine $isCheckedOut={isCheckpointCheckedOut} small />
 					<div ref={refs.setReference} style={{ position: "relative", marginTop: -2 }}>
@@ -215,7 +215,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 							$isCheckedOut={isCheckpointCheckedOut}
 							isActive={showRestoreConfirm}
 							onClick={() => setShowRestoreConfirm(true)}>
-							{t("checkpoint.restore")}
+							{t("chatRow.checkpoint.restore")}
 						</CustomButton>
 						{showRestoreConfirm &&
 							createPortal(
@@ -233,13 +233,13 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 												cursor: restoreBothDisabled ? "wait" : "pointer",
 											}}>
 											<i className="codicon codicon-debug-restart" style={{ marginRight: "6px" }} />
-											{t("checkpoint.restoreBoth")}
+											{t("chatRow.checkpoint.restoreBoth")}
 										</Button>
-										<p>{t("checkpoint.restoreBothDescription")}</p>
+										<p>{t("chatRow.checkpoint.restoreBothDescription")}</p>
 									</PrimaryRestoreOption>
 
 									<MoreOptionsToggle onClick={() => setShowMoreOptions(!showMoreOptions)}>
-										{t("checkpoint.moreOptions")}
+										{t("chatRow.checkpoint.moreOptions")}
 										<i
 											className={`codicon codicon-chevron-${showMoreOptions ? "up" : "down"}`}
 											style={{ marginLeft: "4px", fontSize: "10px" }}
@@ -264,9 +264,9 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 														className="codicon codicon-file-symlink-directory"
 														style={{ marginRight: "6px" }}
 													/>
-													{t("checkpoint.restoreFiles")}
+													{t("chatRow.checkpoint.restoreFiles")}
 												</Button>
-												<p>{t("checkpoint.restoreFilesDescription")}</p>
+												<p>{t("chatRow.checkpoint.restoreFilesDescription")}</p>
 											</RestoreOption>
 											<RestoreOption>
 												<Button
@@ -280,9 +280,9 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 														className="codicon codicon-comment-discussion"
 														style={{ marginRight: "6px" }}
 													/>
-													{t("checkpoint.restoreTask")}
+													{t("chatRow.checkpoint.restoreTask")}
 												</Button>
-												<p>{t("checkpoint.restoreTaskDescription")}</p>
+												<p>{t("chatRow.checkpoint.restoreTaskDescription")}</p>
 											</RestoreOption>
 										</AdditionalOptions>
 									)}
