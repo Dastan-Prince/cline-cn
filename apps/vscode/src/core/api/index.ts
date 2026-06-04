@@ -47,6 +47,9 @@ import { XAIHandler } from "./providers/xai"
 import { ZAiHandler } from "./providers/zai"
 import { XiaomiHandler } from "./providers/xiaomi"
 import { MimoTokenPlanHandler } from "./providers/mimo-token-plan"
+import { XiaomiAthrapiHandler } from "./providers/xiaomi-athrapi"
+import { MimoTpAthrapiHandler } from "./providers/mimo-tp-athrapi"
+import { ZhipuAthrapiHandler } from "./providers/zhipu-athrapi"
 import { ApiStream, ApiStreamUsageChunk } from "./transform/stream"
 
 export type CommonApiHandlerOptions = {
@@ -475,6 +478,30 @@ function createHandlerForProvider(
 				onRetryAttempt: options.onRetryAttempt,
 				mimoTokenPlanApiKey: options.mimoTokenPlanApiKey,
 				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+			})
+		case "xiaomi-athrapi":
+			return new XiaomiAthrapiHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				xiaomiAthrapiKey: options.xiaomiAthrapiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+				thinkingBudgetTokens:
+					mode === "plan" ? options.planModeThinkingBudgetTokens : options.actModeThinkingBudgetTokens,
+			})
+		case "mimo-tp-athrapi":
+			return new MimoTpAthrapiHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				mimoTpAthrapiKey: options.mimoTpAthrapiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+				thinkingBudgetTokens:
+					mode === "plan" ? options.planModeThinkingBudgetTokens : options.actModeThinkingBudgetTokens,
+			})
+		case "zhipu-athrapi":
+			return new ZhipuAthrapiHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				zhipuAthrapiKey: options.zhipuAthrapiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+				thinkingBudgetTokens:
+					mode === "plan" ? options.planModeThinkingBudgetTokens : options.actModeThinkingBudgetTokens,
 			})
 		default:
 			return new AnthropicHandler({

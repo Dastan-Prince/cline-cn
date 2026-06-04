@@ -251,7 +251,8 @@
 			"restoreTask": "Restore Task Only",
 			"restoreTaskDescription": "Deletes messages after this point (does not affect workspace files)",
 			"restoreBoth": "Restore Files & Task",
-			"restoreBothDescription": "Restores your project's files and deletes all messages after this point"
+			"restoreBothDescription": "Restores your project's files and deletes all messages after this point",
+			"moreOptions": "More Options"
 		}
 	},
 	"errorBlock": {

@@ -34,7 +34,8 @@ The commit message should:
 1. Has a short title (50-72 characters)
 2. The commit message should adhere to the conventional commit format
 3. Describe what was changed and why
-4. Be clear and informative`,
+4. Be clear and informative
+5. Generate the commit message in {{LANGUAGE}}`,
 }
 
 export async function generateCommitMsg(controller: Controller, scm?: vscode.SourceControl) {
@@ -170,7 +171,9 @@ async function performCommitMsgGeneration(controller: Controller, gitDiff: strin
 	try {
 		vscode.commands.executeCommand("setContext", "cline.isGeneratingCommit", true)
 
-		const prompts = [PROMPT.instruction]
+		const preferredLanguage = controller.stateManager.getGlobalSettingsKey("preferredLanguage") || "English"
+		const instruction = PROMPT.instruction.replace("{{LANGUAGE}}", preferredLanguage)
+		const prompts = [instruction]
 
 		const workspaceManager = await controller.ensureWorkspaceManager()
 		if (workspaceManager) {

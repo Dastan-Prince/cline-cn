@@ -21,6 +21,18 @@
 			"label": "OpenAI Compatible"
 		},
 		{
+			"value": "xiaomi-athrapi",
+			"label": "Xiaomi Mimo AthrAPI"
+		},
+		{
+			"value": "mimo-tp-athrapi",
+			"label": "Mimo TP AthrAPI"
+		},
+		{
+			"value": "zhipu-athrapi",
+			"label": "Zhipu AthrAPI"
+		},
+		{
 			"value": "cline",
 			"label": "Cline"
 		},

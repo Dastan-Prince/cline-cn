@@ -73,6 +73,12 @@ import {
 	xaiModels,
 	xiaomiDefaultModelId,
 	xiaomiModels,
+	xiaomiAthrapiDefaultModelId,
+	xiaomiAthrapiModels,
+	mimoTpAthrapiDefaultModelId,
+	mimoTpAthrapiModels,
+	zhipuAthrapiDefaultModelId,
+	zhipuAthrapiModels,
 } from "@shared/api"
 import { Mode } from "@shared/storage/types"
 import * as reasoningSupport from "@shared/utils/reasoning-support"
@@ -148,6 +154,12 @@ export function getModelsForProvider(
 			return fireworksModels
 		case "minimax":
 			return minimaxModels
+		case "xiaomi-athrapi":
+			return xiaomiAthrapiModels
+		case "mimo-tp-athrapi":
+			return mimoTpAthrapiModels
+		case "zhipu-athrapi":
+			return zhipuAthrapiModels
 		case "huggingface":
 			return huggingFaceModels
 		case "nousResearch":
@@ -503,6 +515,12 @@ export function normalizeApiConfiguration(
 			}
 		case "minimax":
 			return getProviderData(minimaxModels, minimaxDefaultModelId)
+		case "xiaomi-athrapi":
+			return getProviderData(xiaomiAthrapiModels, xiaomiAthrapiDefaultModelId)
+		case "mimo-tp-athrapi":
+			return getProviderData(mimoTpAthrapiModels, mimoTpAthrapiDefaultModelId)
+		case "zhipu-athrapi":
+			return getProviderData(zhipuAthrapiModels, zhipuAthrapiDefaultModelId)
 		case "nousResearch":
 			const nousResearchModelId =
 				currentMode === "plan"
@@ -853,6 +871,9 @@ export async function syncModeConfigurations(
 		case "xiaomi":
 		case "mimo-tp":
 		case "minimax":
+		case "xiaomi-athrapi":
+		case "mimo-tp-athrapi":
+		case "zhipu-athrapi":
 		default:
 			updates.planModeApiModelId = sourceFields.apiModelId
 			updates.actModeApiModelId = sourceFields.apiModelId
