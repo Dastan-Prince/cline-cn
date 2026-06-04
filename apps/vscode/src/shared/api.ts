@@ -46,6 +46,9 @@ export type ApiProvider =
 	| "wandb"
 	| "xiaomi"
 	| "mimo-tp"
+	| "xiaomi-athrapi"
+	| "mimo-tp-athrapi"
+	| "zhipu-athrapi"
 
 export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider
 
@@ -5372,5 +5375,181 @@ export const mimoTokenPlanModels = {
 		cacheReadsPrice: 0.24,
 		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
 	},
-	
+
+} as const satisfies Record<string, ModelInfo>
+
+// Xiaomi Mimo AthrAPI (Anthropic-compatible)
+// https://api.xiaomimimo.com/anthropic
+export type XiaomiAthrapiModelId = keyof typeof xiaomiAthrapiModels
+export const xiaomiAthrapiDefaultModelId: XiaomiAthrapiModelId = "mimo-v2-flash"
+export const xiaomiAthrapiModels = {
+	"mimo-v2-flash": {
+		maxTokens: 64_000,
+		contextWindow: 262144,
+		supportsImages: false,
+		supportsPromptCache: true,
+		inputPrice: 0.1,
+		outputPrice: 0.3,
+		cacheWritesPrice: 0.01,
+		cacheReadsPrice: 0.3,
+		description: "Xiaomi Mimo V2 Flash - Fast and efficient model with vision support, optimized for quick responses.",
+	},
+	"mimo-v2.5": {
+		maxTokens: 128_000,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		inputPrice: 0.12,
+		outputPrice: 0.12,
+		cacheWritesPrice: 0.12,
+		cacheReadsPrice: 0.12,
+		description: "MiMo V2.5 - Multimodal model with advanced vision and reasoning capabilities.",
+	},
+	"mimo-v2.5-pro": {
+		maxTokens: 128_000,
+		contextWindow: 1048576,
+		supportsImages: false,
+		supportsPromptCache: true,
+		inputPrice: 0.24,
+		outputPrice: 0.24,
+		cacheWritesPrice: 0.24,
+		cacheReadsPrice: 0.24,
+		description: "MiMo V2.5 Pro - High-performance model for complex tasks.",
+	},
+} as const satisfies Record<string, ModelInfo>
+
+// Mimo TP AthrAPI (Anthropic-compatible)
+// https://token-plan-cn.xiaomimimo.com/anthropic
+export type MimoTpAthrapiModelId = keyof typeof mimoTpAthrapiModels
+export const mimoTpAthrapiDefaultModelId: MimoTpAthrapiModelId = "mimo-v2.5-pro"
+export const mimoTpAthrapiModels = {
+	"mimo-v2.5": {
+		maxTokens: 128_000,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		inputPrice: 0.12,
+		outputPrice: 0.12,
+		cacheWritesPrice: 0.12,
+		cacheReadsPrice: 0.12,
+		description: "MiMo Token Plan V2.5 - Multimodal model with advanced vision and reasoning capabilities.",
+	},
+	"mimo-v2.5-pro": {
+		maxTokens: 128_000,
+		contextWindow: 1048576,
+		supportsImages: false,
+		supportsPromptCache: true,
+		inputPrice: 0.24,
+		outputPrice: 0.24,
+		cacheWritesPrice: 0.24,
+		cacheReadsPrice: 0.24,
+		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
+	},
+} as const satisfies Record<string, ModelInfo>
+
+// Zhipu AthrAPI (Anthropic-compatible)
+// https://open.bigmodel.cn/api/anthropic
+export type ZhipuAthrapiModelId = keyof typeof zhipuAthrapiModels
+export const zhipuAthrapiDefaultModelId: ZhipuAthrapiModelId = "glm-5.1"
+export const zhipuAthrapiModels = {
+	"glm-5.1": {
+		maxTokens: 128_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
+	"glm-5": {
+		maxTokens: 128_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		cacheReadsPrice: 0.2,
+		inputPrice: 1.0,
+		outputPrice: 3.2,
+	},
+	"glm-4.7": {
+		maxTokens: 131_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		cacheReadsPrice: 0.11,
+		inputPrice: 0.6,
+		outputPrice: 2.2,
+	},
+	"glm-4.6": {
+		maxTokens: 128_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		cacheReadsPrice: 0.11,
+		inputPrice: 0.6,
+		outputPrice: 2.2,
+	},
+	"glm-4.5": {
+		maxTokens: 98_304,
+		contextWindow: 131_072,
+		supportsImages: false,
+		supportsPromptCache: true,
+		inputPrice: 0.29,
+		outputPrice: 1.14,
+		cacheWritesPrice: 0,
+		cacheReadsPrice: 0.057,
+		description:
+			"GLM-4.5 is Zhipu's latest featured model. Its comprehensive capabilities in reasoning, coding, and agent reach the state-of-the-art (SOTA) level among open-source models, with a context length of up to 128k.",
+		tiers: [
+			{
+				contextWindow: 32_000,
+				inputPrice: 0.21,
+				outputPrice: 1.0,
+				cacheReadsPrice: 0.043,
+			},
+			{
+				contextWindow: 128_000,
+				inputPrice: 0.29,
+				outputPrice: 1.14,
+				cacheReadsPrice: 0.057,
+			},
+			{
+				contextWindow: Number.POSITIVE_INFINITY,
+				inputPrice: 0.29,
+				outputPrice: 1.14,
+				cacheReadsPrice: 0.057,
+			},
+		],
+	},
+	"glm-4.5-air": {
+		maxTokens: 98304,
+		contextWindow: 128_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		inputPrice: 0.086,
+		outputPrice: 0.57,
+		cacheWritesPrice: 0,
+		cacheReadsPrice: 0.017,
+		description:
+			"GLM-4.5-Air is the lightweight version of GLM-4.5. It balances performance and cost-effectiveness, and can flexibly switch to hybrid thinking models.",
+		tiers: [
+			{
+				contextWindow: 32_000,
+				inputPrice: 0.057,
+				outputPrice: 0.43,
+				cacheReadsPrice: 0.011,
+			},
+			{
+				contextWindow: 128_000,
+				inputPrice: 0.086,
+				outputPrice: 0.57,
+				cacheReadsPrice: 0.017,
+			},
+			{
+				contextWindow: Number.POSITIVE_INFINITY,
+				inputPrice: 0.086,
+				outputPrice: 0.57,
+				cacheReadsPrice: 0.017,
+			},
+		],
+	},
 } as const satisfies Record<string, ModelInfo>

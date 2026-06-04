@@ -29,8 +29,7 @@ const TerminalOutputLineLimitSlider: React.FC = () => {
 				<span>{terminalOutputLineLimit ?? 500}</span>
 			</div>
 			<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", margin: "5px 0 0 0" }}>
-				Maximum number of lines to include in terminal output when executing commands. When exceeded, lines will be
-				removed from the middle, saving tokens.
+				执行命令时包含在终端输出中的最大行数。超过后，将从中间移除多余行以节省 Token。
 			</p>
 		</div>
 	)

@@ -56,6 +56,9 @@ import { VSCodeLmProvider } from "./providers/VSCodeLmProvider"
 import { WandbProvider } from "./providers/WandbProvider"
 import { XaiProvider } from "./providers/XaiProvider"
 import { XiaomiProvider } from "./providers/XiaomiProvider"
+import { XiaomiAthrapiProvider } from "./providers/XiaomiAthrapiProvider"
+import { MimoTpAthrapiProvider } from "./providers/MimoTpAthrapiProvider"
+import { ZhipuAthrapiProvider } from "./providers/ZhipuAthrapiProvider"
 import { ZAiProvider } from "./providers/ZAiProvider"
 import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers"
 
@@ -522,6 +525,18 @@ const ApiOptions = ({
 
 			{apiConfiguration && selectedProvider === "minimax" && (
 				<MinimaxProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
+			)}
+
+			{apiConfiguration && selectedProvider === "xiaomi-athrapi" && (
+				<XiaomiAthrapiProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
+			)}
+
+			{apiConfiguration && selectedProvider === "mimo-tp-athrapi" && (
+				<MimoTpAthrapiProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
+			)}
+
+			{apiConfiguration && selectedProvider === "zhipu-athrapi" && (
+				<ZhipuAthrapiProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
 			)}
 
 			{apiConfiguration && selectedProvider === "nousResearch" && (
