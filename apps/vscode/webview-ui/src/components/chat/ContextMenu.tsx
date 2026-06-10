@@ -122,7 +122,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 				if (option.value) {
 					return option.label || option.value
 				}
-				return `Add ${option.type === ContextMenuOptionType.File ? "File" : "Folder"}`
+				return option.type === ContextMenuOptionType.File ? t("contextMenu.addFile") : t("contextMenu.addFolder")
 			default:
 				return option.label || option.value || ""
 		}
@@ -184,7 +184,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 						</>
 					)
 				}
-				return <span>Add {option.type === ContextMenuOptionType.File ? "File" : "Folder"}</span>
+				return <span>{option.type === ContextMenuOptionType.File ? t("contextMenu.addFile") : t("contextMenu.addFolder")}</span>
 			default:
 				return null
 		}

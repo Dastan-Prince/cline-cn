@@ -4899,6 +4899,8 @@ export const internationalZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.26,
 		inputPrice: 1.4,
 		outputPrice: 4.4,
@@ -4908,6 +4910,8 @@ export const internationalZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.2,
 		inputPrice: 1.0,
 		outputPrice: 3.2,
@@ -4917,6 +4921,8 @@ export const internationalZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.11,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
@@ -4926,6 +4932,8 @@ export const internationalZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.11,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
@@ -4935,6 +4943,8 @@ export const internationalZAiModels = {
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
 		cacheWritesPrice: 0,
@@ -4954,7 +4964,7 @@ export const internationalZAiModels = {
 		description:
 			"GLM-4.5-Air is the lightweight version of GLM-4.5. It balances performance and cost-effectiveness, and can flexibly switch to hybrid thinking models.",
 	},
-} as const satisfies Record<string, ModelInfo>
+} as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 export type mainlandZAiModelId = keyof typeof mainlandZAiModels
 export const mainlandZAiDefaultModelId: mainlandZAiModelId = "glm-5.1"
@@ -4964,6 +4974,8 @@ export const mainlandZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.26,
 		inputPrice: 1.4,
 		outputPrice: 4.4,
@@ -4973,6 +4985,8 @@ export const mainlandZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.2,
 		inputPrice: 1.0,
 		outputPrice: 3.2,
@@ -4982,6 +4996,8 @@ export const mainlandZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.11,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
@@ -4991,6 +5007,8 @@ export const mainlandZAiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		cacheReadsPrice: 0.11,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
@@ -5000,6 +5018,8 @@ export const mainlandZAiModels = {
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.29,
 		outputPrice: 1.14,
 		cacheWritesPrice: 0,
@@ -5059,7 +5079,7 @@ export const mainlandZAiModels = {
 			},
 		],
 	},
-} as const satisfies Record<string, ModelInfo>
+} as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 // Fireworks AI
 export type FireworksModelId = keyof typeof fireworksModels
@@ -5314,39 +5334,45 @@ export type XiaomiModelId = keyof typeof xiaomiModels
 export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2-flash"
 export const xiaomiModels = {
 	"mimo-v2-flash": {
-		maxTokens: 64_000,
+		maxTokens: 65536,
 		contextWindow: 262144,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.1,
 		outputPrice: 0.3,
 		cacheWritesPrice: 0.01,
 		cacheReadsPrice: 0.3,
-		description: "Xiaomi Mimo V2 Flash - Fast and efficient model with vision support, optimized for quick responses.",
+		description: "Xiaomi Mimo V2 Flash - 采用 1:5 的 Global Attention 与 SWA 混合结构，128K 窗口大小，原生 32K 外扩 256K 训练；引入 3 层 MTP，实现 2.5 ～ 3.7 倍的推理加速。",
 	},
 	"mimo-v2.5": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: true,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.12,
 		outputPrice: 0.12,
 		cacheWritesPrice: 0.12,
 		cacheReadsPrice: 0.12,
-		description: "MiMo Token Plan V2.5  - Multimodal model with advanced vision and reasoning capabilities.",
+		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
 	},
 	"mimo-v2.5-pro": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.24,
 		outputPrice: 0.24,
 		cacheWritesPrice: 0.24,
 		cacheReadsPrice: 0.24,
-		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
+		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
-} as const satisfies Record<string, ModelInfo>
+} as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 // MiMo Token Plan
 // https://token-plan-cn.xiaomimimo.com/
@@ -5354,29 +5380,33 @@ export type MimoTokenPlanModelId = keyof typeof mimoTokenPlanModels
 export const mimoTokenPlanDefaultModelId: MimoTokenPlanModelId = "mimo-v2.5"
 export const mimoTokenPlanModels = {
 	"mimo-v2.5": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: true,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.12,
 		outputPrice: 0.12,
 		cacheWritesPrice: 0.12,
 		cacheReadsPrice: 0.12,
-		description: "MiMo Token Plan V2.5  - Multimodal model with advanced vision and reasoning capabilities.",
+		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
 	},
 	"mimo-v2.5-pro": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
 		inputPrice: 0.24,
 		outputPrice: 0.24,
 		cacheWritesPrice: 0.24,
 		cacheReadsPrice: 0.24,
-		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
+		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
 
-} as const satisfies Record<string, ModelInfo>
+} as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 // Xiaomi Mimo AthrAPI (Anthropic-compatible)
 // https://api.xiaomimimo.com/anthropic
@@ -5384,37 +5414,40 @@ export type XiaomiAthrapiModelId = keyof typeof xiaomiAthrapiModels
 export const xiaomiAthrapiDefaultModelId: XiaomiAthrapiModelId = "mimo-v2-flash"
 export const xiaomiAthrapiModels = {
 	"mimo-v2-flash": {
-		maxTokens: 64_000,
+		maxTokens: 65536,
 		contextWindow: 262144,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		inputPrice: 0.1,
 		outputPrice: 0.3,
 		cacheWritesPrice: 0.01,
 		cacheReadsPrice: 0.3,
-		description: "Xiaomi Mimo V2 Flash - Fast and efficient model with vision support, optimized for quick responses.",
+		description: "Xiaomi Mimo V2 Flash - 采用 1:5 的 Global Attention 与 SWA 混合结构，128K 窗口大小，原生 32K 外扩 256K 训练；引入 3 层 MTP，实现 2.5 ～ 3.7 倍的推理加速。",
 	},
 	"mimo-v2.5": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: true,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		inputPrice: 0.12,
 		outputPrice: 0.12,
 		cacheWritesPrice: 0.12,
 		cacheReadsPrice: 0.12,
-		description: "MiMo V2.5 - Multimodal model with advanced vision and reasoning capabilities.",
+		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
 	},
 	"mimo-v2.5-pro": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		inputPrice: 0.24,
 		outputPrice: 0.24,
 		cacheWritesPrice: 0.24,
 		cacheReadsPrice: 0.24,
-		description: "MiMo V2.5 Pro - High-performance model for complex tasks.",
+		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
 } as const satisfies Record<string, ModelInfo>
 
@@ -5424,26 +5457,28 @@ export type MimoTpAthrapiModelId = keyof typeof mimoTpAthrapiModels
 export const mimoTpAthrapiDefaultModelId: MimoTpAthrapiModelId = "mimo-v2.5-pro"
 export const mimoTpAthrapiModels = {
 	"mimo-v2.5": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: true,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		inputPrice: 0.12,
 		outputPrice: 0.12,
 		cacheWritesPrice: 0.12,
 		cacheReadsPrice: 0.12,
-		description: "MiMo Token Plan V2.5 - Multimodal model with advanced vision and reasoning capabilities.",
+		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
 	},
 	"mimo-v2.5-pro": {
-		maxTokens: 128_000,
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		inputPrice: 0.24,
 		outputPrice: 0.24,
 		cacheWritesPrice: 0.24,
 		cacheReadsPrice: 0.24,
-		description: "MiMo Token Plan V2.5 Pro - High-performance model for complex tasks.",
+		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
 } as const satisfies Record<string, ModelInfo>
 
@@ -5457,6 +5492,7 @@ export const zhipuAthrapiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		cacheReadsPrice: 0.26,
 		inputPrice: 1.4,
 		outputPrice: 4.4,
@@ -5466,6 +5502,7 @@ export const zhipuAthrapiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		cacheReadsPrice: 0.2,
 		inputPrice: 1.0,
 		outputPrice: 3.2,
@@ -5475,6 +5512,7 @@ export const zhipuAthrapiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		cacheReadsPrice: 0.11,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
@@ -5484,6 +5522,7 @@ export const zhipuAthrapiModels = {
 		contextWindow: 200_000,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		cacheReadsPrice: 0.11,
 		inputPrice: 0.6,
 		outputPrice: 2.2,
@@ -5493,6 +5532,7 @@ export const zhipuAthrapiModels = {
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: true,
+		supportsReasoning: true,
 		inputPrice: 0.29,
 		outputPrice: 1.14,
 		cacheWritesPrice: 0,

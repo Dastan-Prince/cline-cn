@@ -313,7 +313,9 @@
 		"terminal": "终端",
 		"pasteUrl": "粘贴 URL 以获取内容",
 		"noResults": "未找到结果",
-		"gitCommits": "Git 提交"
+		"gitCommits": "Git 提交",
+		"addFile": "添加 文件",
+		"addFolder": "添加 文件夹"
 	},
 	"slashCommand": {
 		"defaultCommands": "默认命令",
