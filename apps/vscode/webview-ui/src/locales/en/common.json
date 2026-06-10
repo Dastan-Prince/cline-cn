@@ -313,7 +313,9 @@
 		"terminal": "Terminal",
 		"pasteUrl": "Paste URL to fetch contents",
 		"noResults": "No results found",
-		"gitCommits": "Git Commits"
+		"gitCommits": "Git Commits",
+		"addFile": "Add File",
+		"addFolder": "Add Folder"
 	},
 	"slashCommand": {
 		"defaultCommands": "Default Commands",
