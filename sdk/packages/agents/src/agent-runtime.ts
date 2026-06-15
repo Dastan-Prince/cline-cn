@@ -1,4 +1,4 @@
-import { createGateway } from "@cline/llms";
+import { createGateway, type GatewayProviderSettings } from "@cline/llms";
 import type {
 	AgentAfterToolResult,
 	AgentBeforeModelResult,
@@ -64,6 +64,8 @@ export interface AgentRuntimeConfigWithProvider
 	baseUrl?: string;
 	/** Additional headers for API requests */
 	headers?: Record<string, string>;
+	/** Provider-specific gateway options */
+	options?: GatewayProviderSettings["options"];
 }
 
 /**
@@ -88,9 +90,10 @@ function resolveRuntimeConfig(
 	if (hasPrebuiltModel(config)) {
 		return config;
 	}
-	const { providerId, modelId, apiKey, baseUrl, headers, ...rest } = config;
+	const { providerId, modelId, apiKey, baseUrl, headers, options, ...rest } =
+		config;
 	const gateway = createGateway({
-		providerConfigs: [{ providerId, apiKey, baseUrl, headers }],
+		providerConfigs: [{ providerId, apiKey, baseUrl, headers, options }],
 		telemetry: rest.telemetry,
 	});
 	const model = gateway.createAgentModel({ providerId, modelId });
@@ -213,6 +216,24 @@ class ControlledStopError extends Error {
 	constructor(reason?: string) {
 		super(reason ?? "Run stopped by runtime control");
 		this.name = "ControlledStopError";
+		this.reason = reason;
+	}
+}
+
+export class AgentRuntimeAbortError extends Error {
+	readonly reason?: unknown;
+
+	constructor(reason?: unknown) {
+		const message =
+			typeof reason === "string"
+				? reason
+				: reason instanceof Error
+					? reason.message
+					: reason === undefined
+						? "Run aborted"
+						: String(reason);
+		super(message);
+		this.name = "AgentRuntimeAbortError";
 		this.reason = reason;
 	}
 }
@@ -390,16 +411,12 @@ export class AgentRuntime {
 		if (!this.abortController) {
 			return;
 		}
-		const message =
-			typeof reason === "string"
+		const abortError =
+			reason instanceof AgentRuntimeAbortError
 				? reason
-				: reason instanceof Error
-					? reason.message
-					: reason === undefined
-						? undefined
-						: String(reason);
-		this.state.lastError = message ?? "Run aborted";
-		this.abortController.abort(new Error(this.state.lastError));
+				: new AgentRuntimeAbortError(reason);
+		this.state.lastError = abortError.message;
+		this.abortController.abort(abortError);
 	}
 
 	subscribe(listener: AgentEventListener): () => void {

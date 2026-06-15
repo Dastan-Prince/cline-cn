@@ -1,5 +1,80 @@
 # Changelog
 
+## [3.89.2]
+
+### Fixed
+
+- Complete the fix for the Anthropic provider on VS Code 1.123 and later by upgrading the bundled Anthropic SDK to a release compatible with the Node 24 runtime.
+- Update the Vertex AI provider to a compatible Anthropic Vertex SDK release so it works with the upgraded Anthropic SDK.
+
+## [3.89.1]
+
+### Fixed
+
+- Restore the Anthropic provider on VS Code 1.123 and later, where the updated Node 24 runtime broke the bundled Anthropic SDK.
+- Handle the DeepSeek V4 reasoning format.
+
+## [3.89.0]
+
+### Added
+
+- Add Claude Fable 5 model support.
+
+### Fixed
+
+- Fix MiniMax M3 thinking controls across gateways.
+
+### Changed
+
+- Clean up the Codex model list.
+
+## [3.88.1]
+
+### Added
+
+- Add a debug section in settings for Cline testers.
+
+### Fixed
+
+- Include the walkthrough markdown files in the VS Code extension package so the first-run walkthrough steps load correctly.
+
+## [3.88.0]
+
+### Added
+
+- Add the latest Fireworks AI serverless models and update the default Fireworks model to Kimi K2.6.
+
+### Fixed
+
+- Fix MCP server delete/add flows so settings writes do not cause the MCP server list to be emptied by the file watcher.
+- Remove stale Fireworks AI models and correct Fireworks model metadata and cache pricing.
+
+### Changed
+
+- Always use the upstream Cline recommended models endpoint instead of gating it behind a feature flag.
+
+## [3.87.0]
+
+### Added
+
+- Add MiniMax M3 model support.
+
+### Fixed
+
+- Update VS Code extension dependencies to resolve security issues in `@xmldom/xmldom`, `basic-ftp`, `axios`, `undici`, and other direct/transitive packages.
+
+## [3.86.2]
+
+### Fixed
+
+- Fix `@` file mentions and workspace file search on VS Code 1.122+ by resolving the new bundled `@vscode/ripgrep-universal` per-platform binary layout before falling back to legacy ripgrep paths.
+
+## [3.86.1]
+
+### Fixed
+
+- Fix `@` file mentions failing to find files in some environments (notably VS Code Remote SSH, and after certain VS Code updates) by keeping the file-search fallback alive when the workspace index or bundled ripgrep binary is unavailable.
+
 ## [3.86.0]
 
 ### Added

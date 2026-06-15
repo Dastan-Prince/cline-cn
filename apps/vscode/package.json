@@ -2,11 +2,8 @@
 	"name": "cline-cn",
 	"displayName": "Cline CN",
 	"description": "%cline.description%",
-	"version": "3.86.34",
+	"version": "3.89.2",
 	"icon": "assets/icons/icon.png",
-	"workspaces": [
-		"."
-	],
 	"engines": {
 		"vscode": "^1.84.0"
 	},
@@ -62,45 +59,45 @@
 		"walkthroughs": [
 			{
 				"id": "ClineWalkthrough",
-				"title": "%cline.walkthrough.title%",
-				"description": "%cline.walkthrough.description%",
+				"title": "Meet Cline, your new coding partner",
+				"description": "Cline codes like a developer because it thinks like one. Here are 5 ways to put it to work:",
 				"steps": [
 					{
 						"id": "welcome",
-						"title": "%cline.walkthrough.step1.title%",
-						"description": "%cline.walkthrough.step1.description%",
+						"title": "Start with a Goal, Not Just a Prompt",
+						"description": "Tell Cline what you want to achieve. It plans, asks, and then codes, like a true partner.",
 						"media": {
 							"markdown": "walkthrough/step1.md"
 						}
 					},
 					{
 						"id": "learn",
-						"title": "%cline.walkthrough.step2.title%",
-						"description": "%cline.walkthrough.step2.description%",
+						"title": "Let Cline Learn Your Codebase",
+						"description": "Point Cline to your project. It builds understanding to make smart, context-aware changes.",
 						"media": {
 							"markdown": "walkthrough/step2.md"
 						}
 					},
 					{
 						"id": "advanced-features",
-						"title": "%cline.walkthrough.step3.title%",
-						"description": "%cline.walkthrough.step3.description%",
+						"title": "Always Use the Best AI Models",
+						"description": "Cline empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
 						"media": {
 							"markdown": "walkthrough/step3.md"
 						}
 					},
 					{
 						"id": "mcp",
-						"title": "%cline.walkthrough.step4.title%",
-						"description": "%cline.walkthrough.step4.description%",
+						"title": "Extend with Powerful Tools (MCP)",
+						"description": "Connect to databases, APIs, or discover new capabilities in the MCP Marketplace.",
 						"media": {
 							"markdown": "walkthrough/step4.md"
 						}
 					},
 					{
 						"id": "getting-started",
-						"title": "%cline.walkthrough.step5.title%",
-						"description": "%cline.walkthrough.step5.description%",
+						"title": "You're Always in Control",
+						"description": "Review Cline's plans and diffs. Approve changes before they happen. No surprises.",
 						"media": {
 							"markdown": "walkthrough/step5.md"
 						},
@@ -115,8 +112,8 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "CLINE CN",
-					"icon": "assets/icons/icon.svg"
+				"title": "CLINE CN",
+				"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
@@ -133,27 +130,27 @@
 		"commands": [
 			{
 				"command": "cline.plusButtonClicked",
-				"title": "%cline.command.newTask%",
+				"title": "New Task",
 				"icon": "$(add)"
 			},
 			{
 				"command": "cline.mcpButtonClicked",
-				"title": "%cline.command.mcpServers%",
+				"title": "MCP Servers",
 				"icon": "$(server)"
 			},
 			{
 				"command": "cline.historyButtonClicked",
-				"title": "%cline.command.history%",
+				"title": "History",
 				"icon": "$(history)"
 			},
 			{
 				"command": "cline.accountButtonClicked",
-				"title": "%cline.command.account%",
+				"title": "Account",
 				"icon": "$(account)"
 			},
 			{
 				"command": "cline.settingsButtonClicked",
-				"title": "%cline.command.settings%",
+				"title": "Settings",
 				"icon": "$(settings-gear)"
 			},
 			{
@@ -170,78 +167,78 @@
 			},
 			{
 				"command": "cline.addToChat",
-				"title": "%cline.command.addToChat%",
+				"title": "Add to Cline",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.addTerminalOutputToChat",
-				"title": "%cline.command.addTerminalOutputToChat%",
+				"title": "Add to Cline",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.focusChatInput",
-				"title": "%cline.command.focusChatInput%",
+				"title": "Jump to Chat Input",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.generateGitCommitMessage",
-				"title": "%cline.command.generateGitCommitMessage%",
+				"title": "Generate Commit Message with Cline",
 				"category": "Cline",
 				"icon": "$(cline-icon)"
 			},
 			{
 				"command": "cline.abortGitCommitMessage",
-				"title": "%cline.command.abortGitCommitMessage%",
+				"title": "Generate Commit Message with Cline - Stop",
 				"category": "Cline",
 				"icon": "$(debug-stop)"
 			},
 			{
 				"command": "cline.explainCode",
-				"title": "%cline.command.explainCode%",
+				"title": "Explain with Cline",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.improveCode",
-				"title": "%cline.command.improveCode%",
+				"title": "Improve with Cline",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.jupyterGenerateCell",
-				"title": "%cline.command.jupyterGenerateCell%",
+				"title": "Generate Jupyter Cell with Cline",
 				"category": "Cline",
 				"icon": "$(sparkle)"
 			},
 			{
 				"command": "cline.jupyterExplainCell",
-				"title": "%cline.command.jupyterExplainCell%",
+				"title": "Explain Jupyter Cell with Cline",
 				"category": "Cline",
 				"icon": "$(question)"
 			},
 			{
 				"command": "cline.jupyterImproveCell",
-				"title": "%cline.command.jupyterImproveCell%",
+				"title": "Improve Jupyter Cell with Cline",
 				"category": "Cline",
 				"icon": "$(lightbulb)"
 			},
 			{
 				"command": "cline.openWalkthrough",
-				"title": "%cline.command.openWalkthrough%",
+				"title": "Open Walkthrough",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.reconstructTaskHistory",
-				"title": "%cline.command.reconstructTaskHistory%",
+				"title": "Reconstruct Task History",
 				"category": "Cline"
 			},
 			{
 				"command": "cline.reviewComment.reply",
-				"title": "%cline.command.reviewComment.reply%",
+				"title": "Reply",
 				"category": "Cline",
 				"enablement": "!commentIsEmpty"
 			},
 			{
 				"command": "cline.reviewComment.addToChat",
-				"title": "%cline.command.reviewComment.addToChat%",
+				"title": "Add to Cline Chat",
 				"category": "Cline",
 				"icon": "$(link-external)"
 			}
@@ -388,22 +385,22 @@
 		"watch": "npx npm-run-all -p watch:*",
 		"watch:esbuild": "node esbuild.mjs --watch",
 		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-		"package": "npm run check-types && npm run build:webview && node esbuild.mjs --production",
+		"package": "npm run check-types && npm run build:webview && npm run lint && node esbuild.mjs --production",
 		"protos": "node scripts/build-proto.mjs",
 		"protos-python": "node scripts/build-python-proto.mjs",
 		"download-ripgrep": "node scripts/download-ripgrep.mjs",
-		"postprotos": "biome format src/shared/proto src/core/controller src/hosts/ webview-ui/src/services src/generated --write --no-errors-on-unmatched",
+		"postprotos": "biome format --config-path ./biome.jsonc src/shared/proto src/core/controller src/hosts/ webview-ui/src/services src/generated --write --no-errors-on-unmatched",
 		"clean:build": "rimraf dist dist-standalone webview-ui/build src/generated out/",
 		"clean:deps": "rimraf node_modules webview-ui/node_modules",
 		"clean:all": "npm run clean:build && npm run clean:deps",
 		"compile-tests": "node ./scripts/build-tests.js",
 		"watch-tests": "tsc -p . -w --outDir out",
-		"check-types": "npm run protos && npx tsc --noEmit && cd webview-ui && npx tsc --noEmit",
-		"lint": "biome lint --no-errors-on-unmatched --files-ignore-unknown=true --diagnostic-level=error && npm run lint:proto",
+		"check-types": "npm run protos && tsc --noEmit && cd webview-ui && tsc --noEmit",
+		"lint": "biome lint --config-path ./biome.jsonc --no-errors-on-unmatched --files-ignore-unknown=true --diagnostic-level=error && npm run lint:proto",
 		"lint:proto": "bash ./scripts/proto-lint.sh",
-		"format": "biome format --changed --no-errors-on-unmatched --files-ignore-unknown=true --diagnostic-level=error",
-		"format:fix": "biome check --changed --no-errors-on-unmatched --files-ignore-unknown=true --write",
-		"fix:all": "biome check --no-errors-on-unmatched --files-ignore-unknown=true --write --diagnostic-level=error --unsafe",
+		"format": "biome format --config-path ./biome.jsonc --changed --since main --no-errors-on-unmatched --files-ignore-unknown=true --diagnostic-level=error",
+		"format:fix": "biome check --config-path ./biome.jsonc --changed --since main --no-errors-on-unmatched --files-ignore-unknown=true --write",
+		"fix:all": "biome check --config-path ./biome.jsonc --no-errors-on-unmatched --files-ignore-unknown=true --write --diagnostic-level=error --unsafe",
 		"ci:check-all": "npx npm-run-all -p check-types lint format",
 		"ci:build": "npm run protos && npm run build:webview && node esbuild.mjs && npm run compile-tests",
 		"pretest": "npm run compile && npm run compile-tests && npm run compile-standalone && npm run lint",
@@ -489,8 +486,8 @@
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@anthropic-ai/sdk": "^0.37.0",
-		"@anthropic-ai/vertex-sdk": "^0.6.4",
+		"@anthropic-ai/sdk": "^0.50.4",
+		"@anthropic-ai/vertex-sdk": "^0.11.5",
 		"@aws-sdk/client-bedrock-runtime": "^3.922.0",
 		"@aws-sdk/credential-providers": "^3.922.0",
 		"@azure/identity": "^4.13.0",
@@ -531,7 +528,7 @@
 		"@vscode/codicons": "^0.0.36",
 		"archiver": "^7.0.1",
 		"aws4fetch": "^1.0.20",
-		"axios": "1.15.2",
+		"axios": "1.16.1",
 		"better-sqlite3": "^12.4.1",
 		"cheerio": "^1.0.0",
 		"chokidar": "^4.0.1",
@@ -549,7 +546,6 @@
 		"iconv-lite": "^0.6.3",
 		"ignore": "^7.0.3",
 		"image-size": "^2.0.2",
-		"is-plain-obj": "^4.1.0",
 		"isbinaryfile": "^5.0.2",
 		"jschardet": "^3.1.4",
 		"json5": "^2.2.3",
@@ -580,7 +576,7 @@
 		"ts-morph": "^25.0.1",
 		"turndown": "^7.2.0",
 		"ulid": "^2.4.0",
-		"undici": "^7.16.0",
+		"undici": "^7.26.0",
 		"uuid": "^11.1.0",
 		"vscode-uri": "^3.1.0",
 		"web-tree-sitter": "^0.22.6",
