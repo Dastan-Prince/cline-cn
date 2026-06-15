@@ -36,6 +36,47 @@ The open source coding agent in your IDE and terminal.
 
 <br>
 
+## 中文版
+- 界面主题汉化
+- AI对话默认使用中文回复
+- Git日志生成使用中文输出
+
+
+
+## 最新国产大模型
+
+在原版Cline基础上添加了我常用的最新国产大模型
+
+### DeepSeek
+- deepseek-v4-pro 
+- deepseek-v4-flash 
+
+
+### Xiaomi
+| | |
+| ----- | ----- |
+|Xiaomi MiMo  | API Key接口（OpenAI兼容）|
+MiMo Token Plan  |Token Plan接口（OpenAI兼容）|
+Xiaomi Mimo AthrAPI  | API Key接口（Anthropic兼容）|
+Mimo TP AthrAPI  |Token Plan接口（Anthropic兼容）|
+|  |  |
+
+- mimo-v2.5-pro
+- mimo-v2.5
+- mimo-v2-flash
+
+
+### Zhipu
+| | |
+| ----- | ----- |
+|Z AI | 增加coding plan专用入口地址（OpenAI接口）  
+|Zhipu AthrAPI | GLM Coding Plan 的 Anthropic兼容接口
+|  |  |
+
+- glm-5.2
+- glm-5.1
+  
+    
 <div align="center">
 <table>
 <tr>

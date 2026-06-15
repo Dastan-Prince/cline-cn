@@ -4939,8 +4939,19 @@ export const basetenDefaultModelId = "zai-org/GLM-4.6" satisfies BasetenModelId
 // https://docs.z.ai/guides/llm/glm-5
 // https://docs.z.ai/guides/overview/pricing
 export type internationalZAiModelId = keyof typeof internationalZAiModels
-export const internationalZAiDefaultModelId: internationalZAiModelId = "glm-5.1"
+export const internationalZAiDefaultModelId: internationalZAiModelId = "glm-5.2"
 export const internationalZAiModels = {
+	"glm-5.2": {
+		maxTokens: 128_000,
+		contextWindow: 1_000_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
 	"glm-5.1": {
 		maxTokens: 128_000,
 		contextWindow: 200_000,
@@ -5014,8 +5025,19 @@ export const internationalZAiModels = {
 } as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 export type mainlandZAiModelId = keyof typeof mainlandZAiModels
-export const mainlandZAiDefaultModelId: mainlandZAiModelId = "glm-5.1"
+export const mainlandZAiDefaultModelId: mainlandZAiModelId = "glm-5.2"
 export const mainlandZAiModels = {
+	"glm-5.2": {
+		maxTokens: 128_000,
+		contextWindow: 1_000_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
 	"glm-5.1": {
 		maxTokens: 128_000,
 		contextWindow: 200_000,
@@ -5597,8 +5619,28 @@ export const mimoTpAthrapiModels = {
 // Zhipu AthrAPI (Anthropic-compatible)
 // https://open.bigmodel.cn/api/anthropic
 export type ZhipuAthrapiModelId = keyof typeof zhipuAthrapiModels
-export const zhipuAthrapiDefaultModelId: ZhipuAthrapiModelId = "glm-5.1"
+export const zhipuAthrapiDefaultModelId: ZhipuAthrapiModelId = "glm-5.2"
 export const zhipuAthrapiModels = {
+	"glm-5.2": {
+		maxTokens: 128_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
+	"glm-5.2[1m]": {
+		maxTokens: 128_000,
+		contextWindow: 1_000_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
 	"glm-5.1": {
 		maxTokens: 128_000,
 		contextWindow: 200_000,
