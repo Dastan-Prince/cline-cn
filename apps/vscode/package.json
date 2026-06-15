@@ -2,7 +2,7 @@
 	"name": "cline-cn",
 	"displayName": "Cline CN",
 	"description": "%cline.description%",
-	"version": "3.89.2",
+	"version": "3.89.2-beta.1",
 	"icon": "assets/icons/icon.png",
 	"engines": {
 		"vscode": "^1.84.0"
