@@ -6,12 +6,19 @@ const gatewayMock = vi.hoisted(() => {
 	return {
 		createAgentModel,
 		createGateway: vi.fn(() => ({ createAgentModel })),
+		// Registry helpers used by createAgentModelFromConfig. Default to "no
+		// registered handler" so existing tests exercise the gateway path.
+		hasRegisteredHandler: vi.fn(() => false),
+		createHandlerAsync: vi.fn(),
 	};
 });
 
 vi.mock("@cline/llms", () => ({
 	createGateway: gatewayMock.createGateway,
 	MODEL_COLLECTIONS_BY_PROVIDER_ID: {},
+	hasRegisteredHandler: gatewayMock.hasRegisteredHandler,
+	createHandlerAsync: gatewayMock.createHandlerAsync,
+	normalizeProviderId: (id: string) => id,
 }));
 
 describe("createAgentModelFromConfig", () => {
@@ -21,6 +28,9 @@ describe("createAgentModelFromConfig", () => {
 		gatewayMock.createGateway.mockImplementation(() => ({
 			createAgentModel: gatewayMock.createAgentModel,
 		}));
+		gatewayMock.hasRegisteredHandler.mockReset();
+		gatewayMock.hasRegisteredHandler.mockReturnValue(false);
+		gatewayMock.createHandlerAsync.mockReset();
 	});
 
 	it("forwards effective telemetry into the gateway", async () => {
@@ -231,5 +241,117 @@ describe("createAgentModelFromConfig", () => {
 				],
 			}),
 		);
+	});
+
+	it("forwards Azure settings as OpenAI-compatible gateway provider options", async () => {
+		const { createAgentModelFromConfig } = await import("./handler-factory");
+
+		createAgentModelFromConfig(
+			{
+				providerId: "openai-compatible",
+				modelId: "gpt-4.1",
+				systemPrompt: "",
+				tools: [],
+				providerConfig: {
+					providerId: "openai-compatible",
+					modelId: "gpt-4.1",
+					azure: {
+						apiVersion: "2025-01-01-preview",
+						useIdentity: false,
+					},
+				},
+			},
+			undefined,
+		);
+
+		expect(gatewayMock.createGateway).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				providerConfigs: [
+					expect.objectContaining({
+						providerId: "openai-compatible",
+						options: expect.objectContaining({
+							apiVersion: "2025-01-01-preview",
+							useIdentity: false,
+						}),
+					}),
+				],
+			}),
+		);
+	});
+
+	it("does not forward Azure settings for non-OpenAI-compatible providers", async () => {
+		const { createAgentModelFromConfig } = await import("./handler-factory");
+
+		createAgentModelFromConfig(
+			{
+				providerId: "anthropic",
+				modelId: "claude-3-5-sonnet",
+				systemPrompt: "",
+				tools: [],
+				providerConfig: {
+					providerId: "anthropic",
+					modelId: "claude-3-5-sonnet",
+					azure: {
+						apiVersion: "2025-01-01-preview",
+						useIdentity: false,
+					},
+				},
+			},
+			undefined,
+		);
+
+		expect(gatewayMock.createGateway).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				providerConfigs: [
+					expect.objectContaining({
+						providerId: "anthropic",
+						options: undefined,
+					}),
+				],
+			}),
+		);
+	});
+
+	it("uses a registered handler (adapter) instead of the gateway, building it lazily", async () => {
+		const { createAgentModelFromConfig } = await import("./handler-factory");
+
+		// Pretend a host handler is registered for this provider.
+		gatewayMock.hasRegisteredHandler.mockReturnValue(true);
+		const apiHandler = {
+			getMessages: () => [],
+			getModel: () => ({ id: "vscode-lm", info: { id: "vscode-lm" } }),
+			// eslint-disable-next-line require-yield
+			async *createMessage() {
+				/* no chunks for this assertion */
+			},
+		};
+		// createHandlerAsync resolves both sync- and async-registered handlers.
+		gatewayMock.createHandlerAsync.mockResolvedValue(apiHandler);
+
+		const result = createAgentModelFromConfig(
+			{
+				providerId: "vscode-lm",
+				modelId: "copilot/claude-sonnet",
+				apiKey: "",
+				systemPrompt: "",
+				tools: [],
+			},
+			undefined,
+		);
+
+		// The gateway is not used, and the AgentModel surface is exposed.
+		expect(gatewayMock.createGateway).not.toHaveBeenCalled();
+		expect(typeof result.stream).toBe("function");
+
+		// The handler is resolved lazily — only once the stream is consumed.
+		expect(gatewayMock.createHandlerAsync).not.toHaveBeenCalled();
+		for await (const _ of await result.stream({
+			systemPrompt: "",
+			messages: [],
+			tools: [],
+		})) {
+			// drain
+		}
+		expect(gatewayMock.createHandlerAsync).toHaveBeenCalledTimes(1);
 	});
 });

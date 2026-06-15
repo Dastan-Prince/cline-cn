@@ -40,7 +40,6 @@ export type {
 	ListProvidersActionRequest,
 	Message,
 	MessageWithMetadata,
-	OAuthProviderId,
 	ProviderActionRequest,
 	ProviderCatalogResponse,
 	ProviderListItem,
@@ -117,7 +116,6 @@ export {
 } from "./auth/client";
 export {
 	completeClineDeviceAuth,
-	createClineOAuthProvider,
 	getValidClineCredentials,
 	loginClineOAuth,
 	refreshClineToken,
@@ -125,20 +123,30 @@ export {
 } from "./auth/cline";
 export {
 	getValidOpenAICodexCredentials,
-	isOpenAICodexTokenExpired,
 	loginOpenAICodex,
-	normalizeOpenAICodexCredentials,
-	openaiCodexOAuthProvider,
 	refreshOpenAICodexToken,
 } from "./auth/codex";
 export {
-	createOcaOAuthProvider,
-	createOcaRequestHeaders,
-	generateOcaOpcRequestId,
 	getValidOcaCredentials,
 	loginOcaOAuth,
 	refreshOcaToken,
 } from "./auth/oca";
+export {
+	formatProviderOAuthApiKey,
+	getPersistedProviderApiKey,
+	getProviderAuthHandler,
+	getProviderAuthStorageId,
+	getProviderOAuthCredentialsFromSettings,
+	isOAuthProvider,
+	loginAndSaveProviderOAuthCredentials,
+	type ProviderAuthHandler,
+	type ProviderAuthLoginInput,
+	type ProviderAuthRefreshInput,
+	type ProviderAuthSaveCredentialsInput,
+	type ProviderOAuthCredentials,
+	resolveProviderApiKeyFromSettings,
+	saveProviderOAuthCredentials,
+} from "./auth/provider-auth-registry";
 export type {
 	LocalOAuthServer,
 	LocalOAuthServerOptions,
@@ -197,6 +205,7 @@ export {
 	resolveAgentPluginPaths,
 	resolveAndLoadAgentPlugins,
 	resolvePluginConfigSearchPaths,
+	resolvePluginSkillDirectoriesFromPaths,
 } from "./extensions";
 export type {
 	AvailableRuntimeCommand,
@@ -289,10 +298,19 @@ export {
 	type BootstrapAgentTeamsOptions,
 	type BootstrapAgentTeamsResult,
 	bootstrapAgentTeams,
+	buildConfiguredAgentToolDescriptors,
+	buildConfiguredAgentToolName,
 	buildDelegatedAgentConfig,
 	buildTeamProgressSummary,
+	type ConfiguredAgentConfig,
+	type ConfiguredAgentInput,
+	type ConfiguredAgentLoadResult,
+	type ConfiguredAgentReadError,
+	type ConfiguredAgentToolConfig,
+	type ConfiguredAgentToolDescriptor,
 	type CreateAgentTeamsToolsOptions,
 	createAgentTeamsTools,
+	createConfiguredAgentTools,
 	createDelegatedAgent,
 	createDelegatedAgentConfigProvider,
 	createSpawnAgentTool,
@@ -300,6 +318,8 @@ export {
 	type DelegatedAgentConnectionConfig,
 	type DelegatedAgentKind,
 	type DelegatedAgentRuntimeConfig,
+	loadConfiguredAgentConfigs,
+	parseConfiguredAgentConfig,
 	reviveTeamStateDates,
 	type SpawnTeammateOptions,
 	type SubAgentEndContext,
@@ -384,7 +404,12 @@ export type {
 	StartSessionInput,
 	StartSessionResult,
 } from "./runtime/host/runtime-host";
-export { splitCoreSessionConfig } from "./runtime/host/runtime-host";
+export {
+	isSessionNotFoundError,
+	SESSION_NOT_FOUND_ERROR_CODE,
+	SessionNotFoundError,
+	splitCoreSessionConfig,
+} from "./runtime/host/runtime-host";
 export {
 	createTeamName,
 	DefaultRuntimeBuilder,
@@ -415,12 +440,14 @@ export {
 	filterDisabledTools,
 	filterExtensionToolRegistrations,
 	GlobalSettingsSchema,
+	isAutoUpdateEnabledGlobally,
 	isPluginDisabledGlobally,
 	isTelemetryOptedOutGlobally,
 	isToolDisabledGlobally,
 	readGlobalSettings,
 	resolveDisabledPluginPaths,
 	resolveDisabledToolNames,
+	setAutoUpdateEnabledGlobally,
 	setDisabledPlugin,
 	setDisabledTools,
 	setTelemetryOptOutGlobally,
@@ -435,6 +462,11 @@ export {
 	listPluginTools,
 	listPluginToolsWithDiagnostics,
 } from "./services/plugin-tools";
+export type {
+	PluginUninstallOptions,
+	PluginUninstallResult,
+} from "./services/plugin-uninstall";
+export { uninstallPlugin } from "./services/plugin-uninstall";
 export {
 	addLocalProvider,
 	type DeleteLocalProviderRequest,
@@ -442,6 +474,7 @@ export {
 	ensureCustomProvidersLoaded,
 	getLocalProviderModels,
 	listLocalProviders,
+	loginAndSaveLocalProviderOAuthCredentials,
 	loginLocalProvider,
 	normalizeOAuthProvider,
 	refreshProviderModelsFromSource,

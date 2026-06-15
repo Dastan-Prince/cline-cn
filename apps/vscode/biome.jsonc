@@ -1,5 +1,5 @@
 {
-	"root": true,
+	"root": false,
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"assist": {
 		"enabled": true,
@@ -50,8 +50,8 @@
 				"useEnumInitializers": "off",
 				"useSelfClosingElements": "info",
 				"useSingleVarDeclarator": "off",
-				"useNumberNamespace": "info",
-				"noInferrableTypes": "info",
+				"useNumberNamespace": "off",
+				"noInferrableTypes": "off",
 				"useTemplate": "info",
 				"noUselessElse": "info"
 			},
@@ -122,6 +122,7 @@
 			"!!**/out",
 			"!!**/evals",
 			"!!**/playwright",
+			"!!**/.vscode-test",
 			"!!**/test-results",
 			"!!**/node_modules",
 			"!!**/webview-ui/build",
@@ -130,6 +131,7 @@
 			"!!**/tests/specs"
 		]
 	},
+	"plugins": ["src/dev/grit/process-env.grit"],
 	"overrides": [
 		{
 			"includes": [
@@ -143,10 +145,12 @@
 				"!!src/integrations/git/commit-message-generator.ts",
 				"!!src/integrations/terminal/**",
 				"!!src/core/controller/ui/openWalkthrough.ts"
-			]
+			],
+			"plugins": ["src/dev/grit/vscode-api.grit"]
 		},
 		{
 			// Do not use console logging directly, use the Logger service instead.
+			"plugins": ["src/dev/grit/console-log.grit"],
 			"includes": [
 				"**",
 				"!!**/esbuild.*",
@@ -178,7 +182,8 @@
 				"!!src/services/logging/distinctId.ts",
 				"!!src/core/storage/utils/state-helpers.ts",
 				"!!src/extension.ts"
-			]
+			],
+			"plugins": ["src/dev/grit/use-cache-service.grit"]
 		}
 	]
 }

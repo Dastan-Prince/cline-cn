@@ -10,6 +10,7 @@ import {
 	getDefaultShell,
 	getShellArgs,
 } from "@cline/shared";
+import { TimeoutError } from "../helpers";
 import type { BashExecutor } from "../types";
 
 /**
@@ -68,6 +69,10 @@ function spawnAndCollect(
 			env: { ...process.env, ...config.env },
 			stdio: ["pipe", "pipe", "pipe"],
 			detached: !isWindows,
+			// Prevent a console window from flashing on Windows when the
+			// parent process has no console (or a different console).
+			// No-op on non-Windows platforms.
+			windowsHide: true,
 		});
 		const childPid = child.pid;
 
@@ -108,7 +113,10 @@ function spawnAndCollect(
 		};
 
 		const timeout = setTimeout(
-			() => killAndReject(new Error(`Command timed out after ${timeoutMs}ms`)),
+			() =>
+				killAndReject(
+					new TimeoutError(`Command timed out after ${timeoutMs}ms`, timeoutMs),
+				),
 			timeoutMs,
 		);
 
