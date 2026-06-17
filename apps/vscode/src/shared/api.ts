@@ -5561,6 +5561,18 @@ export const xiaomiAthrapiModels = {
 	},
 	"mimo-v2.5": {
 		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.12,
+		outputPrice: 0.12,
+		cacheWritesPrice: 0.12,
+		cacheReadsPrice: 0.12,
+		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.5:1m": {
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: true,
 		supportsPromptCache: true,
@@ -5572,6 +5584,18 @@ export const xiaomiAthrapiModels = {
 		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
 	},
 	"mimo-v2.5-pro": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.24,
+		outputPrice: 0.24,
+		cacheWritesPrice: 0.24,
+		cacheReadsPrice: 0.24,
+		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.5-pro:1m": {
 		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: false,
@@ -5592,6 +5616,18 @@ export const mimoTpAthrapiDefaultModelId: MimoTpAthrapiModelId = "mimo-v2.5-pro"
 export const mimoTpAthrapiModels = {
 	"mimo-v2.5": {
 		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.12,
+		outputPrice: 0.12,
+		cacheWritesPrice: 0.12,
+		cacheReadsPrice: 0.12,
+		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.5:1m": {
+		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: true,
 		supportsPromptCache: true,
@@ -5603,6 +5639,18 @@ export const mimoTpAthrapiModels = {
 		description: "Xiaomi Mimo V2.5 - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，实现跨模态精准感知与长程推理，综合感知能力跻身行业前沿。",
 	},
 	"mimo-v2.5-pro": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.24,
+		outputPrice: 0.24,
+		cacheWritesPrice: 0.24,
+		cacheReadsPrice: 0.24,
+		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.5-pro:1m": {
 		maxTokens: 131072,
 		contextWindow: 1048576,
 		supportsImages: false,
@@ -5623,7 +5671,7 @@ export const zhipuAthrapiDefaultModelId: ZhipuAthrapiModelId = "glm-5.2"
 export const zhipuAthrapiModels = {
 	"glm-5.2": {
 		maxTokens: 128_000,
-		contextWindow: 200_000,
+		contextWindow: 262_144,
 		supportsImages: false,
 		supportsPromptCache: true,
 		supportsReasoning: true,
@@ -5631,7 +5679,7 @@ export const zhipuAthrapiModels = {
 		inputPrice: 1.4,
 		outputPrice: 4.4,
 	},
-	"glm-5.2[1m]": {
+	"glm-5.2:1m": {
 		maxTokens: 128_000,
 		contextWindow: 1_000_000,
 		supportsImages: false,
