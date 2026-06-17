@@ -2,7 +2,7 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { Tool as AnthropicTool } from "@anthropic-ai/sdk/resources/index"
 import { Stream as AnthropicStream } from "@anthropic-ai/sdk/streaming"
 import { buildExternalBasicHeaders } from "@/services/EnvUtils"
-import { XiaomiAthrapiModelId, ModelInfo, xiaomiAthrapiDefaultModelId, xiaomiAthrapiModels } from "@/shared/api"
+import { CLAUDE_SONNET_1M_SUFFIX, XiaomiAthrapiModelId, ModelInfo, xiaomiAthrapiDefaultModelId, xiaomiAthrapiModels } from "@/shared/api"
 import { ClineStorageMessage } from "@/shared/messages/content"
 import { fetch } from "@/shared/net"
 import { ClineTool } from "@/shared/tools"
@@ -54,8 +54,13 @@ export class XiaomiAthrapiHandler implements ApiHandler {
 		const budget_tokens = this.options.thinkingBudgetTokens || 0
 		const reasoningOn = (model.info.supportsReasoning ?? false) && budget_tokens !== 0
 
+		// Strip the :1m suffix before sending to API, as it's a Cline-internal convention for context window selection
+		const apiModelId = model.id.endsWith(CLAUDE_SONNET_1M_SUFFIX)
+			? model.id.slice(0, -CLAUDE_SONNET_1M_SUFFIX.length)
+			: model.id
+
 		const stream: AnthropicStream<Anthropic.RawMessageStreamEvent> = await client.messages.create({
-			model: model.id,
+			model: apiModelId,
 			max_tokens: model.info.maxTokens || 8192,
 			system: [{ text: systemPrompt, type: "text" }],
 			messages,

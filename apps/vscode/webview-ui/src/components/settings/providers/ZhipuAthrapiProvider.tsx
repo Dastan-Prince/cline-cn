@@ -1,7 +1,8 @@
-import { zhipuAthrapiModels } from "@shared/api"
+import { CLAUDE_SONNET_1M_SUFFIX, zhipuAthrapiModels } from "@shared/api"
 import { Mode } from "@shared/storage/types"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { ApiKeyField } from "../common/ApiKeyField"
+import { ContextWindowSwitcher } from "../common/ContextWindowSwitcher"
 import { ModelInfoView } from "../common/ModelInfoView"
 import { ModelSelector } from "../common/ModelSelector"
 import ThinkingBudgetSlider from "../ThinkingBudgetSlider"
@@ -49,6 +50,19 @@ export const ZhipuAthrapiProvider = ({ showModelOptions, isPopup, currentMode }:
 							)
 						}
 						selectedModelId={selectedModelId}
+					/>
+
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="glm-5.2"
+						base1mModelId={`glm-5.2${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
 					/>
 
 					{selectedModelInfo?.supportsReasoning && (

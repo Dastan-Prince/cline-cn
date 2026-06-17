@@ -1,7 +1,8 @@
-import { mimoTpAthrapiModels } from "@shared/api"
+import { CLAUDE_SONNET_1M_SUFFIX, mimoTpAthrapiModels } from "@shared/api"
 import { Mode } from "@shared/storage/types"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { ApiKeyField } from "../common/ApiKeyField"
+import { ContextWindowSwitcher } from "../common/ContextWindowSwitcher"
 import { ModelInfoView } from "../common/ModelInfoView"
 import { ModelSelector } from "../common/ModelSelector"
 import ThinkingBudgetSlider from "../ThinkingBudgetSlider"
@@ -49,6 +50,34 @@ export const MimoTpAthrapiProvider = ({ showModelOptions, isPopup, currentMode }
 							)
 						}
 						selectedModelId={selectedModelId}
+					/>
+
+					{/* Context window switcher for mimo-v2.5 */}
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="mimo-v2.5"
+						base1mModelId={`mimo-v2.5${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
+					/>
+
+					{/* Context window switcher for mimo-v2.5-pro */}
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="mimo-v2.5-pro"
+						base1mModelId={`mimo-v2.5-pro${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
 					/>
 
 					{selectedModelInfo?.supportsReasoning && (
