@@ -1,11 +1,14 @@
 # Cline-CN (Cline中国版) 🌏
-
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Dastan-Prince/cline-cn/main/assets/icons/icon.png" width="160" alt="Cline" />
+</p>
 ## 项目概述
 Cline CN 是一个 VSCode AI 编程助手扩展，基于 Cline 项目进行本地化和优化，支持多种 AI 模型提供商。
 
 ## 最近的开发历史 (基于 Git 日志)
 
-在原版Cline基础上添加了我常用的最新国产大模型
+在原版Cline基础上添加了我常用的最新国产大模型  
+经过测试，同一模型的Anthropic接口要比OpenAI接口更流畅。
 
 ### DeepSeek
 - deepseek-v4-pro 

@@ -404,7 +404,7 @@ export class Task {
 
 		if (isMultiRootWorkspace && checkpointsEnabled) {
 			// Set checkpoint manager error message to display warning in TaskHeader
-			this.taskState.checkpointManagerErrorMessage = "Checkpoints are not currently supported in multi-root workspaces."
+			this.taskState.checkpointManagerErrorMessage = "多根工作区目前不支持检查点。"
 		}
 
 		// Initialize checkpoint manager based on workspace configuration
@@ -444,10 +444,10 @@ export class Task {
 				Logger.error("Failed to initialize checkpoint manager:", error)
 				if (this.stateManager.getGlobalSettingsKey("enableCheckpointsSetting")) {
 					const errorMessage = error instanceof Error ? error.message : "Unknown error"
-					HostProvider.window.showMessage({
-						type: ShowMessageType.ERROR,
-						message: `Failed to initialize checkpoint manager: ${errorMessage}`,
-					})
+			HostProvider.window.showMessage({
+				type: ShowMessageType.ERROR,
+				message: `初始化检查点管理器失败: ${errorMessage}`,
+			})
 				}
 			}
 		}
@@ -929,9 +929,9 @@ export class Task {
 	async sayAndCreateMissingParamError(toolName: ClineDefaultTool, paramName: string, relPath?: string) {
 		await this.say(
 			"error",
-			`Cline tried to use ${toolName}${
-				relPath ? ` for '${relPath.toPosix()}'` : ""
-			} without value for required parameter '${paramName}'. Retrying...`,
+		`Cline 尝试使用 ${toolName}${
+			relPath ? ` 用于 '${relPath.toPosix()}'` : ""
+		} 但缺少必需参数 '${paramName}' 的值。正在重试...`,
 		)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
 	}
@@ -1348,16 +1348,16 @@ export class Task {
 			const hours = Math.floor(minutes / 60)
 			const days = Math.floor(hours / 24)
 
-			if (days > 0) {
-				return `${days} day${days > 1 ? "s" : ""} ago`
-			}
-			if (hours > 0) {
-				return `${hours} hour${hours > 1 ? "s" : ""} ago`
-			}
-			if (minutes > 0) {
-				return `${minutes} minute${minutes > 1 ? "s" : ""} ago`
-			}
-			return "just now"
+		if (days > 0) {
+			return `${days} 天前`
+		}
+		if (hours > 0) {
+			return `${hours} 小时前`
+		}
+		if (minutes > 0) {
+			return `${minutes} 分钟前`
+		}
+		return "刚刚"
 		})()
 
 		const wasRecent = lastClineMessage?.ts && Date.now() - lastClineMessage.ts < 30_000
@@ -1725,7 +1725,7 @@ export class Task {
 			}
 
 			// Notify UI that hook was cancelled
-			await this.say("hook_output_stream", "\nHook execution cancelled by user")
+			await this.say("hook_output_stream", "\n用户已取消 Hook 执行")
 
 			// Return success - let caller (abortTask) handle next steps
 			// DON'T call abortTask() here to avoid infinite recursion
@@ -2054,7 +2054,7 @@ export class Task {
 					// If the conversation has more than 3 messages, we can truncate again. If not, then the conversation is bricked.
 					// ToDo: Allow the user to change their input if this is the case.
 					if (truncatedConversationHistory.length > 3) {
-						clineError.message = "Context window exceeded. Click retry to truncate the conversation and try again."
+						clineError.message = "上下文窗口超出。点击重试以截断对话并重新尝试。"
 						this.taskState.didAutomaticallyRetryFailedApiRequest = false
 					}
 				}
@@ -2385,27 +2385,26 @@ export class Task {
 		if (this.taskState.consecutiveMistakeCount >= this.stateManager.getGlobalSettingsKey("maxConsecutiveMistakes")) {
 			// In yolo mode, don't wait for user input - fail the task
 			if (this.stateManager.getGlobalSettingsKey("yoloModeToggled")) {
-				const errorMessage =
-					`[YOLO MODE] Task failed: Too many consecutive mistakes (${this.taskState.consecutiveMistakeCount}). ` +
-					`The model may not be capable enough for this task. Consider using a more capable model.`
-				await this.say("error", errorMessage)
-				// End the task loop with failure
-				return true // didEndLoop = true, signals task completion/failure
-			}
+			const errorMessage =
+				`[YOLO 模式] 任务失败：连续错误次数过多 (${this.taskState.consecutiveMistakeCount})。` +
+				`该模型可能无法胜任此任务。建议使用更强大的模型。`
+			await this.say("error", errorMessage)
+			return true
+		}
 
-			const autoApprovalSettings = this.stateManager.getGlobalSettingsKey("autoApprovalSettings")
-			if (autoApprovalSettings.enableNotifications) {
-				showSystemNotification({
-					subtitle: "Error",
-					message: "Cline is having trouble. Would you like to continue the task?",
-				})
-			}
-			const { response, text, images, files } = await this.ask(
-				"mistake_limit_reached",
-				this.api.getModel().id.includes("claude")
-					? `This may indicate a failure in Cline's thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
-					: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 4.5 Sonnet for its advanced agentic coding capabilities.",
-			)
+		const autoApprovalSettings = this.stateManager.getGlobalSettingsKey("autoApprovalSettings")
+		if (autoApprovalSettings.enableNotifications) {
+			showSystemNotification({
+				subtitle: "错误",
+				message: "Cline 遇到了问题。是否要继续任务？",
+			})
+		}
+		const { response, text, images, files } = await this.ask(
+			"mistake_limit_reached",
+			this.api.getModel().id.includes("claude")
+				? `这可能表明 Cline 的思维过程出现了问题，或无法正确使用工具，可以通过一些用户引导来缓解（例如"尝试将任务分解为更小的步骤"）。`
+				: "Cline 使用复杂的提示词和迭代式任务执行，对于能力较弱的模型可能具有挑战性。为了获得最佳效果，建议使用 Claude 4.5 Sonnet 以获得其先进的智能编码能力。",
+		)
 			if (response === "messageResponse") {
 				// Display the user's message in the chat UI
 				await this.say("user_feedback", text, images, files)
@@ -2463,7 +2462,7 @@ export class Task {
 				this.taskState.checkpointManagerErrorMessage = errorMessage // will be displayed right away since we saveClineMessages next which posts state to webview
 				HostProvider.window.showMessage({
 					type: ShowMessageType.ERROR,
-					message: `Checkpoint initialization timed out: ${errorMessage}`,
+					message: `检查点初始化超时: ${errorMessage}`,
 				})
 			}
 		}
@@ -2591,10 +2590,10 @@ export class Task {
 
 		// error handling if the user uses the /newrule command & their .clinerules is a file, for file read operations didnt work properly
 		if (clinerulesError === true) {
-			await this.say(
-				"error",
-				"Issue with processing the /newrule command. Double check that, if '.clinerules' already exists, it's a directory and not a file. Otherwise there was an issue referencing this file/directory.",
-			)
+		await this.say(
+			"error",
+			"处理 /newrule 命令时出现问题。请检查：如果 '.clinerules' 已存在，确保它是一个目录而不是文件。否则可能是引用此文件/目录时出现问题。",
+		)
 		}
 
 		// Replace userContent with parsed content that includes file details and command instructions.
@@ -2619,12 +2618,12 @@ export class Task {
 
 		// getting verbose details is an expensive operation, it uses globby to top-down build file structure of project which for large projects can take a few seconds
 		// for the best UX we show a placeholder api_req_started message with a loading spinner as this happens
-		await this.say(
-			"api_req_started",
-			JSON.stringify({
-				request: userContent.map((block) => formatContentBlockToMarkdown(block)).join("\n\n") + "\n\nLoading...",
-			}),
-		)
+			await this.say(
+				"api_req_started",
+				JSON.stringify({
+					request: userContent.map((block) => formatContentBlockToMarkdown(block)).join("\n\n") + "\n\n加载中...",
+				}),
+			)
 
 		await this.messageStateHandler.addToApiConversationHistory({
 			role: "user",
@@ -2753,8 +2752,8 @@ export class Task {
 								assistantMessage +
 								`\n\n[${
 									cancelReason === "streaming_failed"
-										? "Response interrupted by API Error"
-										: "Response interrupted by user"
+										? "响应因 API 错误而中断"
+										: "响应被用户中断"
 								}]`,
 						},
 					],
@@ -2973,7 +2972,7 @@ export class Task {
 
 					if (this.taskState.didRejectTool) {
 						// userContent has a tool rejection, so interrupt the assistant's response to present the user's feedback
-						assistantMessage += "\n\n[Response interrupted by user feedback]"
+						assistantMessage += "\n\n[响应因用户反馈而中断]"
 						// this.userMessageContentReady = true // instead of setting this preemptively, we allow the present iterator to finish and set userMessageContentReady when its ready
 						shouldInterruptStream = true
 						break
@@ -2983,8 +2982,8 @@ export class Task {
 					// PREV: we need to let the request finish for openrouter to get generation details
 					// UPDATE: it's better UX to interrupt the request at the cost of the api cost not being retrieved
 					if (!this.isParallelToolCallingEnabled() && this.taskState.didAlreadyUseTool) {
-						assistantMessage +=
-							"\n\n[Response interrupted by a tool use result. Only one tool may be used at a time and should be placed at the end of the message.]"
+					assistantMessage +=
+						"\n\n[响应因工具使用结果而中断。每次只能使用一个工具，且应放在消息末尾。]"
 						shouldInterruptStream = true
 						break
 					}
@@ -3239,8 +3238,8 @@ export class Task {
 					isNativeToolCall: this.useNativeToolCalls,
 				})
 
-				const baseErrorMessage =
-					"Invalid API Response: The provider returned an empty or unparsable response. This is a provider-side issue where the model failed to generate valid output or returned tool calls that Cline cannot process. Retrying the request may help resolve this issue."
+			const baseErrorMessage =
+				"无效的 API 响应：提供商返回了空响应或无法解析的响应。这是提供商端的问题，模型未能生成有效输出，或返回了 Cline 无法处理的工具调用。重试请求可能有助于解决此问题。"
 				const errorText = reqId ? `${baseErrorMessage} (Request ID: ${reqId})` : baseErrorMessage
 
 				await this.say("error", errorText)
@@ -3249,7 +3248,7 @@ export class Task {
 					content: [
 						{
 							type: "text",
-							text: "Failure: I did not provide a response.",
+							text: "失败：我未能提供响应。",
 						},
 					],
 					modelInfo,
@@ -3267,7 +3266,7 @@ export class Task {
 
 				let response: ClineAskResponse
 
-				const noResponseErrorMessage = "No assistant message was received. Would you like to retry the request?"
+				const noResponseErrorMessage = "未收到助手消息。是否要重试请求？"
 
 				if (this.taskState.autoRetryAttempts < 3) {
 					// Auto-retry enabled with max 3 attempts: automatically approve the retry
@@ -3575,7 +3574,7 @@ export class Task {
 		if (allowedVisibleFiles) {
 			details += `\n${allowedVisibleFiles}`
 		} else {
-			details += "\n(No visible files)"
+			details += "\n(无可视文件)"
 		}
 
 		details += `\n\n# ${host.platform} Open Tabs`
@@ -3592,7 +3591,7 @@ export class Task {
 		if (allowedOpenTabs) {
 			details += `\n${allowedOpenTabs}`
 		} else {
-			details += "\n(No open tabs)"
+			details += "\n(无打开的标签页)"
 		}
 
 		const busyTerminals = this.terminalManager.getTerminals(true)
@@ -3686,7 +3685,7 @@ export class Task {
 			const isDesktop = arePathsEqual(this.cwd, getDesktopDir())
 			if (isDesktop) {
 				// don't want to immediately access desktop since it would show permission popup
-				details += "(Desktop files not shown automatically. Use list_files to explore if needed.)"
+				details += "(桌面文件不会自动显示。需要使用 list_files 来探索。)"
 			} else {
 				const [files, didHitLimit] = await listFiles(this.cwd, true, 200)
 				const result = formatResponse.formatFilesList(this.cwd, files, didHitLimit, this.clineIgnoreController)

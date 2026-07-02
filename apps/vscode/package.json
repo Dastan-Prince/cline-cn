@@ -2,7 +2,7 @@
 	"name": "cline-cn",
 	"displayName": "Cline CN",
 	"description": "%cline.description%",
-	"version": "3.89.2-beta.2",
+	"version": "3.89.4",
 	"icon": "assets/icons/icon.png",
 	"engines": {
 		"vscode": "^1.84.0"
@@ -112,8 +112,8 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-				"title": "CLINE CN",
-				"icon": "assets/icons/icon.svg"
+					"title": "CLINE CN",
+					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},

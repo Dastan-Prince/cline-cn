@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icons/icon.png" width="80" alt="Cline" />
+  <img src="assets/icons/icon.png" width="160" alt="Cline" />
 </p>
 
-<h1 align="center">Cline</h1>
+<h1 align="center">Cline CN</h1>
 
 <p align="center">
 The open source coding agent in your IDE and terminal.
