@@ -182,12 +182,12 @@ export class AnthropicCompHandler implements ApiHandler {
 	getModel(): { id: string; info: ModelInfo } {
 		const modelId = this.options.anthropicCompModelId || ""
 		const modelInfo = this.options.anthropicCompModelInfo || {
-			maxTokens: 8192,
-			contextWindow: 200000,
+			maxTokens: 128000,
+			contextWindow: 256000,
 			supportsImages: true,
 			supportsPromptCache: true,
-			inputPrice: 0,
-			outputPrice: 0,
+			inputPrice: 0.3,
+			outputPrice: 1.0,
 		}
 		return { id: modelId, info: modelInfo }
 	}
