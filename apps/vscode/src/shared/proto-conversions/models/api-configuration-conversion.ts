@@ -340,6 +340,8 @@ function convertApiProviderToProto(provider: string | undefined): ProtoApiProvid
 			return ProtoApiProvider.ZHIPU_ATHRAPI
 		case "dots-studio-athrapi":
 			return ProtoApiProvider.DOTS_STUDIO_ATHRAPI
+		case "anthropic-comp":
+			return ProtoApiProvider.ANTHROPIC_COMP
 		default:
 			return ProtoApiProvider.ANTHROPIC
 	}
@@ -444,6 +446,8 @@ export function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvid
 			return "zhipu-athrapi"
 		case ProtoApiProvider.DOTS_STUDIO_ATHRAPI:
 			return "dots-studio-athrapi"
+		case ProtoApiProvider.ANTHROPIC_COMP:
+			return "anthropic-comp"
 		default:
 			return "anthropic"
 	}
@@ -531,6 +535,8 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		mimoTpAthrapiKey: config.mimoTpAthrapiKey,
 		zhipuAthrapiKey: config.zhipuAthrapiKey,
 		dotsStudioAthrapiKey: config.dotsStudioAthrapiKey,
+		anthropicCompApiKey: config.anthropicCompApiKey,
+		anthropicCompBaseUrl: config.anthropicCompBaseUrl,
 		difyApiKey: config.difyApiKey,
 		difyBaseUrl: config.difyBaseUrl,
 		ocaBaseUrl: config.ocaBaseUrl,
@@ -588,6 +594,8 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		planModeNousResearchModelId: config.planModeNousResearchModelId,
 		planModeVercelAiGatewayModelId: config.planModeVercelAiGatewayModelId,
 		planModeVercelAiGatewayModelInfo: convertModelInfoToProtoOpenRouter(config.planModeVercelAiGatewayModelInfo),
+		planModeAnthropicCompModelId: config.planModeAnthropicCompModelId,
+		planModeAnthropicCompModelInfo: convertModelInfoToProtoOpenRouter(config.planModeAnthropicCompModelInfo),
 
 		// Act mode configurations
 		actModeApiProvider: config.actModeApiProvider ? convertApiProviderToProto(config.actModeApiProvider) : undefined,
@@ -632,6 +640,8 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		actModeNousResearchModelId: config.actModeNousResearchModelId,
 		actModeVercelAiGatewayModelId: config.actModeVercelAiGatewayModelId,
 		actModeVercelAiGatewayModelInfo: convertModelInfoToProtoOpenRouter(config.actModeVercelAiGatewayModelInfo),
+		actModeAnthropicCompModelId: config.actModeAnthropicCompModelId,
+		actModeAnthropicCompModelInfo: convertModelInfoToProtoOpenRouter(config.actModeAnthropicCompModelInfo),
 	}
 }
 
@@ -717,6 +727,8 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		mimoTpAthrapiKey: protoConfig.mimoTpAthrapiKey,
 		zhipuAthrapiKey: protoConfig.zhipuAthrapiKey,
 		dotsStudioAthrapiKey: protoConfig.dotsStudioAthrapiKey,
+		anthropicCompApiKey: protoConfig.anthropicCompApiKey,
+		anthropicCompBaseUrl: protoConfig.anthropicCompBaseUrl,
 		difyApiKey: protoConfig.difyApiKey,
 		difyBaseUrl: protoConfig.difyBaseUrl,
 		ocaBaseUrl: protoConfig.ocaBaseUrl,
@@ -777,6 +789,8 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		planModeNousResearchModelId: protoConfig.planModeNousResearchModelId,
 		planModeVercelAiGatewayModelId: protoConfig.planModeVercelAiGatewayModelId,
 		planModeVercelAiGatewayModelInfo: convertProtoToModelInfo(protoConfig.planModeVercelAiGatewayModelInfo),
+		planModeAnthropicCompModelId: protoConfig.planModeAnthropicCompModelId,
+		planModeAnthropicCompModelInfo: convertProtoToModelInfo(protoConfig.planModeAnthropicCompModelInfo),
 
 		// Act mode configurations
 		actModeApiProvider:
@@ -822,5 +836,7 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		actModeNousResearchModelId: protoConfig.actModeNousResearchModelId,
 		actModeVercelAiGatewayModelId: protoConfig.actModeVercelAiGatewayModelId,
 		actModeVercelAiGatewayModelInfo: convertProtoToModelInfo(protoConfig.actModeVercelAiGatewayModelInfo),
+		actModeAnthropicCompModelId: protoConfig.actModeAnthropicCompModelId,
+		actModeAnthropicCompModelInfo: convertProtoToModelInfo(protoConfig.actModeAnthropicCompModelInfo),
 	}
 }

@@ -102,6 +102,7 @@ const API_HANDLER_SETTINGS_FIELDS = {
 	liteLlmUsePromptCache: { default: undefined as boolean | undefined },
 	openAiHeaders: { default: {} as Record<string, string> },
 	anthropicBaseUrl: { default: undefined as string | undefined },
+	anthropicCompBaseUrl: { default: undefined as string | undefined },
 	openRouterProviderSorting: { default: undefined as string | undefined },
 	awsRegion: { default: undefined as string | undefined },
 	awsUseCrossRegionInference: { default: undefined as boolean | undefined },
@@ -186,6 +187,8 @@ const API_HANDLER_SETTINGS_FIELDS = {
 	planModeNousResearchModelId: { default: undefined as string | undefined },
 	planModeVercelAiGatewayModelId: { default: undefined as string | undefined },
 	planModeVercelAiGatewayModelInfo: { default: undefined as ModelInfo | undefined },
+	planModeAnthropicCompModelId: { default: undefined as string | undefined },
+	planModeAnthropicCompModelInfo: { default: undefined as ModelInfo | undefined },
 
 	// Act mode configurations
 	actModeApiModelId: { default: undefined as string | undefined },
@@ -230,6 +233,8 @@ const API_HANDLER_SETTINGS_FIELDS = {
 	actModeNousResearchModelId: { default: undefined as string | undefined },
 	actModeVercelAiGatewayModelId: { default: undefined as string | undefined },
 	actModeVercelAiGatewayModelInfo: { default: undefined as ModelInfo | undefined },
+	actModeAnthropicCompModelId: { default: undefined as string | undefined },
+	actModeAnthropicCompModelInfo: { default: undefined as ModelInfo | undefined },
 
 	// Model-specific settings
 	planModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider },
@@ -356,6 +361,7 @@ const SECRETS_KEYS = [
 	"mimoTpAthrapiKey",
 	"zhipuAthrapiKey",
 	"dotsStudioAthrapiKey",
+	"anthropicCompApiKey",
 ] as const
 
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker

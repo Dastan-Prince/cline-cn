@@ -162,6 +162,8 @@ export function getModelsForProvider(
 			return mimoTpAthrapiModels
 		case "dots-studio-athrapi":
 			return dotsStudioAthrapiModels
+		case "anthropic-comp":
+			return undefined
 		case "zhipu-athrapi":
 			return zhipuAthrapiModels
 		case "huggingface":
@@ -525,6 +527,17 @@ export function normalizeApiConfiguration(
 			return getProviderData(mimoTpAthrapiModels, mimoTpAthrapiDefaultModelId)
 		case "dots-studio-athrapi":
 			return getProviderData(dotsStudioAthrapiModels, dotsStudioAthrapiDefaultModelId)
+		case "anthropic-comp": {
+			const anthropicCompModelId =
+				currentMode === "plan" ? apiConfiguration?.planModeAnthropicCompModelId : apiConfiguration?.actModeAnthropicCompModelId
+			const anthropicCompModelInfo =
+				currentMode === "plan" ? apiConfiguration?.planModeAnthropicCompModelInfo : apiConfiguration?.actModeAnthropicCompModelInfo
+			return {
+				selectedProvider: provider,
+				selectedModelId: anthropicCompModelId || "",
+				selectedModelInfo: anthropicCompModelInfo || openAiModelInfoSaneDefaults,
+			}
+		}
 		case "zhipu-athrapi":
 			return getProviderData(zhipuAthrapiModels, zhipuAthrapiDefaultModelId)
 		case "nousResearch":
@@ -686,6 +699,9 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
 		reasoningEffort: mode === "plan" ? apiConfiguration.planModeReasoningEffort : apiConfiguration.actModeReasoningEffort,
 		// Oracle Code Assist
 		ocaModelInfo: mode === "plan" ? apiConfiguration.planModeOcaModelInfo : apiConfiguration.actModeOcaModelInfo,
+		// Anthropic Compatible
+		anthropicCompModelInfo:
+			mode === "plan" ? apiConfiguration.planModeAnthropicCompModelInfo : apiConfiguration.actModeAnthropicCompModelInfo,
 	}
 }
 

@@ -205,6 +205,7 @@ message ModelsApiSecrets {
   optional string mimo_tp_athrapi_key = 43;
   optional string zhipu_athrapi_key = 44;
   optional string dots_studio_athrapi_key = 45;
+  optional string anthropic_comp_api_key = 46;
 }
 
 // API configuration options (non-secret settings)
@@ -254,6 +255,7 @@ message ModelsApiOptions {
   optional string aihubmix_base_url = 42;
   optional string aihubmix_app_code = 43;
   optional bool azure_identity = 44;
+  optional string anthropic_comp_base_url = 45;
 
   // Plan mode configurations
   optional ApiProvider plan_mode_api_provider = 100;
@@ -293,6 +295,8 @@ message ModelsApiOptions {
   optional OpenAiCompatibleModelInfo plan_mode_aihubmix_model_info = 134;
   optional string plan_mode_cline_model_id = 135;
   optional OpenRouterModelInfo plan_mode_cline_model_info = 136;
+  optional string plan_mode_anthropic_comp_model_id = 137;
+  optional OpenRouterModelInfo plan_mode_anthropic_comp_model_info = 138;
 
   // Act mode configurations
   optional ApiProvider act_mode_api_provider = 200;
@@ -332,6 +336,8 @@ message ModelsApiOptions {
   optional OpenAiCompatibleModelInfo act_mode_aihubmix_model_info = 234;
   optional string act_mode_cline_model_id = 235;
   optional OpenRouterModelInfo act_mode_cline_model_info = 236;
+  optional string act_mode_anthropic_comp_model_id = 237;
+  optional OpenRouterModelInfo act_mode_anthropic_comp_model_info = 238;
 }
 
 // Request for updating API configuration (legacy - uses combined configuration)
@@ -473,6 +479,7 @@ enum ApiProvider {
   MIMO_TP_ATHRAPI = 45;
   ZHIPU_ATHRAPI = 46;
   DOTS_STUDIO_ATHRAPI = 47;
+  ANTHROPIC_COMP = 48;
 }
 
 enum ApiFormat {
@@ -618,6 +625,8 @@ message ModelsApiConfiguration {
   optional string mimo_tp_athrapi_key = 91;
   optional string zhipu_athrapi_key = 92;
   optional string dots_studio_athrapi_key = 93;
+  optional string anthropic_comp_api_key = 94;
+  optional string anthropic_comp_base_url = 95;
 
   // Plan mode configurations
   optional ApiProvider plan_mode_api_provider = 100;
@@ -662,6 +671,8 @@ message ModelsApiConfiguration {
   optional string gemini_plan_mode_thinking_level = 139;
   optional string plan_mode_cline_model_id = 140;
   optional OpenRouterModelInfo plan_mode_cline_model_info = 141;
+  optional string plan_mode_anthropic_comp_model_id = 142;
+  optional OpenRouterModelInfo plan_mode_anthropic_comp_model_info = 143;
 
   // Act mode configurations
   optional ApiProvider act_mode_api_provider = 200;
@@ -706,4 +717,6 @@ message ModelsApiConfiguration {
   optional string gemini_act_mode_thinking_level = 239;
   optional string act_mode_cline_model_id = 240;
   optional OpenRouterModelInfo act_mode_cline_model_info = 241;
+  optional string act_mode_anthropic_comp_model_id = 242;
+  optional OpenRouterModelInfo act_mode_anthropic_comp_model_info = 243;
 }

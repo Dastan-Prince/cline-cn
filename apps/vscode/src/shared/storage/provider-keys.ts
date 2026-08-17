@@ -91,6 +91,7 @@ export const ProviderToApiKeyMap: Partial<Record<ApiProvider, keyof Secrets | (k
 	xiaomi: "xiaomiApiKey",
 	"mimo-tp": "mimoTokenPlanApiKey",
 	"dots-studio-athrapi": "dotsStudioAthrapiKey",
+	"anthropic-comp": "anthropicCompApiKey",
 } as const
 
 const ProviderDefaultModelMap: Partial<Record<ApiProvider, string>> = {

@@ -59,6 +59,7 @@ import { XiaomiProvider } from "./providers/XiaomiProvider"
 import { XiaomiAthrapiProvider } from "./providers/XiaomiAthrapiProvider"
 import { MimoTpAthrapiProvider } from "./providers/MimoTpAthrapiProvider"
 import { DotsStudioAthrapiProvider } from "./providers/DotsStudioAthrapiProvider"
+import { AnthropicCompProvider } from "./providers/AnthropicCompProvider"
 import { ZhipuAthrapiProvider } from "./providers/ZhipuAthrapiProvider"
 import { ZAiProvider } from "./providers/ZAiProvider"
 import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers"
@@ -538,6 +539,10 @@ const ApiOptions = ({
 
 			{apiConfiguration && selectedProvider === "dots-studio-athrapi" && (
 				<DotsStudioAthrapiProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
+			)}
+
+			{apiConfiguration && selectedProvider === "anthropic-comp" && (
+				<AnthropicCompProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
 			)}
 
 			{apiConfiguration && selectedProvider === "zhipu-athrapi" && (

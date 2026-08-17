@@ -17,16 +17,20 @@
 			"label": "Mimo TP AthrAPI"
 		},
 		{
+			"value": "dots-studio-athrapi",
+			"label": "Dots Studio AthrAPI"
+		},
+		{
 			"value": "zhipu-athrapi",
 			"label": "Zhipu AthrAPI"
 		},
 		{
-			"value": "cline",
-			"label": "Cline"
+			"value": "anthropic-comp",
+			"label": "Anthropic Compatible"
 		},
 		{
-			"value": "dots-studio-athrapi",
-			"label": "Dots Studio AthrAPI"
+			"value": "cline",
+			"label": "Cline"
 		},
 		{
 			"value": "openai-codex",

@@ -50,6 +50,7 @@ export type ApiProvider =
 	| "mimo-tp-athrapi"
 	| "zhipu-athrapi"
 	| "dots-studio-athrapi"
+	| "anthropic-comp"
 
 export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider
 
@@ -4942,6 +4943,17 @@ export const basetenDefaultModelId = "zai-org/GLM-4.6" satisfies BasetenModelId
 export type internationalZAiModelId = keyof typeof internationalZAiModels
 export const internationalZAiDefaultModelId: internationalZAiModelId = "glm-5.2"
 export const internationalZAiModels = {
+	"glm-5.3": {
+		maxTokens: 128_000,
+		contextWindow: 1_000_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
 	"glm-5.2": {
 		maxTokens: 128_000,
 		contextWindow: 1_000_000,
@@ -4953,7 +4965,7 @@ export const internationalZAiModels = {
 		inputPrice: 1.4,
 		outputPrice: 4.4,
 	},
-	"glm-5.1": {
+	"glm-5-turbo": {
 		maxTokens: 128_000,
 		contextWindow: 200_000,
 		supportsImages: false,
@@ -4963,17 +4975,6 @@ export const internationalZAiModels = {
 		cacheReadsPrice: 0.26,
 		inputPrice: 1.4,
 		outputPrice: 4.4,
-	},
-	"glm-5": {
-		maxTokens: 128_000,
-		contextWindow: 200_000,
-		supportsImages: false,
-		supportsPromptCache: true,
-		supportsReasoning: true,
-        supportsTools: true,
-		cacheReadsPrice: 0.2,
-		inputPrice: 1.0,
-		outputPrice: 3.2,
 	},
 	"glm-4.7": {
 		maxTokens: 131_000,
@@ -5028,6 +5029,17 @@ export const internationalZAiModels = {
 export type mainlandZAiModelId = keyof typeof mainlandZAiModels
 export const mainlandZAiDefaultModelId: mainlandZAiModelId = "glm-5.2"
 export const mainlandZAiModels = {
+	"glm-5.3": {
+		maxTokens: 128_000,
+		contextWindow: 1_000_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
 	"glm-5.2": {
 		maxTokens: 128_000,
 		contextWindow: 1_000_000,
@@ -5039,7 +5051,7 @@ export const mainlandZAiModels = {
 		inputPrice: 1.4,
 		outputPrice: 4.4,
 	},
-	"glm-5.1": {
+	"glm-5-turbo": {
 		maxTokens: 128_000,
 		contextWindow: 200_000,
 		supportsImages: false,
@@ -5049,17 +5061,6 @@ export const mainlandZAiModels = {
 		cacheReadsPrice: 0.26,
 		inputPrice: 1.4,
 		outputPrice: 4.4,
-	},
-	"glm-5": {
-		maxTokens: 128_000,
-		contextWindow: 200_000,
-		supportsImages: false,
-		supportsPromptCache: true,
-		supportsReasoning: true,
-        supportsTools: true,
-		cacheReadsPrice: 0.2,
-		inputPrice: 1.0,
-		outputPrice: 3.2,
 	},
 	"glm-4.7": {
 		maxTokens: 131_000,
@@ -5721,7 +5722,27 @@ export const zhipuAthrapiModels = {
 		inputPrice: 1.4,
 		outputPrice: 4.4,
 	},
-	"glm-5.1": {
+	"glm-5.3": {
+		maxTokens: 128_000,
+		contextWindow: 262_144,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
+	"glm-5.3:1m": {
+		maxTokens: 128_000,
+		contextWindow: 1_000_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		cacheReadsPrice: 0.26,
+		inputPrice: 1.4,
+		outputPrice: 4.4,
+	},
+	"glm-5-turbo": {
 		maxTokens: 128_000,
 		contextWindow: 200_000,
 		supportsImages: false,
@@ -5730,16 +5751,6 @@ export const zhipuAthrapiModels = {
 		cacheReadsPrice: 0.26,
 		inputPrice: 1.4,
 		outputPrice: 4.4,
-	},
-	"glm-5": {
-		maxTokens: 128_000,
-		contextWindow: 200_000,
-		supportsImages: false,
-		supportsPromptCache: true,
-		supportsReasoning: true,
-		cacheReadsPrice: 0.2,
-		inputPrice: 1.0,
-		outputPrice: 3.2,
 	},
 	"glm-4.7": {
 		maxTokens: 131_000,
