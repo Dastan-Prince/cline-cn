@@ -355,6 +355,7 @@ const SECRETS_KEYS = [
 	"xiaomiAthrapiKey",
 	"mimoTpAthrapiKey",
 	"zhipuAthrapiKey",
+	"dotsStudioAthrapiKey",
 ] as const
 
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker

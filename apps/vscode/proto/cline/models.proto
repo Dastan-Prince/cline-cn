@@ -204,6 +204,7 @@ message ModelsApiSecrets {
   optional string xiaomi_athrapi_key = 42;
   optional string mimo_tp_athrapi_key = 43;
   optional string zhipu_athrapi_key = 44;
+  optional string dots_studio_athrapi_key = 45;
 }
 
 // API configuration options (non-secret settings)
@@ -471,6 +472,7 @@ enum ApiProvider {
   XIAOMI_ATHRAPI = 44;
   MIMO_TP_ATHRAPI = 45;
   ZHIPU_ATHRAPI = 46;
+  DOTS_STUDIO_ATHRAPI = 47;
 }
 
 enum ApiFormat {
@@ -615,6 +617,7 @@ message ModelsApiConfiguration {
   optional string xiaomi_athrapi_key = 90;
   optional string mimo_tp_athrapi_key = 91;
   optional string zhipu_athrapi_key = 92;
+  optional string dots_studio_athrapi_key = 93;
 
   // Plan mode configurations
   optional ApiProvider plan_mode_api_provider = 100;

@@ -50,6 +50,7 @@ import { MimoTokenPlanHandler } from "./providers/mimo-token-plan"
 import { XiaomiAthrapiHandler } from "./providers/xiaomi-athrapi"
 import { MimoTpAthrapiHandler } from "./providers/mimo-tp-athrapi"
 import { ZhipuAthrapiHandler } from "./providers/zhipu-athrapi"
+import { DotsStudioAthrapiHandler } from "./providers/dots-studio-athrapi"
 import { ApiStream, ApiStreamUsageChunk } from "./transform/stream"
 
 export type CommonApiHandlerOptions = {
@@ -499,6 +500,14 @@ function createHandlerForProvider(
 			return new ZhipuAthrapiHandler({
 				onRetryAttempt: options.onRetryAttempt,
 				zhipuAthrapiKey: options.zhipuAthrapiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
+				thinkingBudgetTokens:
+					mode === "plan" ? options.planModeThinkingBudgetTokens : options.actModeThinkingBudgetTokens,
+			})
+		case "dots-studio-athrapi":
+			return new DotsStudioAthrapiHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				dotsStudioAthrapiKey: options.dotsStudioAthrapiKey,
 				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
 				thinkingBudgetTokens:
 					mode === "plan" ? options.planModeThinkingBudgetTokens : options.actModeThinkingBudgetTokens,

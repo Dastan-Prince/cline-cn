@@ -15,6 +15,7 @@ import {
 	internationalQwenDefaultModelId,
 	liteLlmDefaultModelId,
 	mimoTokenPlanDefaultModelId,
+	dotsStudioAthrapiDefaultModelId,
 	minimaxDefaultModelId,
 	moonshotDefaultModelId,
 	nousResearchDefaultModelId,
@@ -89,6 +90,7 @@ export const ProviderToApiKeyMap: Partial<Record<ApiProvider, keyof Secrets | (k
 	wandb: "wandbApiKey",
 	xiaomi: "xiaomiApiKey",
 	"mimo-tp": "mimoTokenPlanApiKey",
+	"dots-studio-athrapi": "dotsStudioAthrapiKey",
 } as const
 
 const ProviderDefaultModelMap: Partial<Record<ApiProvider, string>> = {
@@ -122,6 +124,7 @@ const ProviderDefaultModelMap: Partial<Record<ApiProvider, string>> = {
 	wandb: wandbDefaultModelId,
 	xiaomi: xiaomiDefaultModelId,
 	"mimo-tp": mimoTokenPlanDefaultModelId,
+	"dots-studio-athrapi": dotsStudioAthrapiDefaultModelId,
 } as const
 
 /**

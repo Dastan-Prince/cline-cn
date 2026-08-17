@@ -338,6 +338,8 @@ function convertApiProviderToProto(provider: string | undefined): ProtoApiProvid
 			return ProtoApiProvider.MIMO_TP_ATHRAPI
 		case "zhipu-athrapi":
 			return ProtoApiProvider.ZHIPU_ATHRAPI
+		case "dots-studio-athrapi":
+			return ProtoApiProvider.DOTS_STUDIO_ATHRAPI
 		default:
 			return ProtoApiProvider.ANTHROPIC
 	}
@@ -440,6 +442,8 @@ export function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvid
 			return "mimo-tp-athrapi"
 		case ProtoApiProvider.ZHIPU_ATHRAPI:
 			return "zhipu-athrapi"
+		case ProtoApiProvider.DOTS_STUDIO_ATHRAPI:
+			return "dots-studio-athrapi"
 		default:
 			return "anthropic"
 	}
@@ -526,6 +530,7 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		xiaomiAthrapiKey: config.xiaomiAthrapiKey,
 		mimoTpAthrapiKey: config.mimoTpAthrapiKey,
 		zhipuAthrapiKey: config.zhipuAthrapiKey,
+		dotsStudioAthrapiKey: config.dotsStudioAthrapiKey,
 		difyApiKey: config.difyApiKey,
 		difyBaseUrl: config.difyBaseUrl,
 		ocaBaseUrl: config.ocaBaseUrl,
@@ -711,6 +716,7 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		xiaomiAthrapiKey: protoConfig.xiaomiAthrapiKey,
 		mimoTpAthrapiKey: protoConfig.mimoTpAthrapiKey,
 		zhipuAthrapiKey: protoConfig.zhipuAthrapiKey,
+		dotsStudioAthrapiKey: protoConfig.dotsStudioAthrapiKey,
 		difyApiKey: protoConfig.difyApiKey,
 		difyBaseUrl: protoConfig.difyBaseUrl,
 		ocaBaseUrl: protoConfig.ocaBaseUrl,

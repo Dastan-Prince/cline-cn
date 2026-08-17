@@ -77,11 +77,13 @@ import {
 	xiaomiAthrapiModels,
 	mimoTpAthrapiDefaultModelId,
 	mimoTpAthrapiModels,
+	dotsStudioAthrapiDefaultModelId,
+	dotsStudioAthrapiModels,
 	zhipuAthrapiDefaultModelId,
 	zhipuAthrapiModels,
-} from "@shared/api"
-import { Mode } from "@shared/storage/types"
-import * as reasoningSupport from "@shared/utils/reasoning-support"
+} from "@shared/api";
+import { Mode } from "@shared/storage/types";
+import * as reasoningSupport from "@shared/utils/reasoning-support";
 
 export function supportsReasoningEffortForModelId(modelId?: string, _allowShortOpenAiIds = false): boolean {
 	return reasoningSupport.supportsReasoningEffortForModel(modelId)
@@ -158,6 +160,8 @@ export function getModelsForProvider(
 			return xiaomiAthrapiModels
 		case "mimo-tp-athrapi":
 			return mimoTpAthrapiModels
+		case "dots-studio-athrapi":
+			return dotsStudioAthrapiModels
 		case "zhipu-athrapi":
 			return zhipuAthrapiModels
 		case "huggingface":
@@ -519,6 +523,8 @@ export function normalizeApiConfiguration(
 			return getProviderData(xiaomiAthrapiModels, xiaomiAthrapiDefaultModelId)
 		case "mimo-tp-athrapi":
 			return getProviderData(mimoTpAthrapiModels, mimoTpAthrapiDefaultModelId)
+		case "dots-studio-athrapi":
+			return getProviderData(dotsStudioAthrapiModels, dotsStudioAthrapiDefaultModelId)
 		case "zhipu-athrapi":
 			return getProviderData(zhipuAthrapiModels, zhipuAthrapiDefaultModelId)
 		case "nousResearch":

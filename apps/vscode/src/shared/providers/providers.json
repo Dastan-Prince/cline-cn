@@ -5,18 +5,6 @@
 			"label": "DeepSeek"
 		},
 		{
-			"value": "mimo-tp",
-			"label": "MiMo Token Plan"
-		},
-		{
-			"value": "xiaomi",
-			"label": "Xiaomi MiMo"
-		},
-		{
-			"value": "zai",
-			"label": "Z AI"
-		},
-		{
 			"value": "openai",
 			"label": "OpenAI Compatible"
 		},
@@ -35,6 +23,10 @@
 		{
 			"value": "cline",
 			"label": "Cline"
+		},
+		{
+			"value": "dots-studio-athrapi",
+			"label": "Dots Studio AthrAPI"
 		},
 		{
 			"value": "openai-codex",
@@ -187,6 +179,18 @@
 		{
 			"value": "wandb",
 			"label": "W&B Inference by CoreWeave"
+		},
+		{
+			"value": "mimo-tp",
+			"label": "MiMo Token Plan"
+		},
+		{
+			"value": "xiaomi",
+			"label": "Xiaomi MiMo"
+		},
+		{
+			"value": "zai",
+			"label": "Z AI"
 		}
 	]
 }

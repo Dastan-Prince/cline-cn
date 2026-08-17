@@ -49,6 +49,7 @@ export type ApiProvider =
 	| "xiaomi-athrapi"
 	| "mimo-tp-athrapi"
 	| "zhipu-athrapi"
+	| "dots-studio-athrapi"
 
 export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider
 
@@ -5661,6 +5662,37 @@ export const mimoTpAthrapiModels = {
 		cacheWritesPrice: 0.24,
 		cacheReadsPrice: 0.24,
 		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+} as const satisfies Record<string, ModelInfo>
+
+// Dots Studio AthrAPI (Anthropic-compatible)
+// https://note3-prev-api.askdiandian.com
+export type DotsStudioAthrapiModelId = keyof typeof dotsStudioAthrapiModels
+export const dotsStudioAthrapiDefaultModelId: DotsStudioAthrapiModelId = "dots3-note-prev"
+export const dotsStudioAthrapiModels = {
+	"dots3-note-prev": {
+		maxTokens: 262144,
+		contextWindow: 524288,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.3,
+		outputPrice: 1,
+		cacheWritesPrice: 0.3,
+		cacheReadsPrice: 0.025,
+		description: "dots studio Dots3 Note Prev - Anthropic compatible API with 512K context window.",
+	},
+		"dots3-note": {
+		maxTokens: 262144,
+		contextWindow: 524288,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.3,
+		outputPrice: 1,
+		cacheWritesPrice: 0.3,
+		cacheReadsPrice: 0.025,
+		description: "dots studio Dots3 Note - Anthropic compatible API with 512K context window.",
 	},
 } as const satisfies Record<string, ModelInfo>
 
