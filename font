@@ -1,0 +1,207 @@
+# -*- coding: utf-8 -*-
+"""
+Replace the U+E900 glyph in cline-bot.ttf / cline-bot.woff with the visible
+(pink) shapes from icon.svg; also updates cline-bot.svg source. See
+replace_glyph.py for details. This v2 adds the hmtx.lsb fix.
+"""
+import base64
+import re
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+from fontTools.misc.transform import Transform
+from fontTools.pens.boundsPen import BoundsPen, ControlBoundsPen
+from fontTools.pens.recordingPen import RecordingPen
+from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.pens.transformPen import TransformPen
+from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.svgLib.path import parse_path
+from fontTools.ttLib import TTFont
+
+HERE = Path(__file__).resolve().parent
+ICONS = (HERE.parent / "apps" / "vscode" / "assets" / "icons").resolve()
+TTF_PATH = ICONS / "cline-bot.ttf"
+WOFF_PATH = ICONS / "cline-bot.woff"
+SOURCE_SVG = ICONS / "icon.svg"
+FONT_SVG = ICONS / "cline-bot.svg"
+CODEPOINT = 0xE900
+PINK_FILL = "rgb(229,142,172)"
+UPEM_VIEW = dict(asc=960, dsc=64)  # from font-face in cline-bot.svg
+
+
+def glyph_to_svg_path(font, glyph_name, out_path):
+    gs = font.getGlyphSet()
+    pen = SVGPathPen(gs)
+    gs[glyph_name].draw(pen)
+    d = pen.getCommands()
+    asc, dsc = UPEM_VIEW["asc"], UPEM_VIEW["dsc"]
+    upem = font["head"].unitsPerEm
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 {-asc} {upem} {asc + dsc}" '
+        f'width="256" height="256">\n'
+        f'<rect x="0" y="{-asc}" width="{upem}" height="{asc + dsc}" fill="#f4f4f4"/>'
+        f'<line x1="0" y1="0" x2="{upem}" y2="0" stroke="#f00" stroke-width="4"/>'
+        f'<path transform="scale(1,-1)" d="{d}" fill="#000"/>\n</svg>\n'
+    )
+    Path(out_path).write_text(svg, encoding="utf-8")
+    return d
+
+
+def extract_visible_path_defs():
+    """Return the `d` attributes of the visible (pink, opacity>0.5) paths."""
+    tree = ET.parse(SOURCE_SVG)
+    defs = []
+    for el in tree.iter():
+        tag = el.tag.rsplit("}", 1)[-1]
+        if tag == "path" and el.get("d"):
+            if el.get("fill") == PINK_FILL and float(el.get("opacity", "1")) > 0.5:
+                defs.append(el.get("d"))
+    return defs
+
+
+def main():
+    # ------------------------------------------------------------------ load
+    font = TTFont(TTF_PATH)
+    upem = font["head"].unitsPerEm
+    glyph_name = font.getBestCmap()[CODEPOINT]
+    advance, _lsb = font["hmtx"][glyph_name]
+    glyph_set = font.getGlyphSet()
+
+    bp = BoundsPen(glyph_set)
+    glyph_set[glyph_name].draw(bp)
+    ox0, oy0, ox1, oy1 = bp.bounds
+    print(f"[font] upem={upem} glyph={glyph_name!r} advance={advance}")
+    print(f"[font] original glyph bbox = x[{ox0}, {ox1}] y[{oy0}, {oy1}]")
+
+    # save old glyph outline for comparison
+    glyph_to_svg_path(font, glyph_name, HERE / "old-glyph-preview.svg")
+
+    # ------------------------------------------------- parse SVG pink paths
+    defs = extract_visible_path_defs()
+    print(f"[svg] visible pink paths: {len(defs)}")
+    assert len(defs) >= 3, "expected at least 3 pink paths"
+
+    recordings = []
+    cbp = ControlBoundsPen(None)
+    for d in defs:
+        rec = RecordingPen()
+        parse_path(d, rec)
+        recordings.append(rec)
+        rec.replay(cbp)
+    sx0, sy0, sx1, sy1 = cbp.bounds
+    sw, sh = sx1 - sx0, sy1 - sy0
+    print(f"[svg] content bbox = x[{sx0:.2f}, {sx1:.2f}] y[{sy0:.2f}, {sy1:.2f}] (y-down)")
+
+    # ------------------------------------- fit into original bbox, flip Y
+    ow, oh = ox1 - ox0, oy1 - oy0
+    s = min(ow / sw, oh / sh)
+    x_left = ox0 + (ow - s * sw) / 2.0            # left edge of fitted box
+    y_top = oy0 + (oh + s * sh) / 2.0             # top edge of fitted box (font y-up)
+    t = Transform(s, 0, 0, -s, x_left - s * sx0, y_top + s * sy0)
+    print(f"[fit] scale={s:.4f} -> transform={t}")
+
+    # --------------------------------------------------------- build glyph
+    tgp = TTGlyphPen(None)
+    tpen = TransformPen(tgp, t)
+    for rec in recordings:
+        rec.replay(tpen)
+    font["glyf"][glyph_name] = tgp.glyph()
+
+    # keep hmtx.lsb consistent with the new glyph xMin
+    nb = BoundsPen(None)
+    for rec in recordings:
+        rec.replay(TransformPen(nb, t))
+    font["hmtx"][glyph_name] = (advance, nb.bounds[0])
+    print(f"[hmtx] {glyph_name}: advance={advance} lsb={nb.bounds[0]}")
+
+    # keep maxp safe (increase-only), some rasterizers validate against it
+    maxp = font["maxp"]
+    max_points = max_contours = 0
+    for gname in font["glyf"].keys():
+        g = font["glyf"][gname]
+        if g.numberOfContours > 0:
+            max_contours = max(max_contours, g.numberOfContours)
+            max_points = max(max_points, len(g.coordinates) // 2)
+    maxp.maxPoints = max(getattr(maxp, "maxPoints", 0) or 0, max_points)
+    maxp.maxContours = max(getattr(maxp, "maxContours", 0) or 0, max_contours)
+    print(f"[maxp] maxPoints={maxp.maxPoints} maxContours={maxp.maxContours}")
+
+    # ------------------------------------------------------------- save TTF
+    font.flavor = None
+    font.save(TTF_PATH)
+    print(f"[save] {TTF_PATH} ({TTF_PATH.stat().st_size} bytes)")
+
+    # ---------------------------------- re-open TTF, save WOFF from same
+    f2 = TTFont(TTF_PATH)
+    f2.flavor = "woff"
+    f2.save(WOFF_PATH)
+    print(f"[save] {WOFF_PATH} ({WOFF_PATH.stat().st_size} bytes)")
+
+    # ------------------------------------------------------ verification
+    for path in (TTF_PATH, WOFF_PATH):
+        v = TTFont(path)
+        g = v.getBestCmap()[CODEPOINT]
+        adv, lsb = v["hmtx"][g]
+        vb = BoundsPen(v.getGlyphSet())
+        v.getGlyphSet()[g].draw(vb)
+        assert g == glyph_name and adv == advance
+        assert lsb == v["glyf"][g].xMin, f"lsb {lsb} != xMin {v['glyf'][g].xMin}"
+        print(f"[verify] {path.name}: glyph={g!r} advance={adv} lsb={lsb} bbox={vb.bounds}")
+
+    # ------------------------------------------------- new glyph previews
+    f3 = TTFont(TTF_PATH)
+    new_d = glyph_to_svg_path(f3, glyph_name, HERE / "glyph-preview.svg")
+    (HERE / "new-glyph-d.txt").write_text(new_d, encoding="utf-8")
+
+    # ------------------------------------------- update cline-bot.svg src
+    src = FONT_SVG.read_text(encoding="utf-8")
+    pattern = re.compile(r'(<glyph\s+unicode="&#xe900;"[^>]*?\sd=")[^"]*(")')
+    new_src, n = pattern.subn(lambda m: m.group(1) + new_d + m.group(2), src)
+    assert n == 1, f"cline-bot.svg: expected 1 replacement, got {n}"
+    FONT_SVG.write_text(new_src, encoding="utf-8", newline="")
+    print(f"[update] {FONT_SVG} glyph d replaced")
+
+    # ------------------------------------------------------- preview.html
+    woff_b64 = base64.b64encode(WOFF_PATH.read_bytes()).decode("ascii")
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>cline-bot U+E900 replacement preview</title>
+<style>
+@font-face {{ font-family:'cline-bot'; src:url(data:font/woff;base64,{woff_b64}) format('woff'); }}
+body {{ font-family: Segoe UI, sans-serif; background:#fff; color:#222; padding:24px; }}
+h2 {{ border-bottom:1px solid #ddd; padding-bottom:4px; }}
+.row {{ display:flex; align-items:center; gap:36px; margin:14px 0; flex-wrap:wrap; }}
+.sample {{ display:flex; align-items:baseline; gap:6px; }}
+.glyph {{ font-family:'cline-bot'; }}
+.dark {{ background:#1e1e1e; padding:14px 18px; border-radius:8px; color:#888; }}
+figure {{ margin:0; text-align:center; font-size:12px; color:#666; }}
+img.icon {{ width:160px; height:160px; }}
+</style></head><body>
+<h2>New font glyph &#xe900; (woff)</h2>
+<div class="row">
+  <div class="sample"><span class="glyph" style="font-size:16px">&#xe900;</span>16px</div>
+  <div class="sample"><span class="glyph" style="font-size:24px">&#xe900;</span>24px</div>
+  <div class="sample"><span class="glyph" style="font-size:32px">&#xe900;</span>32px</div>
+  <div class="sample"><span class="glyph" style="font-size:48px">&#xe900;</span>48px</div>
+  <div class="sample"><span class="glyph" style="font-size:96px">&#xe900;</span>96px</div>
+</div>
+<div class="dark row">
+  <span class="glyph" style="font-size:32px;color:#ccc">&#xe900;</span>
+  <span class="glyph" style="font-size:32px;color:#e58ecc">&#xe900;</span>
+  <span class="glyph" style="font-size:32px;color:#4fc1ff">&#xe900;</span>
+  &larr; dark background, various colors
+</div>
+<h2>Comparison</h2>
+<div class="row">
+  <figure><img class="icon" src="../apps/vscode/assets/icons/icon.svg"><figcaption>icon.svg (source)</figcaption></figure>
+  <figure><img class="icon" src="old-glyph-preview.svg"><figcaption>OLD glyph outline</figcaption></figure>
+  <figure><img class="icon" src="glyph-preview.svg"><figcaption>NEW glyph outline</figcaption></figure>
+</div>
+</body></html>
+"""
+    (HERE / "preview.html").write_text(html, encoding="utf-8")
+    print(f"[preview] {HERE / 'preview.html'}")
+    print("DONE")
+
+
+if __name__ == "__main__":
+    main()
