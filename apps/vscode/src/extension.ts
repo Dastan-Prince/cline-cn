@@ -494,8 +494,22 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Register the command handlers
 	context.subscriptions.push(
 	vscode.commands.registerCommand(commands.AddToChat, async (arg?: vscode.Range | vscode.Uri, diagnostics?: vscode.Diagnostic[]) => {
-		// Explorer/Tab context menu passes a Uri as the first argument
+		const editor = vscode.window.activeTextEditor
 		if (arg instanceof vscode.Uri) {
+			// Compare the passed Uri with the active editor's document Uri.
+			// If they match AND editor has a selection, this is from editor/context → use the selection.
+			// If they don't match, this is from explorer/context or editor/title/context on a different file.
+			const isSameFile = editor && arg.fsPath === editor.document.uri.fsPath
+			if (isSameFile && !editor!.selection.isEmpty) {
+				// editor/context with selected code — use editor context
+				const context = await getContextForCommand(undefined, diagnostics)
+				if (!context) {
+					return
+				}
+				await addToCline(context.controller, context.commandContext)
+				return
+			}
+			// Explorer/Tab on a different file, or same file but no selection — add file reference
 			const activeWebview = await showWebview(false)
 			const controller = activeWebview.controller
 			await addToCline(controller, {
@@ -506,7 +520,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			})
 			return
 		}
-		// Editor context menu / code action passes a Range
+		// Code action passes a Range, or keyboard shortcut passes undefined
 		const context = await getContextForCommand(arg instanceof vscode.Range ? arg : undefined, diagnostics)
 		if (!context) {
 			return
