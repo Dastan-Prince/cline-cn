@@ -305,6 +305,20 @@
 					"when": "editorHasSelection"
 				}
 			],
+			"explorer/context": [
+				{
+					"command": "cline.addToChat",
+					"group": "navigation",
+					"when": "!explorerResourceIsFolder"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "cline.addToChat",
+					"group": "navigation",
+					"when": "!isInDiffEditor"
+				}
+			],
 			"terminal/context": [
 				{
 					"command": "cline.addTerminalOutputToChat",

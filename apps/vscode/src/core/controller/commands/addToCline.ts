@@ -6,15 +6,25 @@ import { Logger } from "@/shared/services/Logger";
 import { Controller } from "../index";
 import { sendAddToInputEvent } from "../ui/subscribeToAddToInput";
 
-// 'Add to Cline' context menu in editor and code action
-// Inserts the selected code into the chat.
+// 'Add to Cline' context menu in editor, code action, explorer, and tab title
+// Inserts the selected code or file reference into the chat.
 export async function addToCline(
 	controller: Controller,
 	request: CommandContext,
 	notebookContext?: string,
 ): Promise<Empty> {
 	if (!request.selectedText?.trim() && !notebookContext) {
-		Logger.log("❌ No text selected and no notebook context - returning early");
+		// No text selected - if we have a file path, add just the file reference
+		// (e.g., from explorer/context or editor/title/context menu)
+		if (request.filePath) {
+			const fileMention = await getFileMentionFromPath(request.filePath);
+			await sendAddToInputEvent(fileMention);
+			Logger.log("addToCline (file reference only)", request.filePath);
+		} else {
+			Logger.log(
+				"❌ No text selected and no notebook context - returning early",
+			);
+		}
 		return {};
 	}
 

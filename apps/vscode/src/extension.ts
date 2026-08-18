@@ -493,13 +493,26 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Register the command handlers
 	context.subscriptions.push(
-		vscode.commands.registerCommand(commands.AddToChat, async (range?: vscode.Range, diagnostics?: vscode.Diagnostic[]) => {
-			const context = await getContextForCommand(range, diagnostics)
-			if (!context) {
-				return
-			}
-			await addToCline(context.controller, context.commandContext)
-		}),
+	vscode.commands.registerCommand(commands.AddToChat, async (arg?: vscode.Range | vscode.Uri, diagnostics?: vscode.Diagnostic[]) => {
+		// Explorer/Tab context menu passes a Uri as the first argument
+		if (arg instanceof vscode.Uri) {
+			const activeWebview = await showWebview(false)
+			const controller = activeWebview.controller
+			await addToCline(controller, {
+				filePath: arg.fsPath,
+				selectedText: undefined,
+				language: undefined,
+				diagnostics: [],
+			})
+			return
+		}
+		// Editor context menu / code action passes a Range
+		const context = await getContextForCommand(arg instanceof vscode.Range ? arg : undefined, diagnostics)
+		if (!context) {
+			return
+		}
+		await addToCline(context.controller, context.commandContext)
+	}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(commands.FixWithCline, async (range: vscode.Range, diagnostics: vscode.Diagnostic[]) => {
