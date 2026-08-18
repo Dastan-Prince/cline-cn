@@ -26,7 +26,6 @@ Mimo TP AthrAPI  |Token Plan接口（Anthropic兼容）|
 
 - mimo-v2.5-pro
 - mimo-v2.5
-- mimo-v2-flash
 
 
 ### Zhipu
