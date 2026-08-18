@@ -171,6 +171,11 @@
 				"category": "Cline"
 			},
 			{
+				"command": "cline.addFileToChat",
+				"title": "Add to Cline",
+				"category": "Cline"
+			},
+			{
 				"command": "cline.addTerminalOutputToChat",
 				"title": "Add to Cline",
 				"category": "Cline"
@@ -307,14 +312,14 @@
 			],
 			"explorer/context": [
 				{
-					"command": "cline.addToChat",
+					"command": "cline.addFileToChat",
 					"group": "navigation",
 					"when": "!explorerResourceIsFolder"
 				}
 			],
 			"editor/title/context": [
 				{
-					"command": "cline.addToChat",
+					"command": "cline.addFileToChat",
 					"group": "navigation",
 					"when": "!isInDiffEditor"
 				}
