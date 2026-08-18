@@ -2,7 +2,7 @@
 	"name": "cline-cn-ai",
 	"displayName": "Cline CN",
 	"description": "%cline.description%",
-	"version": "3.89.7",
+	"version": "3.89.8",
 	"icon": "assets/icons/icon.png",
 	"engines": {
 		"vscode": "^1.84.0"
@@ -313,8 +313,7 @@
 			"explorer/context": [
 				{
 					"command": "cline.addFileToChat",
-					"group": "navigation",
-					"when": "!explorerResourceIsFolder"
+					"group": "navigation"
 				}
 			],
 			"editor/title/context": [
