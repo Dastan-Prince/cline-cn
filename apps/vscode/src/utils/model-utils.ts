@@ -21,7 +21,23 @@ export const ANTHROPIC_COMPATIBLE_PROVIDERS = [
 ] as const
 
 export function isAnthropicCompatibleProvider(providerInfo: ApiProviderInfo): boolean {
-	return ANTHROPIC_COMPATIBLE_PROVIDERS.includes(normalize(providerInfo.providerId) as (typeof ANTHROPIC_COMPATIBLE_PROVIDERS)[number])
+	return ANTHROPIC_COMPATIBLE_PROVIDERS.includes(
+		normalize(providerInfo.providerId) as (typeof ANTHROPIC_COMPATIBLE_PROVIDERS)[number],
+	)
+}
+
+/**
+ * OpenAI-compatible providers with fixed model catalogs whose endpoints reliably
+ * support OpenAI function calling across the whole catalog. Like Anthropic-compatible
+ * providers, provider membership -- not the model-family heuristic -- is the
+ * meaningful signal for whether native tool calling works.
+ */
+export const NATIVE_OPENAI_COMPATIBLE_PROVIDERS = ["xiaomi", "mimo-tp", "zai", "deepseek"] as const
+
+export function isNativeOpenAiCompatibleProvider(providerInfo: ApiProviderInfo): boolean {
+	return NATIVE_OPENAI_COMPATIBLE_PROVIDERS.includes(
+		normalize(providerInfo.providerId) as (typeof NATIVE_OPENAI_COMPATIBLE_PROVIDERS)[number],
+	)
 }
 
 export function isNextGenModelProvider(providerInfo: ApiProviderInfo): boolean {
@@ -40,8 +56,8 @@ export function isNextGenModelProvider(providerInfo: ApiProviderInfo): boolean {
 		"openai-codex",
 		"baseten",
 		"vercel-ai-gateway",
-		"deepseek",
 		"oca",
+		...NATIVE_OPENAI_COMPATIBLE_PROVIDERS,
 		...ANTHROPIC_COMPATIBLE_PROVIDERS,
 	].some((id) => providerId === id)
 }
@@ -270,6 +286,12 @@ export function isNativeToolCallingConfig(providerInfo: ApiProviderInfo, enableN
 	// so provider capability is the meaningful signal -- we don't need the model-family
 	// heuristic that OpenAI-compatible providers require.
 	if (isAnthropicCompatibleProvider(providerInfo)) {
+		return true
+	}
+	// OpenAI-compatible providers with fixed model catalogs (xiaomi, mimo-tp, zai,
+	// deepseek) reliably support function calling across their entire catalog, so
+	// provider membership is a sufficient capability signal here as well.
+	if (isNativeOpenAiCompatibleProvider(providerInfo)) {
 		return true
 	}
 	const modelId = providerInfo.model.id.toLowerCase()

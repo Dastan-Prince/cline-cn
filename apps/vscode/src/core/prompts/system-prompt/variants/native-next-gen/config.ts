@@ -1,4 +1,9 @@
-import { isGPT5ModelFamily, isNextGenModelFamily, isNextGenModelProvider } from "@utils/model-utils"
+import {
+	isGPT5ModelFamily,
+	isNativeOpenAiCompatibleProvider,
+	isNextGenModelFamily,
+	isNextGenModelProvider,
+} from "@utils/model-utils"
 import { ModelFamily } from "@/shared/prompts"
 import { Logger } from "@/shared/services/Logger"
 import { ClineDefaultTool } from "@/shared/tools"
@@ -27,7 +32,9 @@ export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
 			return false
 		}
 		const modelId = providerInfo.model.id.toLowerCase()
-		return !isGPT5ModelFamily(modelId) && isNextGenModelFamily(modelId)
+		// Native-capable OpenAI-compatible providers with fixed model catalogs
+		// (xiaomi, mimo-tp, zai, deepseek) bypass the model-family heuristic.
+		return !isGPT5ModelFamily(modelId) && (isNextGenModelFamily(modelId) || isNativeOpenAiCompatibleProvider(providerInfo))
 	})
 	.template(TEMPLATE_OVERRIDES.BASE)
 	.components(

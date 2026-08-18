@@ -9,6 +9,7 @@ import {
 	isGLMModelFamily,
 	isGPT5ModelFamily,
 	isGptOssModelFamily,
+	isNativeOpenAiCompatibleProvider,
 	isNativeToolCallingConfig,
 	isNextGenModelFamily,
 	isPoolsideModelFamily,
@@ -168,6 +169,26 @@ describe("isAnthropicCompatibleProvider", () => {
 	})
 })
 
+describe("isNativeOpenAiCompatibleProvider", () => {
+	it("should return true for native-capable OpenAI-compatible providers", () => {
+		isNativeOpenAiCompatibleProvider(providerInfo("xiaomi", "mimo-v2.5-pro")).should.equal(true)
+		isNativeOpenAiCompatibleProvider(providerInfo("mimo-tp", "mimo-v2.5")).should.equal(true)
+		isNativeOpenAiCompatibleProvider(providerInfo("zai", "glm-5.2")).should.equal(true)
+		isNativeOpenAiCompatibleProvider(providerInfo("deepseek", "deepseek-chat")).should.equal(true)
+	})
+
+	it("should be case insensitive", () => {
+		isNativeOpenAiCompatibleProvider(providerInfo("XIAOMI", "mimo-v2.5-pro")).should.equal(true)
+		isNativeOpenAiCompatibleProvider(providerInfo("DeepSeek", "deepseek-chat")).should.equal(true)
+	})
+
+	it("should return false for other providers", () => {
+		isNativeOpenAiCompatibleProvider(providerInfo("xiaomi-athrapi", "mimo-v2.5-pro")).should.equal(false)
+		isNativeOpenAiCompatibleProvider(providerInfo("openai", "gpt-5")).should.equal(false)
+		isNativeOpenAiCompatibleProvider(providerInfo("openrouter", "glm-4.6")).should.equal(false)
+	})
+})
+
 describe("isNativeToolCallingConfig", () => {
 	it("should return false when native tool calls are disabled", () => {
 		isNativeToolCallingConfig(providerInfo("anthropic", "claude-sonnet-4"), false).should.equal(false)
@@ -183,6 +204,14 @@ describe("isNativeToolCallingConfig", () => {
 		isNativeToolCallingConfig(providerInfo("anthropic-comp", "claude-sonnet-4"), true).should.equal(true)
 	})
 
+	it("should return true for native-capable OpenAI-compatible providers when native tool calls are enabled", () => {
+		// These providers have fixed model catalogs and bypass the model-family gate
+		isNativeToolCallingConfig(providerInfo("xiaomi", "mimo-v2.5-pro"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("mimo-tp", "mimo-v2.5"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("zai", "glm-5.2"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("deepseek", "deepseek-v4-flash"), true).should.equal(true)
+	})
+
 	it("should return true for next-gen models on non-Anthropic-compatible providers", () => {
 		isNativeToolCallingConfig(providerInfo("anthropic", "claude-sonnet-4"), true).should.equal(true)
 		isNativeToolCallingConfig(providerInfo("openai", "gpt-5"), true).should.equal(true)
@@ -191,7 +220,6 @@ describe("isNativeToolCallingConfig", () => {
 
 	it("should return false for non-next-gen models on non-Anthropic-compatible providers", () => {
 		isNativeToolCallingConfig(providerInfo("openai", "gpt-4"), true).should.equal(false)
-		isNativeToolCallingConfig(providerInfo("zai", "glm-4.6"), true).should.equal(false)
 		isNativeToolCallingConfig(providerInfo("test", "fast"), true).should.equal(false)
 	})
 })

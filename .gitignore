@@ -85,3 +85,4 @@ apps/vscode/webview-ui/src/**/*.js.map
 /apps/vscode/tmp-protoc
 /apps/vscode/tmp-tar
 /apps/vscode/proto/google
+*.snap
