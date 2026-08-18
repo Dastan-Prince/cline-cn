@@ -65,6 +65,20 @@ export const ZhipuAthrapiProvider = ({ showModelOptions, isPopup, currentMode }:
 						}
 					/>
 
+					{/* Context window switcher for glm-5.3 */}
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="glm-5.3"
+						base1mModelId={`glm-5.3${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
+					/>
+
 					{selectedModelInfo?.supportsReasoning && (
 						<ThinkingBudgetSlider currentMode={currentMode} showEnableToggle={false} />
 					)}
