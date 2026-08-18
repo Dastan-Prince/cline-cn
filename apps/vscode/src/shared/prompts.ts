@@ -15,4 +15,5 @@ export enum ModelFamily {
 	GENERIC = "generic",
 	XS = "xs",
 	NATIVE_NEXT_GEN = "native-next-gen", // Uses native tool calling
+	NATIVE_ATHRAPI = "native-athrapi", // Uses native tool calling via Anthropic-compatible providers
 }

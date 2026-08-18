@@ -3,6 +3,7 @@ import "should"
 import type { ApiHandlerModel, ApiProviderInfo } from "@core/api"
 import {
 	GEMINI_FLASH_MAX_OUTPUT_TOKENS,
+	isAnthropicCompatibleProvider,
 	isClaude4PlusModelFamily,
 	isGeminiFlashModel,
 	isGLMModelFamily,
@@ -141,6 +142,57 @@ describe("isPoolsideModelFamily", () => {
 		isNextGenModelFamily("poolside/laguna-m.1").should.equal(true)
 		isNativeToolCallingConfig(providerInfo("openai-compatible", "poolside/laguna-m.1"), true).should.equal(true)
 		isNativeToolCallingConfig(providerInfo("openai-compatible", "poolside/laguna-m.1"), false).should.equal(false)
+	})
+})
+
+describe("isAnthropicCompatibleProvider", () => {
+	it("should return true for all Anthropic-compatible providers", () => {
+		isAnthropicCompatibleProvider(providerInfo("xiaomi-athrapi", "dots3-note-prev")).should.equal(true)
+		isAnthropicCompatibleProvider(providerInfo("mimo-tp-athrapi", "mimo-72b")).should.equal(true)
+		isAnthropicCompatibleProvider(providerInfo("zhipu-athrapi", "glm-5.2")).should.equal(true)
+		isAnthropicCompatibleProvider(providerInfo("dots-studio-athrapi", "dots3-note")).should.equal(true)
+		isAnthropicCompatibleProvider(providerInfo("anthropic-comp", "claude-sonnet-4")).should.equal(true)
+	})
+
+	it("should be case insensitive", () => {
+		isAnthropicCompatibleProvider(providerInfo("XIAOMI-ATHRAPI", "dots3-note-prev")).should.equal(true)
+		isAnthropicCompatibleProvider(providerInfo("ZHIPU-ATHRAPI", "glm-5.2")).should.equal(true)
+	})
+
+	it("should return false for non-Anthropic-compatible providers", () => {
+		isAnthropicCompatibleProvider(providerInfo("anthropic", "claude-sonnet-4")).should.equal(false)
+		isAnthropicCompatibleProvider(providerInfo("openai", "gpt-4")).should.equal(false)
+		isAnthropicCompatibleProvider(providerInfo("openrouter", "claude-sonnet-4")).should.equal(false)
+		isAnthropicCompatibleProvider(providerInfo("zai", "glm-4.6")).should.equal(false)
+		isAnthropicCompatibleProvider(providerInfo("test", "fast")).should.equal(false)
+	})
+})
+
+describe("isNativeToolCallingConfig", () => {
+	it("should return false when native tool calls are disabled", () => {
+		isNativeToolCallingConfig(providerInfo("anthropic", "claude-sonnet-4"), false).should.equal(false)
+		isNativeToolCallingConfig(providerInfo("zhipu-athrapi", "glm-5.2"), false).should.equal(false)
+	})
+
+	it("should return true for Anthropic-compatible providers when native tool calls are enabled", () => {
+		// Anthropic-compatible providers bypass the model-family gate
+		isNativeToolCallingConfig(providerInfo("xiaomi-athrapi", "dots3-note-prev"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("mimo-tp-athrapi", "mimo-72b"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("zhipu-athrapi", "glm-5.2"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("dots-studio-athrapi", "dots3-note"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("anthropic-comp", "claude-sonnet-4"), true).should.equal(true)
+	})
+
+	it("should return true for next-gen models on non-Anthropic-compatible providers", () => {
+		isNativeToolCallingConfig(providerInfo("anthropic", "claude-sonnet-4"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("openai", "gpt-5"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("openrouter", "claude-4-5-sonnet"), true).should.equal(true)
+	})
+
+	it("should return false for non-next-gen models on non-Anthropic-compatible providers", () => {
+		isNativeToolCallingConfig(providerInfo("openai", "gpt-4"), true).should.equal(false)
+		isNativeToolCallingConfig(providerInfo("zai", "glm-4.6"), true).should.equal(false)
+		isNativeToolCallingConfig(providerInfo("test", "fast"), true).should.equal(false)
 	})
 })
 

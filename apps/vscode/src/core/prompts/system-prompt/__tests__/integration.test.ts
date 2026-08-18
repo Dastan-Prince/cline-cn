@@ -154,7 +154,7 @@ const baseContext: SystemPromptContext = {
 }
 
 const isNativeToolsFamily = (family: ModelFamily) =>
-	[ModelFamily.NATIVE_NEXT_GEN, ModelFamily.NATIVE_GPT_5, ModelFamily.NATIVE_GPT_5_1, ModelFamily.GEMINI_3].includes(family)
+	[ModelFamily.NATIVE_NEXT_GEN, ModelFamily.NATIVE_GPT_5, ModelFamily.NATIVE_GPT_5_1, ModelFamily.GEMINI_3, ModelFamily.NATIVE_ATHRAPI].includes(family)
 
 type TestRunner = Mocha.Context & { skip(): void; timeout(ms: number): void }
 
@@ -202,6 +202,7 @@ const modelTestCases = [
 	{ family: ModelFamily.NATIVE_GPT_5_1, modelId: "gpt-5-1", providerId: "openai" },
 	{ family: ModelFamily.GEMINI_3, modelId: "gemini-3", providerId: "vertex" },
 	{ family: ModelFamily.TRINITY, modelId: "arcee-ai/trinity-large-preview", providerId: "openrouter" },
+	{ family: ModelFamily.NATIVE_ATHRAPI, modelId: "glm-5.2", providerId: "zhipu-athrapi" },
 ]
 const gemini3ModelTestCases = modelTestCases.filter(({ family }) => family === ModelFamily.GEMINI_3)
 

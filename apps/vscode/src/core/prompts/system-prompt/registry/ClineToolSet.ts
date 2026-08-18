@@ -153,6 +153,11 @@ export class ClineToolSet {
 			case "minimax":
 			case "anthropic":
 			case "bedrock":
+			case "xiaomi-athrapi":
+			case "mimo-tp-athrapi":
+			case "zhipu-athrapi":
+			case "dots-studio-athrapi":
+			case "anthropic-comp":
 				return toolSpecInputSchema
 			case "gemini":
 				return toolSpecFunctionDeclarations

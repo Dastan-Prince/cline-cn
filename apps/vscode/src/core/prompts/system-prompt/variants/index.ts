@@ -14,6 +14,7 @@ export { config as gpt5Config, type GPT5VariantConfig } from "./gpt-5/config"
 export { config as hermesConfig, type HermesVariantConfig } from "./hermes/config"
 export { config as NativeGPT5Config } from "./native-gpt-5/config"
 export { config as NativeGPT51Config } from "./native-gpt-5-1/config"
+export { config as nativeAthrapiConfig, type NativeAthrapiVariantConfig } from "./native-athrapi/config"
 export { config as nativeNextGenConfig, type NativeNextGenVariantConfig } from "./native-next-gen/config"
 export { config as nextGenConfig, type NextGenVariantConfig } from "./next-gen/config"
 export { config as trinityConfig, type TrinityVariantConfig } from "./trinity/config"
@@ -28,6 +29,7 @@ import { config as gpt5Config } from "./gpt-5/config"
 import { config as hermesConfig } from "./hermes/config"
 import { config as NativeGPT5Config } from "./native-gpt-5/config"
 import { config as NativeGPT51Config } from "./native-gpt-5-1/config"
+import { config as nativeAthrapiConfig } from "./native-athrapi/config"
 import { config as NativeNextGenVariantConfig } from "./native-next-gen/config"
 import { config as nextGenConfig } from "./next-gen/config"
 import { config as trinityConfig } from "./trinity/config"
@@ -59,6 +61,14 @@ export const VARIANT_CONFIGS = {
 	 * Next-gen variant with native tool support.
 	 */
 	[ModelFamily.NATIVE_NEXT_GEN]: NativeNextGenVariantConfig,
+	/**
+	 * Native AthrAPI variant - Anthropic-compatible providers using native
+	 * tool calling via the Anthropic Messages API. Matches before the GLM
+	 * variant so that Anthropic-compatible providers (e.g. zhipu-athrapi
+	 * running GLM-5.x) get native tool calling when enabled, rather than
+	 * falling back to the XML-based GLM variant.
+	 */
+	[ModelFamily.NATIVE_ATHRAPI]: nativeAthrapiConfig,
 	/**
 	 * GLM variant - Optimized for GLM-4.6 model
 	 * Configured for advanced agentic coding capabilities

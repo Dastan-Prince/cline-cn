@@ -6,6 +6,24 @@ export { supportsReasoningEffortForModel } from "@shared/utils/reasoning-support
 const CLAUDE_VERSION_MATCH_REGEX = /[-_ ]([\d](?:\.[05])?)[-_ ]?/
 export const GEMINI_FLASH_MAX_OUTPUT_TOKENS = 8_192
 
+/**
+ * Providers that speak the Anthropic Messages API (tool_use / input_json_delta)
+ * through the Anthropic SDK. Unlike OpenAI-compatible providers, the protocol is
+ * fixed by the SDK/endpoint, so provider capability -- not the model-family
+ * heuristic -- is the meaningful signal for whether native tool calling works.
+ */
+export const ANTHROPIC_COMPATIBLE_PROVIDERS = [
+	"xiaomi-athrapi",
+	"mimo-tp-athrapi",
+	"zhipu-athrapi",
+	"dots-studio-athrapi",
+	"anthropic-comp",
+] as const
+
+export function isAnthropicCompatibleProvider(providerInfo: ApiProviderInfo): boolean {
+	return ANTHROPIC_COMPATIBLE_PROVIDERS.includes(normalize(providerInfo.providerId) as (typeof ANTHROPIC_COMPATIBLE_PROVIDERS)[number])
+}
+
 export function isNextGenModelProvider(providerInfo: ApiProviderInfo): boolean {
 	const providerId = normalize(providerInfo.providerId)
 	return [
@@ -24,6 +42,7 @@ export function isNextGenModelProvider(providerInfo: ApiProviderInfo): boolean {
 		"vercel-ai-gateway",
 		"deepseek",
 		"oca",
+		...ANTHROPIC_COMPATIBLE_PROVIDERS,
 	].some((id) => providerId === id)
 }
 
@@ -246,6 +265,12 @@ export function isNativeToolCallingConfig(providerInfo: ApiProviderInfo, enableN
 	}
 	if (!isNextGenModelProvider(providerInfo)) {
 		return false
+	}
+	// Anthropic-compatible endpoints use a fixed protocol dictated by the SDK/endpoint,
+	// so provider capability is the meaningful signal -- we don't need the model-family
+	// heuristic that OpenAI-compatible providers require.
+	if (isAnthropicCompatibleProvider(providerInfo)) {
+		return true
 	}
 	const modelId = providerInfo.model.id.toLowerCase()
 	return isNextGenModelFamily(modelId)

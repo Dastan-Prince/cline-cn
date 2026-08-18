@@ -106,3 +106,86 @@ cd apps/vscode && npm run protos
 ---
 
 此清单已覆盖完整流程，后续添加 Anthropic 兼容供应商可直接按此清单执行，避免遗漏。
+
+---
+
+# 附录：为已添加的 Anthropic 兼容供应商启用原生工具调用
+
+## 背景
+
+完成供应商添加后，Anthropic 兼容供应商（`xiaomi-athrapi`、`mimo-tp-athrapi`、`zhipu-athrapi`、`dots-studio-athrapi`、`anthropic-comp`）虽然使用 Anthropic SDK 原生支持 `tool_use` / `input_json_delta`，但 Cline 的原生工具调用路径对它们是关闭的。
+
+**症状：** 模型输出 `<parameter name="path">value` 风格的标签，而非 Cline XML 解析器期望的 `<path>value` 元素风格，导致 `sayAndCreateMissingParamError`。
+
+## 根因
+
+`isNativeToolCallingConfig()` 有两道门：
+1. `isNextGenModelProvider(providerInfo)` — provider 白名单
+2. `isNextGenModelFamily(modelId)` — 模型族启发式判断
+
+Anthropic 兼容供应商使用固定的 Anthropic Messages API 协议（`tool_use` / `input_json_delta`），不受 OpenAI 兼容供应商所需的模型族启发式约束。但这些供应商最初不在 `isNextGenModelProvider` 白名单中，导致原生工具调用被禁用，模型回退到 XML 工具解析。
+
+## 解决方案
+
+### 1. `src/utils/model-utils.ts`
+
+- 新增 `ANTHROPIC_COMPATIBLE_PROVIDERS` 常量，列出 5 个 Anthropic 兼容 provider
+- 新增 `isAnthropicCompatibleProvider()` 辅助函数
+- 将 `...ANTHROPIC_COMPATIBLE_PROVIDERS` 加入 `isNextGenModelProvider()` 白名单
+- 修改 `isNativeToolCallingConfig()`，对 Anthropic 兼容 provider 绕过模型族门控：
+
+```typescript
+export function isNativeToolCallingConfig(providerInfo, enableNativeToolCalls) {
+  if (!enableNativeToolCalls) return false
+  if (!isNextGenModelProvider(providerInfo)) return false
+  // Anthropic-compatible endpoints use a fixed protocol dictated by the SDK/endpoint,
+  // so provider capability is the meaningful signal -- we don't need the model-family
+  // heuristic that OpenAI-compatible providers require.
+  if (isAnthropicCompatibleProvider(providerInfo)) return true
+  const modelId = providerInfo.model.id.toLowerCase()
+  return isNextGenModelFamily(modelId)
+}
+```
+
+### 2. `src/shared/prompts.ts`
+
+- 添加 `NATIVE_ATHRAPI = "native-athrapi"` 到 `ModelFamily` 枚举
+
+### 3. 变体系统（`variants/native-athrapi/`）
+
+新建 `template.ts` 和 `config.ts`，以 `native-next-gen` 为模板。匹配器：
+
+```typescript
+.matcher((context) => {
+  if (!context.enableNativeToolCalls) return false
+  return isAnthropicCompatibleProvider(context.providerInfo)
+})
+```
+
+### 4. `variants/index.ts`
+
+在 `VARIANT_CONFIGS` 中注册 `NATIVE_ATHRAPI`，放在 `GLM` **之前**，确保 Anthropic 兼容 provider（如 `zhipu-athrapi` 运行 `glm-5.2`）在启用原生调用时匹配到 native-athrapi 变体，而非回退到基于 XML 的 GLM 变体。
+
+### 5. `ClineToolSet.ts`
+
+在 `getNativeConverter()` 的 switch 中，将 5 个 Anthropic 兼容 provider 添加到 `toolSpecInputSchema` 分支，确保工具以 Anthropic `input_schema` 格式传递。
+
+## 涉及文件
+
+| 文件 | 修改内容 |
+|------|---------|
+| `src/utils/model-utils.ts` | 新增 `ANTHROPIC_COMPATIBLE_PROVIDERS`、`isAnthropicCompatibleProvider`，更新 `isNextGenModelProvider` 和 `isNativeToolCallingConfig` |
+| `src/shared/prompts.ts` | 添加 `NATIVE_ATHRAPI` 枚举值 |
+| `variants/native-athrapi/template.ts` | 新建，BASE 模板 + 组件覆盖 |
+| `variants/native-athrapi/config.ts` | 新建，变体配置 |
+| `variants/index.ts` | 注册 native-athrapi 变体 |
+| `ClineToolSet.ts` | `getNativeConverter` 添加 5 个 provider |
+| `integration.test.ts` | `isNativeToolsFamily` 添加 `NATIVE_ATHRAPI`，添加测试用例 |
+| `model-utils.test.ts` | 新增 `isAnthropicCompatibleProvider` 和 `isNativeToolCallingConfig` 测试 |
+
+## ⚠️ 关键注意事项
+
+1. **变体顺序很重要**：`NATIVE_ATHRAPI` 必须排在 `GLM` 之前，否则 `zhipu-athrapi` 上的 `glm-5.2` 会先匹配到 GLM 变体（XML 工具）
+2. **Anthropic 兼容 vs OpenAI 兼容**：Anthropic 兼容 provider 使用固定协议，provider 能力即信号；OpenAI 兼容 provider 仍需模型族启发式判断
+3. **`getNativeConverter` 分支**：Anthropic 兼容 provider 必须使用 `toolSpecInputSchema`（Anthropic 格式），不能使用默认的 `toolSpecFunctionDefinition`（OpenAI 格式）
+4. **测试**：集成测试需生成快照验证工具以 Anthropic `input_schema` 格式呈现；model-utils 测试需覆盖 provider 白名单和原生调用门控逻辑
