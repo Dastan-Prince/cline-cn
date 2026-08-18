@@ -27,16 +27,16 @@ let commitGenerationAbortController: AbortController | undefined;
 
 const PROMPT = {
 	system:
-		"You are a helpful assistant that generates informative git commit messages based on git diffs output. Skip preamble and remove all backticks surrounding the commit message.",
-	user: "Notes from developer (ignore if not relevant): {{USER_CURRENT_INPUT}}",
-	instruction: `Based on the provided git diff, generate a concise and descriptive commit message.
+		"你是一个乐于助人的助手，负责根据 git diff 输出生成信息丰富的 git 提交信息。请跳过开场白，并删除提交信息周围的所有反引号。",
+	user: "开发者的备注（如不相关请忽略）：{{USER_CURRENT_INPUT}}",
+	instruction: `根据提供的 git diff，生成一条简洁且具有描述性的提交信息。
 
-The commit message should:
-1. Has a short title (50-72 characters)
-2. The commit message should adhere to the conventional commit format
-3. Describe what was changed and why
-4. Be clear and informative
-5. Generate the commit message in {{LANGUAGE}}`,
+提交信息应满足以下要求：
+1. 有一个简短的标题（50-72 个字符）
+2. 提交信息应遵循约定式提交（conventional commit）格式
+3. 描述改动了什么以及为什么改动
+4. 内容清晰且信息丰富
+5. 使用 {{LANGUAGE}} 生成提交信息`,
 };
 
 export async function generateCommitMsg(

@@ -5467,21 +5467,8 @@ export const nousResearchModels = {
 // Xiaomi Mimo
 // https://platform.xiaomimimo.com/#/docs/welcome
 export type XiaomiModelId = keyof typeof xiaomiModels
-export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2-flash"
+export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2.5"
 export const xiaomiModels = {
-	"mimo-v2-flash": {
-		maxTokens: 65536,
-		contextWindow: 262144,
-		supportsImages: false,
-		supportsPromptCache: true,
-		supportsReasoning: true,
-        supportsTools: true,
-		inputPrice: 0.1,
-		outputPrice: 0.3,
-		cacheWritesPrice: 0.01,
-		cacheReadsPrice: 0.3,
-		description: "Xiaomi Mimo V2 Flash - 采用 1:5 的 Global Attention 与 SWA 混合结构，128K 窗口大小，原生 32K 外扩 256K 训练；引入 3 层 MTP，实现 2.5 ～ 3.7 倍的推理加速。",
-	},
 	"mimo-v2.5": {
 		maxTokens: 131072,
 		contextWindow: 1048576,
@@ -5547,20 +5534,8 @@ export const mimoTokenPlanModels = {
 // Xiaomi Mimo AthrAPI (Anthropic-compatible)
 // https://api.xiaomimimo.com/anthropic
 export type XiaomiAthrapiModelId = keyof typeof xiaomiAthrapiModels
-export const xiaomiAthrapiDefaultModelId: XiaomiAthrapiModelId = "mimo-v2-flash"
+export const xiaomiAthrapiDefaultModelId: XiaomiAthrapiModelId = "mimo-v2.5"
 export const xiaomiAthrapiModels = {
-	"mimo-v2-flash": {
-		maxTokens: 65536,
-		contextWindow: 262144,
-		supportsImages: false,
-		supportsPromptCache: true,
-		supportsReasoning: true,
-		inputPrice: 0.1,
-		outputPrice: 0.3,
-		cacheWritesPrice: 0.01,
-		cacheReadsPrice: 0.3,
-		description: "Xiaomi Mimo V2 Flash - 采用 1:5 的 Global Attention 与 SWA 混合结构，128K 窗口大小，原生 32K 外扩 256K 训练；引入 3 层 MTP，实现 2.5 ～ 3.7 倍的推理加速。",
-	},
 	"mimo-v2.5": {
 		maxTokens: 131072,
 		contextWindow: 262144,

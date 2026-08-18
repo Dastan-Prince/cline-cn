@@ -741,7 +741,7 @@ const OPENAI_COMPATIBLE_SPECS: BuiltinSpec[] = [
 		family: "openai-compatible",
 		protocol: "openai-responses",
 		capabilities: ["prompt-cache", "tools", "reasoning"],
-		defaultModelId: "mimo-v2-omni",
+		defaultModelId: "mimo-v2.5",
 		apiKeyEnv: ["XIAOMI_API_KEY"],
 		modelsProviderId: "xiaomi",
 		defaults: { baseUrl: "https://api.xiaomimimo.com/v1" },

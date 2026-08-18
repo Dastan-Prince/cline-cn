@@ -1,19 +1,8 @@
 Xiaomi Mimo AthrAPI — API 端点地址 + 模型 ID 列表（及默认模型）
 https://api.xiaomimimo.com/anthropic/v1/messages
 
-xiaomiDefaultModelId: XiaomiModelId = "mimo-v2-flash"
+xiaomiDefaultModelId: XiaomiModelId = "mimo-v2.5"
 
-	"mimo-v2-flash": {
-		maxTokens: 64_000,
-		contextWindow: 262144,
-		supportsImages: false,
-		supportsPromptCache: true,
-		inputPrice: 0.1,
-		outputPrice: 0.3,
-		cacheWritesPrice: 0.01,
-		cacheReadsPrice: 0.3,
-		description: "Xiaomi Mimo V2 Flash - Fast and efficient model with vision support, optimized for quick responses.",
-	},
 	"mimo-v2.5": {
 		maxTokens: 128_000,
 		contextWindow: 1048576,
