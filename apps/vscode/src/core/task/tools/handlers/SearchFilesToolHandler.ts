@@ -52,6 +52,12 @@ export class SearchFilesToolHandler implements IFullyManagedTool {
 				const root = workspaceRoots.find((r) => r.name === workspaceHint)
 				return [{ absolutePath, workspaceName: workspaceHint, workspaceRoot: root?.path }]
 			}
+			// If the path is already absolute, use it directly without joining with workspace roots.
+			// This prevents path duplication when LLMs provide absolute paths.
+			if (path.isAbsolute(parsedPath)) {
+				Logger.debug(`[SearchFilesToolHandler] Path is absolute, using directly: ${parsedPath}`)
+				return [{ absolutePath: parsedPath, workspaceRoot: config.cwd }]
+			}
 			// As a fallback, perform the search across all available workspaces.
 			// Typically, models should provide explicit hints to target specific workspaces for searching.
 			const allPaths = adapter.getAllPossiblePaths(parsedPath)
