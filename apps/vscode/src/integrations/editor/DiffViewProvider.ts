@@ -29,7 +29,6 @@ export abstract class DiffViewProvider {
 	constructor() {}
 
 	public async open(relPath: string, options?: { displayPath?: string }): Promise<void> {
-		this.isEditing = true
 		const cwd = await getCwd()
 		const absolutePathResolved = workspaceResolver.resolveWorkspacePath(cwd, relPath, "DiffViewProvider.open.absolutePath")
 		this.absolutePath = typeof absolutePathResolved === "string" ? absolutePathResolved : absolutePathResolved.absolutePath
@@ -40,32 +39,46 @@ export abstract class DiffViewProvider {
 		// fs.writeFile below — which made every SEARCH block fail to match against an
 		// empty string even though the model's diff was correct.
 		const fileExists = await fileExistsAtPath(this.absolutePath)
-		this.editType = fileExists ? "modify" : "create"
 
-		// if the file is already open, ensure it's not dirty before getting its contents
-		if (fileExists) {
-			await HostProvider.workspace.saveOpenDocumentIfDirty({
-				filePath: this.absolutePath!,
+		// Don't mark ourselves as editing until the file has been read (or created)
+		// successfully: if readFile below throws (e.g. EISDIR when the path is a
+		// directory), a lingering isEditing=true with no open editor used to poison
+		// every subsequent update/revert with "User closed text editor".
+		try {
+			// if the file is already open, ensure it's not dirty before getting its contents
+			if (fileExists) {
+				await HostProvider.workspace.saveOpenDocumentIfDirty({
+					filePath: this.absolutePath!,
+				})
+
+				const fileBuffer = await fs.readFile(this.absolutePath)
+				this.fileEncoding = await detectEncoding(fileBuffer)
+				this.originalContent = iconv.decode(fileBuffer, this.fileEncoding)
+			} else {
+				this.originalContent = ""
+				this.fileEncoding = "utf8"
+			}
+			// for new files, create any necessary directories and keep track of new directories to delete if the user denies the operation
+			this.createdDirs = await createDirectoriesForFile(this.absolutePath)
+			// make sure the file exists before we open it
+			if (!fileExists) {
+				await fs.writeFile(this.absolutePath, "")
+			}
+			// get diagnostics before editing the file, we'll compare to diagnostics after editing to see if cline needs to fix anything
+			this.preDiagnostics = (await HostProvider.workspace.getDiagnostics({})).fileDiagnostics
+
+			this.isEditing = true
+			this.editType = fileExists ? "modify" : "create"
+			await this.openDiffEditor()
+			await this.scrollEditorToLine(0)
+			this.streamedLines = []
+		} catch (error) {
+			// Roll back any partial state so the provider is clean for the next tool call
+			await this.reset().catch((resetError) => {
+				Logger.warn("DiffViewProvider.open: reset after failure also failed", resetError)
 			})
-
-			const fileBuffer = await fs.readFile(this.absolutePath)
-			this.fileEncoding = await detectEncoding(fileBuffer)
-			this.originalContent = iconv.decode(fileBuffer, this.fileEncoding)
-		} else {
-			this.originalContent = ""
-			this.fileEncoding = "utf8"
+			throw error
 		}
-		// for new files, create any necessary directories and keep track of new directories to delete if the user denies the operation
-		this.createdDirs = await createDirectoriesForFile(this.absolutePath)
-		// make sure the file exists before we open it
-		if (!fileExists) {
-			await fs.writeFile(this.absolutePath, "")
-		}
-		// get diagnostics before editing the file, we'll compare to diagnostics after editing to see if cline needs to fix anything
-		this.preDiagnostics = (await HostProvider.workspace.getDiagnostics({})).fileDiagnostics
-		await this.openDiffEditor()
-		await this.scrollEditorToLine(0)
-		this.streamedLines = []
 	}
 
 	/**
@@ -415,41 +428,48 @@ export abstract class DiffViewProvider {
 		}
 		const fileExists = this.editType === "modify"
 
-		if (!fileExists) {
-			// This is a load-bearing save statement- even though the file is saved and then immediately deleted.
-			// In vscode, it will not close the diff editor correctly if the file is not saved.
-			await this.saveDocument()
-			await this.closeAllDiffViews()
-			await fs.rm(this.absolutePath, { force: true })
-			Logger.log(`File ${this.absolutePath} has been deleted.`)
+		try {
+			if (!fileExists) {
+				// This is a load-bearing save statement- even though the file is saved and then immediately deleted.
+				// In vscode, it will not close the diff editor correctly if the file is not saved.
+				await this.saveDocument()
+				await this.closeAllDiffViews()
+				await fs.rm(this.absolutePath, { force: true })
+				Logger.log(`File ${this.absolutePath} has been deleted.`)
 
-			// Remove only the directories we created, in reverse order
-			for (let i = this.createdDirs.length - 1; i >= 0; i--) {
-				try {
-					await fs.rmdir(this.createdDirs[i])
-					Logger.log(`Directory ${this.createdDirs[i]} has been deleted.`)
-				} catch (error) {
-					Logger.log(`Could not delete directory ${this.createdDirs[i]}`, error)
+				// Remove only the directories we created, in reverse order
+				for (let i = this.createdDirs.length - 1; i >= 0; i--) {
+					try {
+						await fs.rmdir(this.createdDirs[i])
+						Logger.log(`Directory ${this.createdDirs[i]} has been deleted.`)
+					} catch (error) {
+						Logger.log(`Could not delete directory ${this.createdDirs[i]}`, error)
+					}
 				}
-			}
-		} else {
-			// revert document
-			// Apply the edit and save, since contents shouldn't have changed this won't show in local history unless of
-			// course the user made changes and saved during the edit.
-			const contents = (await this.getDocumentText()) || ""
-			const lineCount = (contents.match(/\n/g) || []).length + 1
-			await this.replaceText(this.originalContent ?? "", { startLine: 0, endLine: lineCount }, undefined)
+			} else {
+				// revert document
+				// Apply the edit and save, since contents shouldn't have changed this won't show in local history unless of
+				// course the user made changes and saved during the edit.
+				const contents = (await this.getDocumentText()) || ""
+				const lineCount = (contents.match(/\n/g) || []).length + 1
+				await this.replaceText(this.originalContent ?? "", { startLine: 0, endLine: lineCount }, undefined)
 
-			await this.saveDocument()
-			Logger.log(`File ${this.absolutePath} has been reverted to its original content.`)
-			if (this.documentWasOpen) {
-				openFile(this.absolutePath, true)
+				await this.saveDocument()
+				Logger.log(`File ${this.absolutePath} has been reverted to its original content.`)
+				if (this.documentWasOpen) {
+					openFile(this.absolutePath, true)
+				}
+				await this.closeAllDiffViews()
 			}
-			await this.closeAllDiffViews()
+		} catch (error) {
+			// The editor may already be gone (e.g. "User closed text editor"). Don't let
+			// that block the state reset below — a poisoned isEditing=true used to break
+			// every subsequent file-edit tool call in the task.
+			Logger.warn(`DiffViewProvider.revertChanges: ignoring error while reverting ${this.absolutePath}`, error)
+		} finally {
+			// edit is done — always reset, even when reverting failed
+			await this.reset()
 		}
-
-		// edit is done
-		await this.reset()
 	}
 
 	async scrollToFirstDiff() {

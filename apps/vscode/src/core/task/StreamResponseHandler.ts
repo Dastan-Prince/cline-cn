@@ -257,7 +257,11 @@ class ToolUseHandler {
 
 	private extractPartialJsonFields(partialJson: string): Record<string, any> {
 		const result: Record<string, any> = {}
-		const pattern = /"(\w+)":\s*"((?:[^"\\]|\\.)*)(?:")?/g
+		// Closing quote is REQUIRED: a value whose closing quote hasn't streamed yet
+		// (e.g. "path": "Services/) must NOT be extracted as a truncated value, since
+		// downstream partial tool handlers treat any non-empty path as actionable
+		// (previously produced "Services/" → EISDIR + poisoned diff view state).
+		const pattern = /"(\w+)":\s*"((?:[^"\\]|\\.)*)"/g
 
 		for (const match of partialJson.matchAll(pattern)) {
 			result[match[1]] = match[2].replace(ESCAPE_PATTERN, (m) => ESCAPE_MAP[m])

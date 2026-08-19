@@ -31,6 +31,14 @@ import { createUIHelpers } from "./tools/types/UIHelpers"
 import { ToolDisplayUtils } from "./tools/utils/ToolDisplayUtils"
 import { ToolResultUtils } from "./tools/utils/ToolResultUtils"
 
+/** File-editing tools that stream through the diff view and may leave it in a
+ * broken intermediate state when execution fails mid-flight. */
+const FILE_EDIT_DIFF_TOOLS: string[] = [
+	ClineDefaultTool.FILE_NEW, // write_to_file
+	ClineDefaultTool.FILE_EDIT, // replace_in_file
+	ClineDefaultTool.NEW_RULE,
+]
+
 export function canonicalizeAttemptCompletionParams(block: ToolUse): boolean {
 	if (block.name === ClineDefaultTool.ATTEMPT && !block.params?.result && typeof block.params?.response === "string") {
 		block.params.result = block.params.response
@@ -237,6 +245,19 @@ export class ToolExecutor {
 	private async handleError(action: string, error: Error, block: ToolUse): Promise<void> {
 		const errorString = `Error ${action}: ${error.message}`
 		await this.say("error", errorString)
+
+		// For file-editing tools the diff view may be left in a broken intermediate
+		// state (e.g. open() failed after partial setup). Clean it up so the error
+		// doesn't cascade into every subsequent tool call. Cleanup failures must
+		// never mask the original error.
+		if (FILE_EDIT_DIFF_TOOLS.includes(block.name)) {
+			try {
+				await this.diffViewProvider.revertChanges()
+				await this.diffViewProvider.reset()
+			} catch (cleanupError) {
+				// Best effort only
+			}
+		}
 
 		// Create error response for the tool
 		const errorResponse = formatResponse.toolError(errorString)

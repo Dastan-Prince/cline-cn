@@ -1,5 +1,6 @@
 import path from "node:path"
 import { setTimeout as setTimeoutPromise } from "node:timers/promises"
+import * as fs from "fs/promises"
 import type { ToolUse } from "@core/assistant-message"
 import { constructNewFileContent, getLineNumberFromCharIndex } from "@core/assistant-message/diff"
 import { formatResponse } from "@core/prompts/responses"
@@ -88,8 +89,12 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 			// Editor is open, stream content in real-time (false = don't finalize yet)
 			await config.services.diffViewProvider.update(newContent, false)
 		} catch (error) {
-			// Reset diff view on error
-			await config.services.diffViewProvider.revertChanges()
+			// Reset diff view on error. revertChanges itself can throw when the editor
+			// is already gone (e.g. "User closed text editor") — never let that block
+			// the reset below, otherwise the poisoned state breaks every later edit.
+			await config.services.diffViewProvider.revertChanges().catch((revertError) => {
+				Logger.warn("[WriteToFileToolHandler] revertChanges failed during partial block cleanup", revertError)
+			})
 			await config.services.diffViewProvider.reset()
 			throw error
 		}
@@ -412,8 +417,11 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 			}
 			return formatResponse.fileEditWithoutUserChanges(relPath, autoFormattingEdits, finalContent, newProblemsMessage)
 		} catch (error) {
-			// Reset diff view on error
-			await config.services.diffViewProvider.revertChanges()
+			// Reset diff view on error. revertChanges itself can throw when the editor
+			// is already gone — never let that block the reset below.
+			await config.services.diffViewProvider.revertChanges().catch((revertError) => {
+				Logger.warn("[WriteToFileToolHandler] revertChanges failed during execute cleanup", revertError)
+			})
 			await config.services.diffViewProvider.reset()
 			throw error
 		}
@@ -471,6 +479,41 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 				config.taskState.didAlreadyUseTool = true
 			}
 
+			return
+		}
+
+		// Directory path guard: a path that is (or points to) a directory must never
+		// reach the diff view. Native tool-call streaming can deliver a truncated
+		// path value (e.g. "Services/" mid-stream), which previously caused
+		// EISDIR from fs.readFile plus a poisoned diff-view state.
+		const isDirLikePath = /[\\/]$/.test(resolvedPath)
+		const pathStat = await fs.stat(absolutePath).catch(() => null)
+		if (isDirLikePath || pathStat?.isDirectory()) {
+			if (block.partial) {
+				// During streaming the path may simply be incomplete — stay silent
+				// and wait for the rest of the value instead of flashing an error.
+				return
+			}
+			config.taskState.consecutiveMistakeCount++
+			Logger.warn(
+				`[WriteToFileToolHandler] directory path rejected for '${block.name}': '${resolvedPath}' ` +
+					`(dirLike=${isDirLikePath}, statIsDirectory=${pathStat?.isDirectory() ?? false})`,
+			)
+			const errorMessage = formatResponse.toolError(
+				`Path '${resolvedPath}' is a directory, not a file. Provide the complete target file path (including the file name and extension).`,
+			)
+			await config.callbacks.say("error", `Cline tried to use ${block.name} for a directory '${resolvedPath}'. Retrying...`)
+			ToolResultUtils.pushToolResult(
+				errorMessage,
+				block,
+				config.taskState.userMessageContent,
+				ToolDisplayUtils.getToolDescription,
+				config.coordinator,
+				config.taskState.toolUseIdMap,
+			)
+			if (!config.enableParallelToolCalling) {
+				config.taskState.didAlreadyUseTool = true
+			}
 			return
 		}
 
