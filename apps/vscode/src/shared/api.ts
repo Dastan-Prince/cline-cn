@@ -5647,8 +5647,8 @@ export type DotsStudioAthrapiModelId = keyof typeof dotsStudioAthrapiModels
 export const dotsStudioAthrapiDefaultModelId: DotsStudioAthrapiModelId = "dots3-note-prev"
 export const dotsStudioAthrapiModels = {
 	"dots3-note-prev": {
-		maxTokens: 262144,
-		contextWindow: 524288,
+		maxTokens: 131072,
+		contextWindow: 393216,
 		supportsImages: true,
 		supportsPromptCache: true,
 		supportsReasoning: true,
@@ -5659,8 +5659,8 @@ export const dotsStudioAthrapiModels = {
 		description: "dots studio Dots3 Note Prev - Anthropic compatible API with 512K context window.",
 	},
 		"dots3-note": {
-		maxTokens: 262144,
-		contextWindow: 524288,
+		maxTokens: 131072,
+		contextWindow: 393216,
 		supportsImages: true,
 		supportsPromptCache: true,
 		supportsReasoning: true,
