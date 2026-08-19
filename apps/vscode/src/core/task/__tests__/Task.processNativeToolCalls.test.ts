@@ -46,6 +46,10 @@ describe("Task.processNativeToolCalls", () => {
 				saveClineMessagesAndUpdateHistory: async () => {
 					saveCalls += 1
 				},
+				updateClineMessage: async (index: number, update: Record<string, unknown>) => {
+					Object.assign(clineMessages[index], update)
+					saveCalls += 1
+				},
 			},
 			taskState: {
 				assistantMessageContent: [],

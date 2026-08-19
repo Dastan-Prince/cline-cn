@@ -11,6 +11,7 @@ import { fileExistsAtPath } from "@utils/fs"
 import { arePathsEqual, getReadablePath, isLocatedInWorkspace } from "@utils/path"
 import { applyPatch } from "diff"
 import { telemetryService } from "@/services/telemetry"
+import { Logger } from "@/shared/services/Logger"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ToolResponse } from "../../index"
 import { showNotificationForApproval } from "../../utils"
@@ -498,6 +499,19 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 				await config.services.diffViewProvider.open(absolutePath, { displayPath: relPath })
 			}
 
+			// Defensive check: SEARCH/REPLACE matching against an existing file requires its
+			// original content. If the diff view failed to capture it (e.g. stale state),
+			// re-open so matching runs against the real file instead of silently failing
+			// against an empty string.
+			if (config.services.diffViewProvider.editType === "modify" && !config.services.diffViewProvider.originalContent) {
+				Logger.warn(
+					`[WriteToFileToolHandler] originalContent is empty for existing file '${resolvedPath}'; re-opening diff view`,
+				)
+				await config.services.diffViewProvider.revertChanges()
+				await config.services.diffViewProvider.reset()
+				await config.services.diffViewProvider.open(absolutePath, { displayPath: relPath })
+			}
+
 			try {
 				const result = await constructNewFileContent(
 					diff,
@@ -512,6 +526,15 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 				if (block.partial) {
 					return
 				}
+
+				// Diagnostic context: helps distinguish "model's SEARCH content wrong" from
+				// "original content was empty/stale when matching".
+				Logger.warn(
+					`[WriteToFileToolHandler] diff edit failed for '${resolvedPath}': ` +
+						`editType=${config.services.diffViewProvider.editType}, ` +
+						`originalContentLength=${config.services.diffViewProvider.originalContent?.length ?? "undefined"}, ` +
+						`diffLength=${diff?.length ?? 0}, error=${(error as Error)?.message}`,
+				)
 
 				config.taskState.consecutiveMistakeCount++
 

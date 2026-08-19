@@ -861,6 +861,24 @@ export class Task {
 					await sendPartialMessageEvent(protoMessage)
 					return undefined
 				}
+				// Deduplicate text streaming: when native tool calls finalize the partial
+				// text message out-of-band (see processNativeToolCalls), a subsequent text chunk
+				// that adds no substantive content (e.g. the trailing "\n" block some
+				// Anthropic-compatible gateways emit after tool_use) would otherwise be pushed
+				// as a near-identical duplicate message. Skip it and keep the finalized message.
+				if (
+					type === "text" &&
+					lastMessage &&
+					lastMessage.type === "say" &&
+					lastMessage.say === "text" &&
+					!lastMessage.partial &&
+					text &&
+					text.trim() !== "" &&
+					(lastMessage.text ?? "").trim() === text.trim()
+				) {
+					return undefined
+				}
+
 				// this is a new partial message, so add it with partial state
 				const sayTs = Date.now()
 				this.taskState.lastMessageTs = sayTs
@@ -895,6 +913,32 @@ export class Task {
 				await sendPartialMessageEvent(protoMessage) // more performant than an entire postStateToWebview
 				return undefined
 			}
+			// Deduplicate complete text messages: an identical complete text message
+			// already exists (e.g. finalized by processNativeToolCalls before this say call
+			// arrived). Update it in place instead of pushing a duplicate.
+			if (
+				type === "text" &&
+				lastMessage &&
+				lastMessage.type === "say" &&
+				lastMessage.say === "text" &&
+				text !== undefined &&
+				lastMessage.text === text
+			) {
+				const lastIndex = this.messageStateHandler.getClineMessages().length - 1
+				await this.messageStateHandler.updateClineMessage(lastIndex, {
+					text,
+					images,
+					files,
+					partial: false,
+				})
+				const updatedMessage = this.messageStateHandler.getClineMessages()[lastIndex]
+				if (updatedMessage) {
+					const protoMessage = convertClineMessageToProto(updatedMessage)
+					await sendPartialMessageEvent(protoMessage)
+				}
+				return undefined
+			}
+
 			// this is a new partial=false message, so add it like normal
 			const sayTs = Date.now()
 			this.taskState.lastMessageTs = sayTs
@@ -3474,11 +3518,20 @@ export class Task {
 		const lastMessage = clineMessages.at(-1)
 		const shouldFinalizePartialText = textBlocks.length > 0
 		if (shouldFinalizePartialText && lastMessage?.partial && lastMessage.type === "say" && lastMessage.say === "text") {
-			lastMessage.text = textContent
-			lastMessage.partial = false
-			await this.messageStateHandler.saveClineMessagesAndUpdateHistory()
-			const protoMessage = convertClineMessageToProto(lastMessage)
-			await sendPartialMessageEvent(protoMessage)
+			// Finalize through the regular update channel (same as say(partial=false)) so
+			// concurrent say() updates can't race the direct mutation, and so any trailing
+			// text chunks emitted after tool_use are deduplicated by the guard in say()
+			// instead of being pushed as duplicate messages.
+			const lastIndex = clineMessages.length - 1
+			await this.messageStateHandler.updateClineMessage(lastIndex, {
+				text: textContent,
+				partial: false,
+			})
+			const finalizedMessage = this.messageStateHandler.getClineMessages()[lastIndex]
+			if (finalizedMessage) {
+				const protoMessage = convertClineMessageToProto(finalizedMessage)
+				await sendPartialMessageEvent(protoMessage)
+			}
 		}
 
 		this.taskState.assistantMessageContent = [...textBlocks, ...toolBlocks]

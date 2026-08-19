@@ -1,6 +1,6 @@
 import { formatResponse } from "@core/prompts/responses"
 import { workspaceResolver } from "@core/workspace"
-import { createDirectoriesForFile } from "@utils/fs"
+import { createDirectoriesForFile, fileExistsAtPath } from "@utils/fs"
 import { getCwd } from "@utils/path"
 import * as diff from "diff"
 import * as fs from "fs/promises"
@@ -34,7 +34,13 @@ export abstract class DiffViewProvider {
 		const absolutePathResolved = workspaceResolver.resolveWorkspacePath(cwd, relPath, "DiffViewProvider.open.absolutePath")
 		this.absolutePath = typeof absolutePathResolved === "string" ? absolutePathResolved : absolutePathResolved.absolutePath
 		this.relPath = options?.displayPath ?? relPath
-		const fileExists = this.editType === "modify"
+		// Prefer the actual disk state over the caller-provided editType hint. A stale or
+		// mis-detected editType (e.g. "create" for an existing file) previously caused
+		// originalContent to be reset to "" — and the real file to be truncated by the
+		// fs.writeFile below — which made every SEARCH block fail to match against an
+		// empty string even though the model's diff was correct.
+		const fileExists = await fileExistsAtPath(this.absolutePath)
+		this.editType = fileExists ? "modify" : "create"
 
 		// if the file is already open, ensure it's not dirty before getting its contents
 		if (fileExists) {
