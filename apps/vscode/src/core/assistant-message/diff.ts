@@ -19,13 +19,13 @@ const LEGACY_SEARCH_BLOCK_CHAR = "<"
 const LEGACY_REPLACE_BLOCK_CHAR = ">"
 
 // Replace the exact string constants with flexible regex patterns
-const SEARCH_BLOCK_START_REGEX = /^[-]{3,} SEARCH>?$/
-const LEGACY_SEARCH_BLOCK_START_REGEX = /^[<]{3,} SEARCH>?$/
+const SEARCH_BLOCK_START_REGEX = /^[-]{3,} SEARCH>?\r?$/
+const LEGACY_SEARCH_BLOCK_START_REGEX = /^[<]{3,} SEARCH>?\r?$/
 
-const SEARCH_BLOCK_END_REGEX = /^[=]{3,}$/
+const SEARCH_BLOCK_END_REGEX = /^[=]{3,}\r?$/
 
-const REPLACE_BLOCK_END_REGEX = /^[+]{3,} REPLACE>?$/
-const LEGACY_REPLACE_BLOCK_END_REGEX = /^[>]{3,} REPLACE>?$/
+const REPLACE_BLOCK_END_REGEX = /^[+]{3,} REPLACE>?\r?$/
+const LEGACY_REPLACE_BLOCK_END_REGEX = /^[>]{3,} REPLACE>?\r?$/
 
 // Helper functions to check if a line matches the flexible patterns
 function isSearchBlockStart(line: string): boolean {
@@ -282,6 +282,12 @@ async function constructNewFileContentV1(
 	// Track all replacements to handle out-of-order edits
 	const replacements: Array<{ start: number; end: number; content: string }> = []
 	let pendingOutOfOrderReplacement = false
+
+	// Normalize line endings: ensure both diff and original use LF only.
+	// This prevents matching failures when models generate \n but the file
+	// uses \r\n (common on Windows), or vice versa.
+	diffContent = diffContent.replace(/\r\n/g, "\n")
+	originalContent = originalContent.replace(/\r\n/g, "\n")
 
 	const lines = diffContent.split("\n")
 
@@ -825,6 +831,10 @@ export async function constructNewFileContentV2(
 	originalContent: string,
 	isFinal: boolean,
 ): Promise<{ newContent: string; matchIndices: number[] }> {
+	// Normalize line endings (same as V1)
+	diffContent = diffContent.replace(/\r\n/g, "\n")
+	originalContent = originalContent.replace(/\r\n/g, "\n")
+
 	const newFileContentConstructor = new NewFileContentConstructor(originalContent, isFinal)
 
 	const lines = diffContent.split("\n")
