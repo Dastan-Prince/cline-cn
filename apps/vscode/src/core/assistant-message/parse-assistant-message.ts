@@ -1,6 +1,6 @@
 import { ClineDefaultTool, getToolUseNames } from "@shared/tools"
 import { nanoid } from "nanoid"
-import { AssistantMessageContent, TextStreamContent, ToolParamName, ToolUse, toolParamNames } from "." // Assuming types are defined in index.ts or a similar file
+import { AssistantMessageContent, TextStreamContent, ToolParamName, ToolUse, toolParamNames } from "."; // Assuming types are defined in index.ts or a similar file
 
 // parseAssistantmessageV1 removed in https://github.com/cline/cline/pull/5425
 
@@ -33,6 +33,7 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 	let currentToolUse: ToolUse | undefined
 	let currentParamValueStart = 0 // Index *after* the opening tag of the current param
 	let currentParamName: ToolParamName | undefined
+	let currentParamCloseTag: string | undefined // Closing tag for current parameter (may be "</parameter>" for generic format)
 
 	// Precompute tags for faster lookups
 	const toolUseOpenTags = new Map<string, string>()
@@ -50,7 +51,7 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 
 		// --- State: Parsing a Tool Parameter ---
 		if (currentToolUse && currentParamName) {
-			const closeTag = `</${currentParamName}>`
+			const closeTag = currentParamCloseTag || `</${currentParamName}>`
 			// Check if the string *ending* at index `i` matches the closing tag
 			if (
 				currentCharIndex >= closeTag.length - 1 &&
@@ -82,11 +83,29 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 			for (const [tag, paramName] of toolParamOpenTags.entries()) {
 				if (currentCharIndex >= tag.length - 1 && assistantMessage.startsWith(tag, currentCharIndex - tag.length + 1)) {
 					currentParamName = paramName
+					currentParamCloseTag = `</${paramName}>`
 					currentParamValueStart = currentCharIndex + 1 // Value starts after the tag
 					startedNewParam = true
 					break
 				}
 			}
+
+			// Also check for <parameter name="..."> format (used by some models like dots-3-note-preview)
+			if (!startedNewParam && assistantMessage[currentCharIndex] === ">") {
+				const searchStart = Math.max(0, currentCharIndex - 60)
+				const preceding = assistantMessage.slice(searchStart, currentCharIndex + 1)
+				const paramMatch = preceding.match(/<parameter\s+name="([^"]+)">\s*$/)
+				if (paramMatch) {
+					const extractedName = paramMatch[1]
+					if ((toolParamNames as readonly string[]).includes(extractedName)) {
+						currentParamName = extractedName as ToolParamName
+						currentParamCloseTag = "</parameter>"
+						currentParamValueStart = currentCharIndex + 1
+						startedNewParam = true
+					}
+				}
+			}
+
 			if (startedNewParam) {
 				continue // Handled start of param, move to next char
 			}
