@@ -158,6 +158,12 @@ export class DotsStudioAthrapiHandler implements ApiHandler {
 									type: "tool_calls",
 									tool_call: {
 										...lastStartedToolCall,
+										// 补齐 call_id：下游 StreamResponseHandler/index.ts 依赖
+										// chunk.tool_call.call_id 建立 toolUseIdMap（call_id -> function.id）
+										// 缺失会导致 ToolResultUtils 无法回查 function.id，fallback 到 "cline"，
+										// 进而使 tool_result 无法正确配对回传给 LLM。
+										// Anthropic 协议下 tool_use block 的 id 即为 call_id，二者相同。
+										call_id: lastStartedToolCall.id,
 										function: {
 											...lastStartedToolCall,
 											id: lastStartedToolCall.id,
