@@ -45,6 +45,38 @@ You can track and communicate your progress on the overall task using the task_p
 - Use standard Markdown checklist format: "- [ ]" for incomplete items and "- [x]" for completed items
 - The task_progress parameter MUST be included as a separate parameter in the tool, it should not be included inside other content or argument blocks.`
 
+const UPDATING_TASK_PROGRESS_NATIVE_ATHRAPI = `UPDATING TASK PROGRESS
+
+You can track and communicate your progress on the overall task using the task_progress parameter supported by every tool call. Using task_progress ensures you remain on task, and stay focused on completing the user's objective. This parameter can be used in any mode, and with any tool call.
+
+- When switching from PLAN MODE to ACT MODE, you must create a comprehensive todo list for the task using the task_progress parameter
+- Todo list updates should be done silently using the task_progress parameter - do not announce these updates to the user
+- Keep items focused on meaningful progress milestones rather than minor technical details. The checklist should not be so granular that minor implementation details clutter the progress tracking.
+- For simple tasks, short checklists with even a single item are acceptable. For complex tasks, avoid making the checklist too long or verbose.
+- If you are creating this checklist for the first time, and the tool use completes the first step in the checklist, make sure to mark it as completed in your task_progress parameter.
+- Provide the whole checklist of steps you intend to complete in the task, and keep the checkboxes updated as you progress. It's okay to rewrite this checklist as needed if it becomes invalid due to scope changes or new information.
+- If a checklist is being used, be sure to update it any time a step has been completed.
+- The system will automatically include todo list context in your prompts when appropriate - these reminders are important.
+
+**How to use task_progress (NATIVE tool calling mode):**
+- You are using NATIVE tool calling via the Anthropic Messages API. The task_progress field is a PARAMETER of each tool's input schema — return it as a JSON field inside the tool call's input object, NOT as XML text in the response.
+- Do NOT emit <task_progress>, <invoke name="task_progress">, <parameter name="task_progress">, or any XML wrapper for task_progress in the response text. Text-form task_progress is NOT parsed in this mode.
+- Use standard Markdown checklist format inside the task_progress field value: "- [ ]" for incomplete items and "- [x]" for completed items.
+- The task_progress field MUST be returned together with a real tool call (execute_command, write_to_file, attempt_completion, etc.). It must NOT be returned alone.
+- The checklist must be the FULL list of steps (completed and remaining), not just the items changed in this turn.
+
+Correct: call execute_command with input:
+{
+  "command": "npm install",
+  "requires_approval": false,
+  "task_progress": "- [x] Set up project structure\\n- [x] Install dependencies\\n- [ ] Create components\\n- [ ] Test application"
+}
+
+INCORRECT (text-form, will NOT be recognized - do NOT use these formats):
+<invoke name="task_progress"><parameter name="task_progress">- [x] Install dependencies</parameter></invoke>
+<task_progress>- [x] Install dependencies</task_progress>
+<invoke name="attempt_completion"><parameter name="task_progress">- [x] Install dependencies</parameter></invoke>`
+
 const UPDATING_TASK_PROGRESS_NATIVE_GPT5 = `UPDATING TASK PROGRESS
 
 You can track and communicate your progress on the overall task using the task_progress parameter supported by every tool call. Using task_progress ensures you remain on task, and stay focused on completing the user's objective. This parameter can be used in any mode, and with any tool call.
@@ -81,6 +113,9 @@ export async function getUpdatingTaskProgress(variant: PromptVariant, context: S
 	}
 	if (variant.id === ModelFamily.NATIVE_GPT_5) {
 		template = UPDATING_TASK_PROGRESS_NATIVE_GPT5
+	}
+	if (variant.id === ModelFamily.NATIVE_ATHRAPI) {
+		template = UPDATING_TASK_PROGRESS_NATIVE_ATHRAPI
 	}
 
 	return new TemplateEngine().resolve(template, context, {})
