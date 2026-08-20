@@ -87,7 +87,10 @@ export class ExecuteCommandToolHandler implements IFullyManagedTool {
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
 		let command: string | undefined = block.params.command
 		const requiresApprovalRaw: string | undefined = block.params.requires_approval
-		const requiresApprovalPerLLM = requiresApprovalRaw?.toLowerCase() === "true"
+		// When the model omits requires_approval (common with weaker models over native tool calling),
+		// default to requiring user approval (fail-safe) instead of treating it as a fatal error that
+		// triggers a retry loop. Explicit `false` is still honored.
+		const requiresApprovalPerLLM = requiresApprovalRaw ? requiresApprovalRaw.toLowerCase() === "true" : true
 		const timeoutParam: string | undefined = block.params.timeout
 		let timeoutSeconds: number | undefined
 
@@ -104,11 +107,6 @@ export class ExecuteCommandToolHandler implements IFullyManagedTool {
 				"Cline tried to use execute_command without value for required parameter 'command'. Retrying...",
 			)
 			return formatResponse.toolError(formatResponse.executeCommandMissingCommandError())
-		}
-
-		if (!requiresApprovalRaw) {
-			config.taskState.consecutiveMistakeCount++
-			return await config.callbacks.sayAndCreateMissingParamError(this.name, "requires_approval")
 		}
 
 		config.taskState.consecutiveMistakeCount = 0
