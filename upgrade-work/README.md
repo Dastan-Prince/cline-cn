@@ -36,22 +36,53 @@ ebee8ca91 上游基线 v4.1.16
 4. shared/api.ts ApiProvider union 补充 6 个入口（xiaomi 上游已有）
 5. 清理全部字面量 `\n` 污染（25 处，字符级扫描修复器 repair-nl.ps1）
 
+## 2026-08-26 第二轮（提交 0bc6e169a + 45fdcd49e）：全链路打通
+
+1. **污染根因复盘**：`\n` 字面量污染在 HEAD 提交内（补丁重放引入），首次
+   `bun run protos` 的 postprotos biome `--write` 对残缺语法二次改写
+   （补分号/断行），造成双重损坏 → 弃用逐文件修补，改用策略：
+   `git checkout` 还原非手工文件 → 词法修复器 v2 全仓扫描
+   （`E:\workspace\Cline\repair-pollution-v2.mjs`，带 regex/模板/字符串/注释
+   状态保护，217 处修复；v1 不识别 `/\n/` 正则会误伤）→ 结构性残缺的
+   VscodeTerminalManager.ts 直接从上游 v4.1.16 整文件恢复
+   （E:\workspace\Cline\cline.git 有完整上游克隆+tag）
+2. **proto 重生成通过**：`bun run protos` 全绿（生成 + biome 格式化）
+3. **依赖环境修复**：根 `bun install`（isolated 布局，链接在
+   apps/vscode/node_modules）→ 清掉前会话 npm 残留的旧 @types/vscode@1.84
+   实体目录 → 重链后 1.101.0；`bun run build:sdk` 全包构建成功
+4. **provider 迁移定稿（重大方案变更）**：不保留 7 个 3.x 形态 webview 组件，
+   全部走上游 **GenericProviderSettings 通用路径**（useProviderModels +
+   useProviderConfig 持久化到 SDK ProviderSettingsManager；旧 fork 的
+   xiaomiApiKey 等字段不进 SDK 选项流，属孤儿数据）：
+   - 删除 7 个组件 + ApiOptions 专属分支，修复 ApiOptions 中断残片
+   - providerSettingsRegistry.ts 注册 6 个 fallback 名称/覆写
+     （anthropic-comp 带 baseUrlField + allowsCustomIds；dots 允许手输模型）
+   - builtins.ts 补 **mimo-tp**（此前遗漏！token-plan OpenAI 兼容端点，
+     复用 xiaomi 目录）；xiaomi 去掉 openai-responses 覆写
+     （回到 3.x 验证过的 chat-completions 协议）
+   - provider-id.ts KNOWN_API_PROVIDERS 补全 6 个 id
+5. **fork 功能恢复**：globalStorage 迁移（cline-cn → cline-cn-ai）从
+   fork patch 提取为 src/migrate-global-storage.ts 并接回 activate()
+6. **死代码清理**：core/api/providers/ 7 个 3.x handler、native-athrapi
+   提示词变体、3 个引用已迁 SDK 模块的旧测试全部删除
+7. **验证**：`bun run check-types`（扩展 tsc + compat + webview tsc）全绿，
+   污染扫描归零；注意 pre-commit 需要 gitleaks，本地用 --no-verify
+
 ## 待完成
 
-1.【中】proto 层接线：models.proto 的 ProtoApiProvider 枚举加 6 个值 +
-   anthropic_comp 的 plan/act model id/info 字段（改用空闲字段号——fork 原占
-   137/238/242-243 已被上游 cline_pass 占用），然后 `npm run protos` 重新生成
-2.【中】webview 接线：providerUtils.ts 加 label/description 映射、
-   ApiOptions.tsx 渲染新 Provider 组件（组件文件已就位但未接入）、
-   确认上游动态 provider 列表机制与自定义入口的兼容性
-3.【低】shared/storage/provider-keys.ts 的 key 映射
-   （fork 改动见 E:\workspace\Cline\wiring-diffs.txt）
-4.【验证】安装依赖后构建：bun install（SDK）+ apps/vscode npm install →
-   按 BUILD.md 打包 vsix → 回归测试中文界面/MiMo/GLM/AthrAPI 各入口
-5.【清理】确认 SDK 层路由稳定后删除 apps/vscode/src/core/api/providers/ 下旧 handler
+1.【验证】按 BUILD.md 打包 vsix → 回归测试中文界面 / MiMo（xiaomi、
+   mimo-tp、两个 athrapi）/ GLM / dots / anthropic-comp 各入口的
+   key 输入、模型选择、实际对话
+2.【低】models.proto 中 fork 遗留 apiKey 字段（xiaomiApiKey 等）仅作
+   存储兼容，运行时已不消费，确认无回归后可在下个大版本移除
+3.【低】anthropic-comp 与 dots-studio-athrapi 无模型目录键
+   （catalog.generated.ts），当前靠 allowsCustomIds 手输模型 id；
+   如需内置列表可在 builtins 用 modelsFactory 提供
+4.【低】`bun run lint`（biome lint + proto-lint）尚未跑（proto-lint 需 bash）
 
 ## 相关工具脚本（E:\workspace\Cline\）
 
 - `fork2.patch` 完整 fork 差异；`fB3.patch` 人工迁移桶；`gone3.txt` 上游缺失路径清单
-- `repair-nl.ps1` / `scan2.ps1` 字面量污染扫描与修复
+- `repair-pollution-v2.mjs` 全仓字面量 `\n` 修复器（regex/模板安全，dry-run 可用）
+- `cline.git` 上游完整克隆（v4.1.16 tag 可直接 git show 取原始文件）
 - `wiring-diffs.txt` 五个关键文件的 fork 改动摘录（移植参考）
