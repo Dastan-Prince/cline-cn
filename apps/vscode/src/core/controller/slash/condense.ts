@@ -1,5 +1,6 @@
 import { Empty, StringRequest } from "@shared/proto/cline/common"
-import type { Controller } from ".."\n
+import type { Controller } from ".."
+
 /**
  * Condense / compact slash command logic.
  *
@@ -11,4 +12,5 @@ import type { Controller } from ".."\n
  */
 export async function condense(controller: Controller, _request: StringRequest): Promise<Empty> {
 	await controller.compactTask()
-	return Empty.create()\n}
+	return Empty.create()
+}

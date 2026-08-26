@@ -5,7 +5,8 @@ import axios from "axios"
 import { parseProviderId } from "@/sdk/model-catalog/provider-id"
 import { getAxiosSettings } from "@/shared/net"
 import { Logger } from "@/shared/services/Logger"
-import { Controller } from ".."\n
+import { Controller } from ".."
+
 /**
  * Fetches available models from the OpenAI API
  * @param controller The controller instance
@@ -38,7 +39,8 @@ export async function refreshOpenAiModels(controller: Controller, request: OpenA
 
 		const response = await axios.get(`${baseUrl}/models`, { ...config, ...getAxiosSettings() })
 		const modelsArray = response.data?.data?.map((model: any) => model.id) || []
-		const models = [...new Set<string>(modelsArray)]\n
+		const models = [...new Set<string>(modelsArray)]
+
 		return StringArray.create({ values: models });
 	} catch (error) {
 		Logger.error("Error fetching OpenAI models:", error);

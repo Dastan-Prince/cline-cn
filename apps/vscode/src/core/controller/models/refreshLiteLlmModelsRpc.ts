@@ -14,7 +14,8 @@ export async function refreshLiteLlmModelsRpc(
 	controller: Controller,
 	_request: EmptyRequest,
 ): Promise<OpenRouterCompatibleModelInfo> {
-	const models = await refreshLiteLlmModels(controller)\n	return OpenRouterCompatibleModelInfo.create({
+	const models = await refreshLiteLlmModels(controller)
+	return OpenRouterCompatibleModelInfo.create({
 		models: toProtobufModels(models),
 	});
 }

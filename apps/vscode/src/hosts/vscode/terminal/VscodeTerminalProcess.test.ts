@@ -257,7 +257,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			.calledWith("unobserved_command", { source: "sendText", ownership: "managed" })
 			.should.be.true()
 		process.getCompletionDetails().unobservedCommand?.should.eql({ source: "sendText", ownership: "managed" })
-	})\n
+	})
+
 	// The following tests require shell integration and controlled terminal output
 	describe("Shell integration tests", () => {
 		// We'll mock the terminal run process and TerminalProcess for these tests
@@ -269,7 +270,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Create a mock implementation of executeCommand with C/D markers
 			const mockExecuteCommand = sandbox.stub().returns({
 				read: () => createMockStreamWithMarkers(["test output"], "echo test"),
-			})\n
+			})
+
 			// Create a fake shell integration object
 			const mockShellIntegration = {
 				executeCommand: mockExecuteCommand,
@@ -286,7 +288,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Run the command
 			const runPromise = process.run(terminal, "echo test")
 			await sandbox.clock.tickAsync(3000)
-			await runPromise\n
+			await runPromise
+
 			// Verify the executeCommand was called with the right command
 			mockExecuteCommand.calledWith("echo test").should.be.true();
 
@@ -371,7 +374,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// with no competing event, that D-marker value is used.
 			process.getCompletionDetails().exitCode?.should.equal(0)
 		})
-	})\n
+	})
+
 	// Tests with controlled output
 	describe("Controlled output tests", () => {
 		it("should emit line events for each line of output", async () => {
@@ -382,7 +386,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Mock the shell integration with controlled output, wrapped in C/D markers
 			const mockExecuteCommand = sandbox.stub().returns({
 				read: () => createMockStreamWithMarkers(["line1", "line2", "line3"], "test-command"),
-			})\n
+			})
+
 			// Create a mock shell integration object and stub the getter
 			sandbox.stub(terminal, "shellIntegration").get(() => ({
 				executeCommand: mockExecuteCommand,
@@ -392,7 +397,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			const runPromise = process.run(terminal, "test-command")
 			await sandbox.clock.tickAsync(3000)
-			await runPromise\n
+			await runPromise
+
 			// Check that line events were emitted for each line
 			(emitSpy as sinon.SinonSpy).calledWith("line", "line1").should.be.true();
 			(emitSpy as sinon.SinonSpy).calledWith("line", "line2").should.be.true();
@@ -407,7 +413,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Mock the shell integration with C/D markers
 			const mockExecuteCommand = sandbox.stub().returns({
 				read: () => createMockStreamWithMarkers(["compiling..."]),
-			})\n
+			})
+
 			// Create a mock shell integration object and stub the getter
 			sandbox.stub(terminal, "shellIntegration").get(() => ({
 				executeCommand: mockExecuteCommand,
@@ -418,7 +425,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			const runPromise = process.run(terminal, "build command")
 			await sandbox.clock.tickAsync(3000)
-			await runPromise\n
+			await runPromise
+
 			// Move time forward enough to schedule
 			sandbox.clock.tick(100);
 
@@ -437,7 +445,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Mock the shell integration with C/D markers
 			const mockExecuteCommand = sandbox.stub().returns({
 				read: () => createMockStreamWithMarkers(["some normal output"]),
-			})\n
+			})
+
 			// Create a mock shell integration object and stub the getter
 			sandbox.stub(terminal, "shellIntegration").get(() => ({
 				executeCommand: mockExecuteCommand,
@@ -448,7 +457,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			const runPromise = process.run(terminal, "standard command")
 			await sandbox.clock.tickAsync(3000)
 			await runPromise
-			sandbox.clock.tick(100)\n
+			sandbox.clock.tick(100)
+
 			// Expect a short hot timeout (<= 5000)
 			const foundNormalTimeout = setTimeoutSpy.args.filter(
 				(args) => args[1] && args[1] <= 5000,
@@ -460,7 +470,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			await sandbox.clock.tickAsync(3000)
 			await runPromise2
 			;(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.true()
-		})\n
+		})
+
 		it("should exclude command echo (pre-C text) and include output (post-C text)", async () => {
 			// Create a terminal
 			const terminal = TerminalRegistry.createTerminal().terminal;
@@ -475,7 +486,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 						["test command", "other output"],
 						"test-command", // command echo, before C marker
 					),
-			})\n
+			})
+
 			// Create a mock shell integration object and stub the getter
 			sandbox.stub(terminal, "shellIntegration").get(() => ({
 				executeCommand: mockExecuteCommand,
@@ -492,7 +504,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			;(emitSpy as sinon.SinonSpy).calledWith("line", "other output").should.be.true()
 			// Command echo before C should NOT be emitted (excluded by marker gating)
 			;(emitSpy as sinon.SinonSpy).calledWith("line", "test-command").should.be.false()
-		})\n
+		})
+
 		it("should handle npm run commands", async () => {
 			// Create a terminal
 			const terminal = TerminalRegistry.createTerminal().terminal;
@@ -506,7 +519,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 						["> project@1.0.0 build", "> tsc", "files built successfully"],
 						"npm run build", // command echo, before C marker
 					),
-			})\n
+			})
+
 			// Create a mock shell integration object and stub the getter
 			sandbox.stub(terminal, "shellIntegration").get(() => ({
 				executeCommand: mockExecuteCommand,
@@ -523,7 +537,8 @@ describe("TerminalProcess (Integration Tests)", () => {
 			;(emitSpy as sinon.SinonSpy).calledWith("line", "> tsc").should.be.true()
 			;(emitSpy as sinon.SinonSpy).calledWith("line", "files built successfully").should.be.true()
 		})
-	})\n
+	})
+
 	// Markerless fallback: shell integration is attached but not emitting OSC 633
 	// markers, e.g. because the user ssh'd from this terminal so commands execute
 	// in a remote shell. The read() stream never ends on its own; the process
@@ -774,4 +789,4 @@ describe("TerminalProcess (Integration Tests)", () => {
 		events.should.eql(["line:partial output", "continue"])
 		processAny.buffer.should.equal("")
 	})
-})\n
+})

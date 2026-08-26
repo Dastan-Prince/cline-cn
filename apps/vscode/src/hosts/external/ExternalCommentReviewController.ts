@@ -1,4 +1,5 @@
-import { CommentReviewController, type ReviewComment } from "@/integrations/editor/CommentReviewController"\n
+import { CommentReviewController, type ReviewComment } from "@/integrations/editor/CommentReviewController"
+
 /**
  * External (non-VS Code) implementation of CommentReviewController.
  *

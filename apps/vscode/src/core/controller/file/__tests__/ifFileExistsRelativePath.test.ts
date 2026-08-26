@@ -28,7 +28,8 @@ describe("ifFileExistsRelativePath", () => {
 
 	afterEach(() => {
 		getWorkspacePathStub.reset()
-	})\n
+	})
+
 	it("should return BooleanResponse with boolean value", async () => {
 		getWorkspacePathStub.resolves("/workspace");
 

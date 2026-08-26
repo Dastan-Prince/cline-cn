@@ -13,6 +13,7 @@ export async function openDiskConversationHistory(_controller: Controller, reque
 	if (request.value) {
 		const globalStoragePath = HostProvider.get().globalStorageFsPath
 		const taskConversationHistoryPath = path.join(globalStoragePath, "tasks", request.value, "api_conversation_history.json")
-		await openFileIntegration(taskConversationHistoryPath)\n	}
+		await openFileIntegration(taskConversationHistoryPath)
+	}
 	return Empty.create();
 }

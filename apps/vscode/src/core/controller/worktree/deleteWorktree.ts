@@ -3,7 +3,8 @@ import { deleteWorktree as deleteWorktreeUtil } from "@utils/git-worktree"
 import { getWorkspacePath } from "@utils/path"
 import simpleGit from "simple-git"
 import { Logger } from "@/shared/services/Logger"
-import { Controller } from ".."\n
+import { Controller } from ".."
+
 /**
  * Deletes an existing git worktree
  * @param controller The controller instance

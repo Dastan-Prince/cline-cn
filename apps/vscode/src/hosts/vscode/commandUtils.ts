@@ -126,7 +126,8 @@ export async function getContextForCommand(
 	const effectiveDiagnostics =
 		vscodeDiagnostics ??
 		vscode.languages.getDiagnostics(editor.document.uri).filter((d) => d.range.intersection(intentRange) !== undefined)
-	const diagnostics = convertVscodeDiagnostics(effectiveDiagnostics)\n	const commandContext: CommandContext = {
+	const diagnostics = convertVscodeDiagnostics(effectiveDiagnostics)
+	const commandContext: CommandContext = {
 		selectedText,
 		filePath,
 		diagnostics,

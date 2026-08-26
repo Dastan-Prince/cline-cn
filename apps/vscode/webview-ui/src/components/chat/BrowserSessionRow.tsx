@@ -444,7 +444,9 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 						<span style={consoleLogsTextStyle}>{t("browserSession.consoleLogs")}</span>
 					</div>
 					{consoleLogsExpanded && (
-						<CodeBlock source={`${"```"}shell\n${displayState.consoleLogs || "(No new logs)"}\n${"```"}`} />
+						<CodeBlock source={`${"```"}shell
+${displayState.consoleLogs || "(No new logs)"}
+${"```"}`} />
 					)}
 				</div>
 			</div>
@@ -522,7 +524,9 @@ const BrowserSessionRowContent = memo(
 						<span style={browserSessionStartedTextStyle}>{t("browserSession.sessionStarted")}</span>
 					</div>
 					<div style={codeBlockContainerStyle}>
-						<CodeBlock forceWrap={true} source={`${"```"}shell\n${message.text}\n${"```"}`} />
+						<CodeBlock forceWrap={true} source={`${"```"}shell
+${message.text}
+${"```"}`} />
 					</div>
 				</>
 			)

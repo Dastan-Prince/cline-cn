@@ -1,6 +1,7 @@
 import { Empty, EmptyRequest } from "@shared/proto/cline/common"
 import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler"
-import { Controller } from "../index"\n
+import { Controller } from "../index"
+
 // Keep track of active subscriptions
 const activeRelinquishControlSubscriptions = new Set<
 	StreamingResponseHandler<Empty>

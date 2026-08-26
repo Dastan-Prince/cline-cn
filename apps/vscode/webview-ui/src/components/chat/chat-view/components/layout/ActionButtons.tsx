@@ -4,7 +4,8 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import type React from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useExtensionState } from "../../../../../context/ExtensionStateContext"
-import { ButtonActionType, getButtonConfigFromState } from "../../shared/buttonConfig"\nimport type { ChatState, MessageHandlers } from "../../types/chatTypes"
+import { ButtonActionType, getButtonConfigFromState } from "../../shared/buttonConfig"
+import type { ChatState, MessageHandlers } from "../../types/chatTypes"
 
 interface ActionButtonsProps {
 	task?: ClineMessage
@@ -115,7 +116,8 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, ch
 		return null
 	}
 
-	const { primaryText, secondaryText, primaryAction, secondaryAction, enableButtons } = buttonConfig\n	const hasButtons = primaryText || secondaryText
+	const { primaryText, secondaryText, primaryAction, secondaryAction, enableButtons } = buttonConfig
+	const hasButtons = primaryText || secondaryText
 	const isStreaming = task.partial === true
 	const canInteract = enableButtons && !isProcessing
 

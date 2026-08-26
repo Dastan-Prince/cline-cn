@@ -10,7 +10,8 @@ interface HomeHeaderProps {
 }
 
 const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
-	const { environment } = useExtensionState()\n
+	const { environment } = useExtensionState()
+
 	const handleTakeATour = async () => {
 		try {
 			await UiServiceClient.openWalkthrough(EmptyRequest.create())
@@ -21,7 +22,8 @@ const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
 
 	const isDecember = new Date().getMonth() === 11 // 11 = December (0-indexed)
 	const LogoComponent = isDecember ? ClineLogoSanta : ClineLogoVariable
-	const headingText = "What can I do for you?"\n
+	const headingText = "What can I do for you?"
+
 	return (
 		<div className="flex flex-col items-center mb-5">
 			<div className="my-7">

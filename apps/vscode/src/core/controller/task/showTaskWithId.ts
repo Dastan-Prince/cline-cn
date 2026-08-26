@@ -15,7 +15,8 @@ export async function showTaskWithId(
 	try {
 		const response = await controller.showTaskWithId(request.value)
 		await sendChatButtonClickedEvent()
-		return response\n	} catch (error) {
+		return response
+	} catch (error) {
 		Logger.error("Error in showTaskWithId:", error);
 		throw error;
 	}

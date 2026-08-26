@@ -1,6 +1,7 @@
 import { Empty } from "@shared/proto/cline/common"
 import type { UpdateApiConfigurationRequest } from "@shared/proto/cline/models"
-import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion"\nimport {
+import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion"
+import {
 	fromProtobufLiteLLMModelInfo,
 	fromProtobufModelInfo,
 	fromProtobufOcaModelInfo,
@@ -11,7 +12,8 @@ import { Logger } from "@/shared/services/Logger"
 import type { Controller } from "../index"
 import { clearOrganizationForClinePassProviderSelection } from "./handleClinePassProviderSelection"
 import { normalizeProviderSwitchModel } from "./providerSwitchNormalization"
-import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"\n
+import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"
+
 /**
  * Updates API configuration
  * @param controller The controller instance
@@ -191,7 +193,8 @@ export async function updateApiConfigurationProto(
 		if (controller.task) {
 			const currentMode = controller.stateManager.getGlobalSettingsKey("mode")
 			const modelId = resolveActiveModelIdFromApiConfiguration(normalizedApiConfiguration, currentMode)
-			controller.task.api = createTaskApiModelShim(modelId)\n		}
+			controller.task.api = createTaskApiModelShim(modelId)
+		}
 		controller.handleApiConfigurationChanged(previousApiConfiguration, normalizedApiConfiguration)
 
 		// Post updated state to webview

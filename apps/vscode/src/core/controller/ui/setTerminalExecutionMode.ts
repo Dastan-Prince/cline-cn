@@ -14,7 +14,8 @@ export async function setTerminalExecutionMode(controller: Controller, request: 
 
 	// Update the global state
 	controller.stateManager.setGlobalState("vscodeTerminalExecutionMode", newMode)
-	controller.handleTerminalExecutionModeChanged(previousMode, newMode)\n
+	controller.handleTerminalExecutionModeChanged(previousMode, newMode)
+
 	// Post updated state to webview
 	await controller.postStateToWebview();
 

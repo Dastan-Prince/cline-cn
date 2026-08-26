@@ -1,6 +1,7 @@
 import { UserOrganizationUpdateRequest } from "@shared/proto/cline/account"
 import { Empty } from "@shared/proto/cline/common"
-import type { Controller } from "../index"\n
+import type { Controller } from "../index"
+
 /**
  * Handles setting the user's active organization
  * @param controller The controller instance

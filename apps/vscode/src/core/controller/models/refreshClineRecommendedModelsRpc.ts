@@ -36,4 +36,5 @@ export async function refreshClineRecommendedModelsRpc(
 				tags: model.tags,
 			}),
 		),
-	})\n}
+	})
+}

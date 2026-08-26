@@ -37,7 +37,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 	const noModelsMessage = "No models found. Did you set up your OCA access (possibly through entitlements)?"
 	const models: Record<string, OcaModelInfo> = {}
 	let defaultModelId: string | undefined
-	const ocaAccessToken = await OcaAuthService.getInstance().getAuthToken()\n	if (!ocaAccessToken) {
+	const ocaAccessToken = await OcaAuthService.getInstance().getAuthToken()
+	if (!ocaAccessToken) {
 		HostProvider.window.showMessage({
 			type: ShowMessageType.ERROR,
 			message: "Not authenticated with OCA. Please sign in first.",
@@ -63,7 +64,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 				return OcaCompatibleModelInfo.create({ error: noModelsMessage })
 			}
 			for (const model of responseModels) {
-				const modelId = model.litellm_params?.model\n				if (typeof modelId !== "string" || !modelId) {
+				const modelId = model.litellm_params?.model
+				if (typeof modelId !== "string" || !modelId) {
 					continue;
 				}
 				if (!defaultModelId) {
@@ -75,7 +77,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 					: [CHAT_COMPLETIONS_API]
 				const reasoningEffortOptions = Array.isArray(modelInfo.reasoning_effort_options)
 					? modelInfo.reasoning_effort_options
-					: []\n
+					: []
+
 				let apiFormat: ApiFormat = ApiFormat.OPENAI_CHAT;
 				if (supportsChatCompletions(supportedApiList)) {
 					apiFormat = ApiFormat.OPENAI_CHAT;
@@ -113,7 +116,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 				})
 				return OcaCompatibleModelInfo.create({ error: noModelsMessage })
 			}
-			Logger.log("OCA models fetched", models)\n
+			Logger.log("OCA models fetched", models)
+
 			// Fetch current config to determine existing model selections
 			const apiConfiguration = controller.stateManager.getApiConfiguration();
 			const planActSeparateModelsSetting =
@@ -132,7 +136,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 					: defaultModelId
 
 			let planModeOcaReasoningEffort: string | undefined
-			let actModeOcaReasoningEffort: string | undefined\n			if (
+			let actModeOcaReasoningEffort: string | undefined
+			if (
 				models[planModeSelectedModelId].supportsReasoning &&
 				models[planModeSelectedModelId].reasoningEffortOptions.length > 0
 			) {
@@ -189,7 +194,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 			return OcaCompatibleModelInfo.create({ error })
 		}
 	} catch (err) {
-		let userMsg: string\n		if (err.response) {
+		let userMsg: string
+		if (err.response) {
 			// The request was made and the server responded with a status code that falls out of the range of 2xx
 			userMsg = `Did you set up your OCA access (possibly through entitlements)? OCA service returned ${err.response.status} ${err.response.statusText}.`;
 		} else if (err.request) {
@@ -203,7 +209,8 @@ export async function refreshOcaModels(controller: Controller, request: StringRe
 			type: ShowMessageType.ERROR,
 			message: `Error refreshing OCA models. ${userMsg} opc-request-id: ${headers["opc-request-id"]}`,
 		})
-		return OcaCompatibleModelInfo.create({ error: userMsg })\n	}
+		return OcaCompatibleModelInfo.create({ error: userMsg })
+	}
 	return OcaCompatibleModelInfo.create({ models });
 }
 
@@ -216,4 +223,5 @@ function supportsResponses(modelSupportedApiList: string[]): boolean {
 }
 
 function supportsMessages(modelSupportedApiList: string[]): boolean {
-	return modelSupportedApiList.includes(MESSAGES_API)\n}
+	return modelSupportedApiList.includes(MESSAGES_API)
+}

@@ -1,6 +1,7 @@
 import { GetTaskHistoryRequest, TaskHistoryArray } from "@shared/proto/cline/task"
 import { Logger } from "@/shared/services/Logger"
-import { Controller } from ".."\n
+import { Controller } from ".."
+
 /**
  * Gets filtered task history.
  * Task history retrieval/filtering is delegated to the SDK-backed controller.
@@ -13,7 +14,8 @@ export async function getTaskHistory(
 	request: GetTaskHistoryRequest,
 ): Promise<TaskHistoryArray> {
 	try {
-		return await controller.getTaskHistory(request)\n	} catch (error) {
+		return await controller.getTaskHistory(request)
+	} catch (error) {
 		Logger.error("Error in getTaskHistory:", error);
 		throw error;
 	}

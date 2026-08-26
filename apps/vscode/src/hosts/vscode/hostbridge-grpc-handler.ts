@@ -216,4 +216,4 @@ export interface HostServiceHandlerConfig {
  */
 export function getRequestRegistry(): GrpcRequestRegistry {
 	return requestRegistry;
-}\n
+}

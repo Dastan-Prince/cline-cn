@@ -1,6 +1,7 @@
 import { Empty, EmptyRequest } from "@shared/proto/cline/common"
 import { Logger } from "@/shared/services/Logger"
-import { Controller } from ".."\n
+import { Controller } from ".."
+
 /**
  * Clears the current task
  * @param controller The controller instance
@@ -20,4 +21,5 @@ export async function clearTask(controller: Controller, _request: EmptyRequest):
 		)
 	}
 
-	return Empty.create()\n}
+	return Empty.create()
+}

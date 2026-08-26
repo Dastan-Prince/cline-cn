@@ -26,7 +26,8 @@ import { openFileRelativePath } from "../openFileRelativePath"
 describe("openFileRelativePath", () => {
 	let sandbox: sinon.SinonSandbox
 	let mockController: Controller
-	let consoleErrorStub: sinon.SinonStub\n
+	let consoleErrorStub: sinon.SinonStub
+
 	beforeEach(() => {
 		sandbox = sinon.createSandbox();
 
@@ -35,7 +36,8 @@ describe("openFileRelativePath", () => {
 
 		// Reset the module-level sinon stubs (injected via mock.module above)
 		openFileIntegrationStub.reset()
-		getWorkspacePathStub.reset()\n
+		getWorkspacePathStub.reset()
+
 		// Stub console.error to prevent test output pollution
 		consoleErrorStub = sandbox.stub(Logger, "error");
 	});
@@ -44,7 +46,8 @@ describe("openFileRelativePath", () => {
 		sandbox.restore()
 		openFileIntegrationStub.reset()
 		getWorkspacePathStub.reset()
-	})\n
+	})
+
 	it("should return Empty response on successful execution", async () => {
 		getWorkspacePathStub.resolves("/workspace");
 

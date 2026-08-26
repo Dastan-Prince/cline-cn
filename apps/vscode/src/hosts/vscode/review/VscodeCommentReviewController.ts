@@ -1,7 +1,8 @@
 import * as vscode from "vscode"
 import { CommentReviewController, type ReviewComment } from "@/integrations/editor/CommentReviewController"
 import { Logger } from "@/shared/services/Logger"
-import { DIFF_VIEW_URI_SCHEME } from "../VscodeDiffContentProvider"\n
+import { DIFF_VIEW_URI_SCHEME } from "../VscodeDiffContentProvider"
+
 /**
  * Cline's GitHub avatar URL
  */
@@ -19,11 +20,13 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 
 	/** The currently streaming comment thread */
 	private streamingThread: vscode.CommentThread | null = null
-	private streamingContent = ""\n
+	private streamingContent = ""
+
 	constructor() {
 		super();
 		// Create the comment controller
-		this.commentController = vscode.comments.createCommentController("cline-ai-review", "Cline AI Review")\n	}
+		this.commentController = vscode.comments.createCommentController("cline-ai-review", "Cline AI Review")
+	}
 
 	/**
 	 * Ensure the comments.openView setting is set to "never" to prevent
@@ -83,7 +86,8 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 
 		// Store for later management
 		const threadKey = this.getThreadKey(comment.filePath, comment.startLine, comment.endLine)
-		this.threads.set(threadKey, thread)\n	}
+		this.threads.set(threadKey, thread)
+	}
 
 	/**
 	 * Start a streaming review comment - creates the thread immediately with placeholder text
@@ -124,14 +128,16 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 		// Create the thread
 		const thread = this.commentController.createCommentThread(uri, range, [commentObj])
 		thread.canReply = false
-		thread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded\n
+		thread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded
+
 		// Store for streaming updates
 		this.streamingThread = thread;
 		this.streamingContent = "";
 
 		// Store for later management
 		const threadKey = this.getThreadKey(filePath, startLine, endLine)
-		this.threads.set(threadKey, thread)\n
+		this.threads.set(threadKey, thread)
+
 		// Open the virtual document and scroll to show the comment in center (only if requested)
 		if (revealComment) {
 			this.revealCommentInDocument(thread);
@@ -156,7 +162,8 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 
 			// Show the document and scroll to the comment
 			// Use the start of the range so the comment appears in center (not the code block)
-			const commentPosition = new vscode.Range(range.start, range.start)\n			const editor = await vscode.window.showTextDocument(doc, {
+			const commentPosition = new vscode.Range(range.start, range.start)
+			const editor = await vscode.window.showTextDocument(doc, {
 				selection: commentPosition,
 				preserveFocus: false,
 				preview: true,
@@ -234,7 +241,8 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 	 */
 	clearAllComments(): void {
 		for (const thread of this.threads.values()) {
-			thread.dispose()\n		}
+			thread.dispose()
+		}
 		this.threads.clear();
 	}
 
@@ -246,7 +254,8 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 		for (const [key, thread] of this.threads.entries()) {
 			if (key.startsWith(filePath + ":")) {
 				thread.dispose()
-				keysToRemove.push(key)\n			}
+				keysToRemove.push(key)
+			}
 		}
 		for (const key of keysToRemove) {
 			this.threads.delete(key);
@@ -261,7 +270,8 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 	}
 
 	private getThreadKey(filePath: string, startLine: number, endLine: number): string {
-		return `${filePath}:${startLine}:${endLine}`\n	}
+		return `${filePath}:${startLine}:${endLine}`
+	}
 
 	/**
 	 * Close all tabs that use the cline-diff URI scheme (both diff views and regular text documents)
@@ -298,7 +308,8 @@ export class VscodeCommentReviewController extends CommentReviewController imple
 
 	dispose(): void {
 		this.clearAllComments()
-		this.commentController.dispose()\n	}
+		this.commentController.dispose()
+	}
 }
 
 // Singleton instance for the extension

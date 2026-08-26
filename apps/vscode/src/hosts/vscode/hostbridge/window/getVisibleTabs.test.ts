@@ -5,7 +5,8 @@ import * as os from "os"
 import * as path from "path"
 import * as vscode from "vscode"
 import { getVisibleTabs } from "@/hosts/vscode/hostbridge/window/getVisibleTabs"
-import { GetVisibleTabsRequest } from "@/shared/proto/host/window"\n
+import { GetVisibleTabsRequest } from "@/shared/proto/host/window"
+
 describe("Hostbridge - Window - getVisibleTabs", () => {
 	/**
 	 * Helper function to create and open a test document in a specific column

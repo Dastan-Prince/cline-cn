@@ -19,4 +19,5 @@ export async function checkpointRestore(controller: Controller, request: Checkpo
 		return Empty.create({})
 	}
 
-	return Empty.create({})\n}
+	return Empty.create({})
+}

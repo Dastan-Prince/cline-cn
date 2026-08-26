@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
-import { Logger } from "@/shared/services/Logger"\n
+import { Logger } from "@/shared/services/Logger"
+
 export interface TerminalInfo {
 	terminal: vscode.Terminal;
 	busy: boolean;
@@ -19,7 +20,8 @@ export interface TerminalInfo {
 export class TerminalRegistry {
 	private static terminals: TerminalInfo[] = []
 	private static terminalsPendingCleanup = new Map<number, TerminalInfo>()
-	private static nextTerminalId = 1\n
+	private static nextTerminalId = 1
+
 	static createTerminal(
 		cwd?: string | vscode.Uri | undefined,
 		shellPath?: string,

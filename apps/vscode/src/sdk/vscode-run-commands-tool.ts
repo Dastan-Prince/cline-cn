@@ -426,7 +426,9 @@ export async function executeForeground(
 
 			const bufferedOutput =
 				droppedLines > 0
-					? [...outputLines, `\n... (${droppedLines} earlier lines dropped) ...\n`].join("\n")
+					? [...outputLines, `
+... (${droppedLines} earlier lines dropped) ...
+`].join("\n")
 					: outputLines.join("\n")
 			const output = truncateCommandOutput(bufferedOutput.trim(), {
 				maxChars: maxOutputChars,
@@ -444,7 +446,8 @@ export async function executeForeground(
 			if (completionDetails?.terminalClosed) {
 				const result =
 					output.length > 0
-						? `[Terminal closed while the command was running; output may be incomplete]\n${output}`
+						? `[Terminal closed while the command was running; output may be incomplete]
+${output}`
 						: "[Terminal closed while the command was running; no output was captured]"
 				throw new CommandExitError(1, result)
 			}
@@ -457,7 +460,8 @@ export async function executeForeground(
 						: "The terminal has been left open and will not be closed automatically."
 				const result =
 					output.length > 0
-						? `[Command completion could not be observed; the command may still be running and must not be assumed to have succeeded. ${lifecycle}]\n${output}`
+						? `[Command completion could not be observed; the command may still be running and must not be assumed to have succeeded. ${lifecycle}]
+${output}`
 						: `[Command completion could not be observed; the command may still be running and must not be assumed to have succeeded. ${lifecycle}]`
 				throw new CommandExitError(1, result)
 			}
@@ -473,7 +477,8 @@ export async function executeForeground(
 			if (exitCode !== undefined && exitCode !== null && exitCode !== 0) {
 				const result =
 					output.length > 0
-						? `[Command exited with code ${exitCode}]\n${output}`
+						? `[Command exited with code ${exitCode}]
+${output}`
 						: `[Command exited with code ${exitCode}]`
 				throw new CommandExitError(exitCode, result)
 			}

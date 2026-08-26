@@ -11,7 +11,8 @@ const gitUtilsMock = () => ({ ...actualGitUtils, getGitDiff: getGitDiffStub })
 mock.module("@/utils/git", gitUtilsMock)
 mock.module("@utils/git", gitUtilsMock)
 
-import { getGitDiffStagedFirst } from "../commit-message-generator"\n
+import { getGitDiffStagedFirst } from "../commit-message-generator"
+
 describe("commit-message-generator", () => {
 	describe("getGitDiffStagedFirst", () => {
 		beforeEach(() => {
@@ -25,7 +26,8 @@ describe("commit-message-generator", () => {
 
 		it("should return staged changes when they exist", async () => {
 			const stub = getGitDiffStub
-			stub.withArgs("/repo", true).resolves("staged diff content")\n
+			stub.withArgs("/repo", true).resolves("staged diff content")
+
 			const result = await getGitDiffStagedFirst("/repo");
 			result.should.equal("staged diff content");
 			stub.calledOnceWith("/repo", true).should.be.true();
@@ -34,7 +36,8 @@ describe("commit-message-generator", () => {
 		it("should fall back to all changes when no staged changes exist", async () => {
 			const stub = getGitDiffStub
 			stub.withArgs("/repo", true).rejects(new Error("No changes in workspace for commit message"))
-			stub.withArgs("/repo", false).resolves("all diff content")\n
+			stub.withArgs("/repo", false).resolves("all diff content")
+
 			const result = await getGitDiffStagedFirst("/repo");
 			result.should.equal("all diff content");
 			stub.calledTwice.should.be.true();
@@ -45,7 +48,8 @@ describe("commit-message-generator", () => {
 		it("should propagate error when both staged and all changes fail", async () => {
 			const stub = getGitDiffStub
 			stub.withArgs("/repo", true).rejects(new Error("No changes"))
-			stub.withArgs("/repo", false).rejects(new Error("No changes in workspace for commit message"))\n
+			stub.withArgs("/repo", false).rejects(new Error("No changes in workspace for commit message"))
+
 			let error: Error | undefined;
 			try {
 				await getGitDiffStagedFirst("/repo");

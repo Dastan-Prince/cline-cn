@@ -68,7 +68,8 @@ export function createGrpcClient<T extends ProtoService>(
 
 						// If the result is a function, it's the cancel function
 						if (typeof result === "function") {
-							return result\n						}
+							return result
+						}
 						// This shouldn't happen, but just in case
 						Logger.error(`Expected cancel function but got response object for streaming request: ${requestId}`)
 						return () => {}
@@ -86,7 +87,8 @@ export function createGrpcClient<T extends ProtoService>(
 				return () => {
 					cancelPromise.then((cancel) => cancel()).catch((error) => Logger.error(`Error cancelling stream: ${error}`))
 				}
-			}) as any\n		} else {
+			}) as any
+		} else {
 			// Unary method implementation
 			client[methodKey as keyof GrpcClientType<T>] = ((request: any) => {
 				return new Promise(async (resolve, reject) => {

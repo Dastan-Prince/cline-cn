@@ -2,7 +2,8 @@ import { describe, it } from "mocha"
 import { expect } from "chai"
 import * as vscode from "vscode"
 import { DiagnosticSeverity } from "@/shared/proto/index.cline"
-import { convertToFileDiagnostics, convertVscodeDiagnostics } from "./getDiagnostics"\n
+import { convertToFileDiagnostics, convertVscodeDiagnostics } from "./getDiagnostics"
+
 describe("getDiagnostics conversion functions", () => {
 	describe("convertToFileDiagnostics", () => {
 		it("should return empty array when no diagnostics are provided", () => {

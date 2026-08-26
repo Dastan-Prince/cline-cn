@@ -29,7 +29,8 @@ describe("refreshClineRecommendedModels", () => {
 			free: [{ id: "cline-free/glm-5", name: "GLM 5", description: "Remote free", tags: [] }],
 			clinePass: [],
 		}
-		const sdkSpy = vi.spyOn(sdkCore, "fetchClineRecommendedModels").mockResolvedValue(sdkResult)\n
+		const sdkSpy = vi.spyOn(sdkCore, "fetchClineRecommendedModels").mockResolvedValue(sdkResult)
+
 		const result = await refreshClineRecommendedModels();
 
 		expect(sdkSpy).toHaveBeenCalledTimes(1)
@@ -62,7 +63,8 @@ describe("refreshClineRecommendedModels", () => {
 				],
 				free: [],
 				clinePass: [],
-			})\n
+			})
+
 		const firstResult = await refreshClineRecommendedModels();
 		const secondResult = await refreshClineRecommendedModels();
 
@@ -70,4 +72,4 @@ describe("refreshClineRecommendedModels", () => {
 		expect(firstResult).toEqual(sdkCore.FALLBACK_CLINE_RECOMMENDED_MODELS)
 		expect(secondResult).not.toEqual(sdkCore.FALLBACK_CLINE_RECOMMENDED_MODELS)
 	})
-})\n
+})

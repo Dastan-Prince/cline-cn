@@ -5,7 +5,8 @@ import { IRecorder } from "@core/controller/grpc-recorder/grpc-recorder"
 import { GrpcRecorderBuilder } from "@core/controller/grpc-recorder/grpc-recorder.builder"
 import { testHooks } from "@core/controller/grpc-recorder/test-hooks"
 import { GrpcLogEntry } from "@core/controller/grpc-recorder/types"
-import * as sinon from "sinon"\n
+import * as sinon from "sinon"
+
 describe("test-hooks", () => {
 	let cleanupSyntheticEntriesStub: sinon.SinonStub;
 	let recordRequestStub: sinon.SinonStub;

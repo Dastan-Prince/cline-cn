@@ -2,7 +2,8 @@ import { Empty, StringArrayRequest } from "@shared/proto/cline/common"
 import { HostProvider } from "@/hosts/host-provider"
 import { ShowMessageType } from "@/shared/proto/host/window"
 import { Logger } from "@/shared/services/Logger"
-import { Controller } from ".."\n
+import { Controller } from ".."
+
 /**
  * Deletes tasks with the specified IDs
  * @param controller The controller instance
@@ -58,4 +59,5 @@ async function deleteTaskWithId(controller: Controller, id: string): Promise<voi
 	await controller.deleteTaskFromState(id)
 
 	// Always update webview state so the history list and recents refresh
-	await controller.postStateToWebview()\n}
+	await controller.postStateToWebview()
+}

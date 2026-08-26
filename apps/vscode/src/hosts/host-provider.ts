@@ -1,7 +1,8 @@
 import { WebviewProvider } from "@/core/webview"
 import { CommentReviewController } from "@/integrations/editor/CommentReviewController"
 import { EditPreview } from "@/integrations/editor/EditPreview"
-import { HostBridgeClientProvider } from "./host-provider-types"\n/**
+import { HostBridgeClientProvider } from "./host-provider-types"
+/**
  * Singleton class that manages host-specific providers for dependency injection.
  *
  * This system runs on two different platforms (VSCode extension and cline-core),
@@ -20,7 +21,8 @@ export class HostProvider {
 	createWebviewProvider: WebviewProviderCreator
 	createEditPreview: EditPreviewCreator
 	createCommentReviewController: CommentReviewControllerCreator
-	hostBridge: HostBridgeClientProvider\n
+	hostBridge: HostBridgeClientProvider
+
 	// Logs to a user-visible output channel.
 	logToChannel: LogToChannel;
 
@@ -63,7 +65,8 @@ export class HostProvider {
 		this.getCallbackUrl = getCallbackUrl
 		this.getBinaryLocation = getBinaryLocation
 		this.extensionFsPath = extensionFsPath
-		this.globalStorageFsPath = globalStorageFsPath\n	}
+		this.globalStorageFsPath = globalStorageFsPath
+	}
 
 	public static initialize(
 		webviewProviderCreator: WebviewProviderCreator,
@@ -142,10 +145,11 @@ export type WebviewProviderCreator = () => WebviewProvider;
 /**
  * A function that creates EditPreview instances (read-only virtual diff previews)
  */
-export type EditPreviewCreator = () => EditPreview\n
+export type EditPreviewCreator = () => EditPreview
+
 /**
  * A function that creates CommentReviewController instances
  */
 export type CommentReviewControllerCreator = () => CommentReviewController;
 
-export type LogToChannel = (message: string) => void\n
+export type LogToChannel = (message: string) => void

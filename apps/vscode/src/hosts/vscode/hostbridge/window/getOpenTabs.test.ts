@@ -6,7 +6,8 @@ import pWaitFor from "p-wait-for"
 import * as path from "path"
 import * as vscode from "vscode"
 import { getOpenTabs } from "@/hosts/vscode/hostbridge/window/getOpenTabs"
-import { GetOpenTabsRequest } from "@/shared/proto/host/window"\n
+import { GetOpenTabsRequest } from "@/shared/proto/host/window"
+
 describe("Hostbridge - Window - getOpenTabs", () => {
 	async function createAndOpenTestDocument(
 		name: string,

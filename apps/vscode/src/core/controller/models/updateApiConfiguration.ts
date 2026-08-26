@@ -7,7 +7,8 @@ import { Secrets } from "@/shared/storage/state-keys"
 import type { Controller } from "../index"
 import { clearOrganizationForClinePassProviderSelection } from "./handleClinePassProviderSelection"
 import { normalizeProviderSwitchModel } from "./providerSwitchNormalization"
-import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"\n
+import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"
+
 /**
  * Parses field mask paths into separate sets for options and secrets
  * @param updateMask Array of field mask paths (e.g., ["options.ulid", "options.openAiHeaders", "secrets.apiKey"])
@@ -44,7 +45,8 @@ function getAlternateModeField(fieldName: string): string | null {
 		return fieldName.replace("planMode", "actMode")
 	}
 	if (fieldName.startsWith("actMode")) {
-		return fieldName.replace("actMode", "planMode")\n	}
+		return fieldName.replace("actMode", "planMode")
+	}
 	return null;
 }
 
@@ -158,13 +160,15 @@ export async function updateApiConfiguration(
 					options,
 				),
 			)
-			clearOrganizationForClinePassProviderSelection(controller, controller.stateManager.getApiConfiguration())\n		}
+			clearOrganizationForClinePassProviderSelection(controller, controller.stateManager.getApiConfiguration())
+		}
 
 		// Update the task's API model shim if there's an active task
 		if (controller.task) {
 			const currentMode = controller.stateManager.getGlobalSettingsKey("mode")
 			const modelId = resolveActiveModelIdFromApiConfiguration(controller.stateManager.getApiConfiguration(), currentMode)
-			controller.task.api = createTaskApiModelShim(modelId)\n		}
+			controller.task.api = createTaskApiModelShim(modelId)
+		}
 
 		// Post updated state to webview
 		await controller.postStateToWebview();

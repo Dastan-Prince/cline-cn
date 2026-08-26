@@ -9,7 +9,8 @@ import { useExtensionState } from "../../context/ExtensionStateContext"
 
 export const Navbar = () => {
 	const { navigateToHistory, navigateToSettings, navigateToAccount, navigateToMarketplace, navigateToChat } =
-		useExtensionState()\n
+		useExtensionState()
+
 	const SETTINGS_TABS = useMemo(
 		() => [
 			{

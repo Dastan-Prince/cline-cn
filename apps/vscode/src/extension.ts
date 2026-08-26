@@ -57,7 +57,8 @@ import { ShowMessageType } from "./shared/proto/host/window"
 import { fileExistsAtPath } from "./utils/fs"
 
 export async function reportRolloutActivation(input: RolloutBundleActivation): Promise<void> {
-	await telemetryService.captureRolloutBundleActivated(input)\n}
+	await telemetryService.captureRolloutBundleActivated(input)
+}
 
 // This method is called when the VS Code extension is activated.
 // NOTE: This is VS Code specific - services that should be registered

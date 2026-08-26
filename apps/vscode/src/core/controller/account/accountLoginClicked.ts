@@ -1,6 +1,7 @@
 import { EmptyRequest, String } from "@shared/proto/cline/common"
 import { AuthService } from "@/sdk/auth-service"
-import { Controller } from "../index"\n
+import { Controller } from "../index"
+
 /**
  * Handles the user clicking the login link in the UI.
  * Uses the SDK-backed AuthService to initiate the Cline OAuth flow.

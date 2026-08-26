@@ -10,7 +10,8 @@ import { refreshBasetenModels } from "../models/refreshBasetenModels"
 import { refreshGroqModels } from "../models/refreshGroqModels"
 import { refreshHicapModels } from "../models/refreshHicapModels"
 import { refreshLiteLlmModels } from "../models/refreshLiteLlmModels"
-import { refreshOpenRouterModels } from "../models/refreshOpenRouterModels"\n
+import { refreshOpenRouterModels } from "../models/refreshOpenRouterModels"
+
 /**
  * Initialize webview when it launches
  * @param controller The controller instance
@@ -197,7 +198,8 @@ export async function initializeWebview(
 
 						// Update plan mode model info if we have a model ID
 						if (planModelId && response.models[planModelId]) {
-							updates.planModeHicapModelInfo = response.models[planModelId]\n						}
+							updates.planModeHicapModelInfo = response.models[planModelId]
+						}
 
 						// Update act mode model info if we have a model ID
 						if (actModelId && response.models[actModelId]) {
@@ -212,12 +214,14 @@ export async function initializeWebview(
 					}
 				}
 			})
-			.catch((error) => Logger.warn("Failed to refresh Hicap models on webview launch:", error))\n
+			.catch((error) => Logger.warn("Failed to refresh Hicap models on webview launch:", error))
+
 		const liteLlmBaseUrl =
 			controller.stateManager.getGlobalSettingsKey("liteLlmBaseUrl");
 		const liteLlmApiKey = controller.stateManager.getSecretKey("liteLlmApiKey");
 		if (liteLlmBaseUrl && liteLlmApiKey) {
-			await refreshLiteLlmModels(controller)\n		}
+			await refreshLiteLlmModels(controller)
+		}
 
 		// GUI relies on model info to be up-to-date to provide the most accurate pricing, so we need to fetch the latest details on launch.
 		// We do this for all users since many users switch between api providers and if they were to switch back to openrouter it would be showing outdated model info if we hadn't retrieved the latest at this point

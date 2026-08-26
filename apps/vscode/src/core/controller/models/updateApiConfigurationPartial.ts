@@ -5,7 +5,8 @@ import { Logger } from "@/shared/services/Logger"
 import type { Controller } from "../index"
 import { clearOrganizationForClinePassProviderSelection } from "./handleClinePassProviderSelection"
 import { normalizeProviderSwitchModel } from "./providerSwitchNormalization"
-import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"\n
+import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"
+
 /**
  * Updates API configuration with partial values using FieldMask
  *
@@ -54,7 +55,8 @@ export async function updateApiConfigurationPartial(
 		if (controller.task) {
 			const currentMode = controller.stateManager.getGlobalSettingsKey("mode")
 			const modelId = resolveActiveModelIdFromApiConfiguration(normalizedConfig, currentMode)
-			controller.task.api = createTaskApiModelShim(modelId)\n		}
+			controller.task.api = createTaskApiModelShim(modelId)
+		}
 		controller.handleApiConfigurationChanged(currentConfig, normalizedConfig)
 
 		// Notify webview

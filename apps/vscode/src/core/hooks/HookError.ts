@@ -64,12 +64,19 @@ export class HookExecutionError extends Error {
 				`Common causes:\n` +
 				`• Infinite loop in hook script\n` +
 				`• Network request hanging without timeout\n` +
-				`• File I/O operation stuck\n` +
-				`• Heavy computation taking too long\n\n` +
-				`Recommendations:\n` +
-				`1. Check your hook script for infinite loops\n` +
-				`2. Add timeouts to network requests\n` +
-				`3. Use background jobs for long operations\n` +
+				`• File I/O operation stuck
+` +
+				`• Heavy computation taking too long
+
+` +
+				`Recommendations:
+` +
+				`1. Check your hook script for infinite loops
+` +
+				`2. Add timeouts to network requests
+` +
+				`3. Use background jobs for long operations
+` +
 				`4. Test your hook script independently`,
 			scriptPath,
 			stderr,

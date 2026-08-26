@@ -4,7 +4,8 @@ import * as sinon from "sinon"
 import * as vscode from "vscode"
 import { ExtensionRegistryInfo } from "@/registry"
 import { ClineClient } from "@/shared/cline"
-import { getHostVersion } from "./getHostVersion"\n
+import { getHostVersion } from "./getHostVersion"
+
 describe("Hostbridge - Env - getHostVersion", () => {
 	const sandbox = sinon.createSandbox();
 

@@ -7,7 +7,8 @@ import os from "os"
 import path from "path"
 import sinon from "sinon"
 import { getServerAuthHash } from "@/utils/mcpAuth"
-import { exportVSCodeStorageToSharedFiles } from "../vscode-to-file-migration"\n
+import { exportVSCodeStorageToSharedFiles } from "../vscode-to-file-migration"
+
 /**
  * Create a minimal mock of VSCode's ExtensionContext for migration testing.
  * Provides in-memory implementations of globalState, secrets, and workspaceState.
@@ -83,7 +84,8 @@ describe("vscode-to-file-migration", () => {
 		originalMcpSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH
 		tempDir = path.join(os.tmpdir(), `migration-test-${Date.now()}-${Math.random().toString(36).slice(2)}`)
 		fs.mkdirSync(tempDir, { recursive: true })
-		process.env.CLINE_MCP_SETTINGS_PATH = path.join(tempDir, "runtime-mcp-settings", "cline_mcp_settings.json")\n
+		process.env.CLINE_MCP_SETTINGS_PATH = path.join(tempDir, "runtime-mcp-settings", "cline_mcp_settings.json")
+
 		storageContext = createStorageContext({
 			clineDir: tempDir,
 			workspacePath: tempDir,
@@ -163,7 +165,8 @@ describe("vscode-to-file-migration", () => {
 			result.migrated.should.be.false()
 			result.globalStateCount.should.equal(0)
 			result.workspaceStateCount.should.equal(0)
-			result.mcpServersAdded.should.equal(0)\n			// Should NOT have the VSCode values — migration was skipped
+			result.mcpServersAdded.should.equal(0)
+			// Should NOT have the VSCode values — migration was skipped
 			const modeVal = storageContext.globalState.get("mode");
 			(modeVal === undefined).should.be.true();
 		});
@@ -184,7 +187,8 @@ describe("vscode-to-file-migration", () => {
 			result.globalStateCount.should.equal(0)
 			result.workspaceStateCount.should.equal(0)
 			result.mcpServersAdded.should.equal(0)
-		})\n
+		})
+
 		it("should re-run migration if sentinels are lower version", async () => {
 			storageContext.globalState.update("__vscodeMigrationVersion", 0);
 			storageContext.workspaceState.set("__vscodeMigrationVersion", 0);
@@ -229,7 +233,8 @@ describe("vscode-to-file-migration", () => {
 			stored.should.deepEqual({ "rule-1": true });
 			// Workspace sentinel should now be set
 			storageContext.workspaceState.get("__vscodeMigrationVersion")!.should.equal(3)
-		})\n
+		})
+
 		it("should migrate globals when workspace already migrated", async () => {
 			// Edge case: workspace was somehow migrated but globals were not
 			storageContext.workspaceState.set("__vscodeMigrationVersion", 1);
@@ -270,7 +275,8 @@ describe("vscode-to-file-migration", () => {
 			storageContext.globalState.get("mode")!.should.equal("plan")
 			storageContext.globalState.get("preferredLanguage")!.should.equal("German")
 			storageContext.globalState.get("enableCheckpointsSetting")!.should.equal(false)
-		})\n
+		})
+
 		it("should NOT overwrite existing file store values", async () => {
 			// Pre-populate the file store with a value
 			storageContext.globalState.update("mode", "act");
@@ -790,7 +796,8 @@ describe("vscode-to-file-migration", () => {
 
 			mockCtx._globalStateStore.set("mode", "act")
 			mockCtx._globalStateStore.set("preferredLanguage", "German")
-			mockCtx._globalStateStore.set("enableCheckpointsSetting", true)\n
+			mockCtx._globalStateStore.set("enableCheckpointsSetting", true)
+
 			try {
 				await exportVSCodeStorageToSharedFiles(mockCtx as any, storageContext);
 				throw new Error("Should have thrown");
@@ -986,4 +993,4 @@ describe("createStorageContext", () => {
 			ctx.dataDir.should.equal(path.join(tempDir, "cline-home", "data"))
 		})
 	})
-})\n
+})

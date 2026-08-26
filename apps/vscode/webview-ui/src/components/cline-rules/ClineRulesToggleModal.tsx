@@ -644,7 +644,8 @@ const ClineRulesToggleModal: React.FC = () => {
 
 								{/* Global Workflows Section */}
 								<div className="mb-3">
-									<div className="text-sm font-normal mb-2">Global Workflows</div>\n									<RulesToggleList
+									<div className="text-sm font-normal mb-2">Global Workflows</div>
+									<RulesToggleList
 										isGlobal={true}
 										listGap="small"
 										rules={globalWorkflows}

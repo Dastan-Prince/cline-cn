@@ -4,7 +4,8 @@ import { serviceHandlers } from "@generated/hosts/vscode/protobus-services"
 import { GrpcCancel, GrpcRequest } from "@shared/WebviewMessage"
 import { expect } from "chai"
 import * as sinon from "sinon"
-import { getRequestRegistry, handleGrpcRequest, handleGrpcRequestCancel } from "./grpc-handler"\n
+import { getRequestRegistry, handleGrpcRequest, handleGrpcRequestCancel } from "./grpc-handler"
+
 describe("grpc-handler", () => {
 	let sandbox: sinon.SinonSandbox;
 	let mockController: Controller;

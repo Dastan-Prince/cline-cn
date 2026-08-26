@@ -1,7 +1,8 @@
 import { setSkillDisabledInFrontmatter } from "@core/context/instructions/user-instructions/skills"
 import { SkillsToggles, ToggleSkillRequest } from "@shared/proto/cline/file"
 import { Logger } from "@/shared/services/Logger"
-import { Controller } from ".."\n
+import { Controller } from ".."
+
 /**
  * Toggles a skill on or off
  * @param controller The controller instance
@@ -66,7 +67,8 @@ export async function toggleSkill(
 	// model (ENG-1995). The helper is a no-op for remote skills (no backing file).
 	await setSkillDisabledInFrontmatter(skillPath, enabled)
 
-	await controller.postStateToWebview()\n
+	await controller.postStateToWebview()
+
 	return SkillsToggles.create({
 		globalSkillsToggles: globalToggles,
 		localSkillsToggles: localToggles,

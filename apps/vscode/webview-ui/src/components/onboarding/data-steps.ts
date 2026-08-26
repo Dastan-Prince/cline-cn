@@ -66,7 +66,8 @@ const CLINE_PASS_USER_TYPE_SELECTION: UserTypeSelection = {
 const BASE_USER_TYPE_SELECTIONS: UserTypeSelection[] = [
 	{ title: "Absolutely Free", description: "Get started at no cost", type: NEW_USER_TYPE.FREE },
 	{ title: "Frontier Model", description: "Claude, GPT Codex, Gemini, etc.", type: NEW_USER_TYPE.POWER },
-	{ title: "Bring my own API key", description: "Use Cline with your provider of choice", type: NEW_USER_TYPE.BYOK },\n]
+	{ title: "Bring my own API key", description: "Use Cline with your provider of choice", type: NEW_USER_TYPE.BYOK },
+]
 
 /** Free leads (and is the default); ClinePass is inserted second when its models are available. */
 export function getUserTypeSelections(hasClinePassModels: boolean): UserTypeSelection[] {

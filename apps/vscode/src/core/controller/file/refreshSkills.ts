@@ -10,7 +10,8 @@ function coreSkillToSkillInfo(skill: CoreSettingsItem): SkillInfo {
 		description: skill.description ?? "",
 		path: skill.path,
 		enabled: skill.enabled !== false,
-	})\n}
+	})
+}
 
 /**
  * Refreshes all skill toggles (discovers skills and their enabled state)
@@ -30,7 +31,8 @@ export async function refreshSkills(
 		.map(coreSkillToSkillInfo)
 	const localSkills = settingsSnapshot.skills
 		.filter((skill) => skill.source === "workspace" || skill.source === "workspace-plugin")
-		.map(coreSkillToSkillInfo)\n
+		.map(coreSkillToSkillInfo)
+
 	// Add remote skills from remote config.
 	// Precedence: remote (enterprise) > disk-global (user) > project (workspace).
 	// Remote entries are appended to globalSkills[] and split into the dedicated "Enterprise Skills"

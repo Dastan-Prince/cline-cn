@@ -31,7 +31,8 @@ export async function openFocusChainFile(
 		const lastProgressMessage = clineMessages
 			.slice()
 			.reverse()
-			.find((m: any) => m.say === "task_progress")\n
+			.find((m: any) => m.say === "task_progress")
+
 		if (lastProgressMessage && lastProgressMessage.text) {
 			initialFocusChainContent =
 				extractFocusChainListFromText(lastProgressMessage.text) || undefined;
