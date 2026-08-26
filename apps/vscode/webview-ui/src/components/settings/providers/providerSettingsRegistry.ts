@@ -101,6 +101,22 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		signupUrl: "https://wandb.ai",
 	},
 	xiaomi: {},
+	"mimo-tp": {},
+	"xiaomi-athrapi": {},
+	"mimo-tp-athrapi": {},
+	"zhipu-athrapi": {
+		signupUrl: "https://open.bigmodel.cn/",
+	},
+	"dots-studio-athrapi": {
+		allowsCustomIds: true,
+	},
+	"anthropic-comp": {
+		allowsCustomIds: true,
+		baseUrlField: {
+			label: "Base URL",
+			placeholder: "https://api.anthropic.com",
+		},
+	},
 	"tencent-tokenhub": {
 		signupUrl: "https://cloud.tencent.com/document/product/1823/130050",
 	},
@@ -167,6 +183,12 @@ const FALLBACK_GENERIC_PROVIDER_NAMES = {
 	v0: "Vercel v0",
 	wandb: "W&B",
 	xiaomi: "Xiaomi",
+	"mimo-tp": "MiMo Token Plan",
+	"xiaomi-athrapi": "Xiaomi MiMo (Anthropic)",
+	"mimo-tp-athrapi": "MiMo Token Plan (Anthropic)",
+	"zhipu-athrapi": "Zhipu GLM (Anthropic)",
+	"dots-studio-athrapi": "Dots Studio (Anthropic)",
+	"anthropic-comp": "Anthropic Compatible",
 	"tencent-tokenhub": "Tencent TokenHub",
 	chutes: "Chutes",
 	"zai-coding-plan": "Z.AI Coding Plan",

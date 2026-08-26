@@ -74,6 +74,9 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
 			// Huawei Cloud Maas Model Info
 			huaweiCloudMaasModelInfo: undefined,
 
+			anthropicCompModelId: undefined,
+			anthropicCompModelInfo: undefined,
+
 			// Other mode-specific fields
 			thinkingBudgetTokens: undefined,
 			reasoningEffort: undefined,
@@ -91,6 +94,10 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
 		mode === "plan" ? apiConfiguration.planModeClinePassModelId : apiConfiguration.actModeClinePassModelId
 	const clinePassModelInfo =
 		mode === "plan" ? apiConfiguration.planModeClinePassModelInfo : apiConfiguration.actModeClinePassModelInfo
+	const anthropicCompModelId =
+		mode === "plan" ? apiConfiguration.planModeAnthropicCompModelId : apiConfiguration.actModeAnthropicCompModelId
+	const anthropicCompModelInfo =
+		mode === "plan" ? apiConfiguration.planModeAnthropicCompModelInfo : apiConfiguration.actModeAnthropicCompModelInfo
 
 	return {
 		// Core fields
@@ -143,6 +150,8 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
 			mode === "plan"
 				? apiConfiguration.planModeVercelAiGatewayModelInfo
 				: apiConfiguration.actModeVercelAiGatewayModelInfo,
+		anthropicCompModelId,
+		anthropicCompModelInfo,
 
 		// AWS Bedrock fields
 		awsBedrockCustomSelected:
@@ -221,6 +230,12 @@ export async function syncModeConfigurations(
 			updates.actModeClinePassModelId = sourceFields.clinePassModelId
 			updates.planModeClinePassModelInfo = sourceFields.clinePassModelInfo
 			updates.actModeClinePassModelInfo = sourceFields.clinePassModelInfo
+			break
+
+		case "anthropic-comp":
+			updates.planModeAnthropicCompModelId = sourceFields.anthropicCompModelId
+			updates.actModeAnthropicCompModelId = sourceFields.anthropicCompModelId
+			updates.planModeAnthropicCompModelInfo = sourceFields.anthropicCompModelInfo
 			break
 
 		case "requesty":

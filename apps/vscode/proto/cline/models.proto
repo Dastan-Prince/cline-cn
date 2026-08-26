@@ -490,13 +490,10 @@ message ModelsApiOptions {
   optional OpenAiCompatibleModelInfo plan_mode_aihubmix_model_info = 134;
   optional string plan_mode_cline_model_id = 135;
   optional OpenRouterModelInfo plan_mode_cline_model_info = 136;
-<<<<<<< ours
   optional string plan_mode_cline_pass_model_id = 137;
   optional OpenRouterModelInfo plan_mode_cline_pass_model_info = 138;
-=======
-  optional string plan_mode_anthropic_comp_model_id = 137;
-  optional OpenRouterModelInfo plan_mode_anthropic_comp_model_info = 138;
->>>>>>> theirs
+  optional string plan_mode_anthropic_comp_model_id = 139;
+  optional OpenRouterModelInfo plan_mode_anthropic_comp_model_info = 144;
 
   // Act mode configurations
   optional string act_mode_api_provider = 200;
@@ -536,13 +533,10 @@ message ModelsApiOptions {
   optional OpenAiCompatibleModelInfo act_mode_aihubmix_model_info = 234;
   optional string act_mode_cline_model_id = 235;
   optional OpenRouterModelInfo act_mode_cline_model_info = 236;
-<<<<<<< ours
   optional string act_mode_cline_pass_model_id = 237;
   optional OpenRouterModelInfo act_mode_cline_pass_model_info = 238;
-=======
-  optional string act_mode_anthropic_comp_model_id = 237;
-  optional OpenRouterModelInfo act_mode_anthropic_comp_model_info = 238;
->>>>>>> theirs
+  optional string act_mode_anthropic_comp_model_id = 239;
+  optional OpenRouterModelInfo act_mode_anthropic_comp_model_info = 244;
 }
 
 // Request for updating API configuration (legacy - uses combined configuration)
@@ -634,8 +628,6 @@ message OcaCompatibleModelInfo {
   optional string error = 2;
 }
 
-<<<<<<< ours
-=======
 // API Provider enumeration
 enum ApiProvider {
   ANTHROPIC = 0;
@@ -689,7 +681,6 @@ enum ApiProvider {
   ANTHROPIC_COMP = 48;
 }
 
->>>>>>> theirs
 enum ApiFormat {
   ANTHROPIC_CHAT = 0;
   GEMINI_CHAT = 1;
@@ -882,13 +873,10 @@ message ModelsApiConfiguration {
   optional string gemini_plan_mode_thinking_level = 139;
   optional string plan_mode_cline_model_id = 140;
   optional OpenRouterModelInfo plan_mode_cline_model_info = 141;
-<<<<<<< ours
   optional string plan_mode_cline_pass_model_id = 142;
   optional OpenRouterModelInfo plan_mode_cline_pass_model_info = 143;
-=======
-  optional string plan_mode_anthropic_comp_model_id = 142;
-  optional OpenRouterModelInfo plan_mode_anthropic_comp_model_info = 143;
->>>>>>> theirs
+  optional string plan_mode_anthropic_comp_model_id = 144;
+  optional OpenRouterModelInfo plan_mode_anthropic_comp_model_info = 145;
 
   // Act mode configurations
   optional string act_mode_api_provider = 200;
@@ -933,11 +921,8 @@ message ModelsApiConfiguration {
   optional string gemini_act_mode_thinking_level = 239;
   optional string act_mode_cline_model_id = 240;
   optional OpenRouterModelInfo act_mode_cline_model_info = 241;
-<<<<<<< ours
   optional string act_mode_cline_pass_model_id = 242;
   optional OpenRouterModelInfo act_mode_cline_pass_model_info = 243;
-=======
-  optional string act_mode_anthropic_comp_model_id = 242;
-  optional OpenRouterModelInfo act_mode_anthropic_comp_model_info = 243;
->>>>>>> theirs
+  optional string act_mode_anthropic_comp_model_id = 244;
+  optional OpenRouterModelInfo act_mode_anthropic_comp_model_info = 245;
 }

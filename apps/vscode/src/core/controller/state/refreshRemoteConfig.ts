@@ -10,5 +10,5 @@ import { Controller } from ".."
 export async function refreshRemoteConfig(controller: Controller, _: EmptyRequest): Promise<Empty> {
 	await controller.refreshRemoteConfig()
 
-	return Empty.create();
+	return Empty.create()
 }

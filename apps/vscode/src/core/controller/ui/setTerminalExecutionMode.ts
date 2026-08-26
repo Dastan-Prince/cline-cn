@@ -1,5 +1,5 @@
-import { BooleanRequest, KeyValuePair } from "@shared/proto/cline/common";
-import { Controller } from "..";
+import { BooleanRequest, KeyValuePair } from "@shared/proto/cline/common"
+import { Controller } from ".."
 
 /**
  * Sets the terminal execution mode
@@ -17,10 +17,10 @@ export async function setTerminalExecutionMode(controller: Controller, request: 
 	controller.handleTerminalExecutionModeChanged(previousMode, newMode)
 
 	// Post updated state to webview
-	await controller.postStateToWebview();
+	await controller.postStateToWebview()
 
 	return KeyValuePair.create({
 		key: "terminalExecutionModeSet",
 		value: newMode,
-	});
+	})
 }

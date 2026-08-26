@@ -16,6 +16,7 @@ const ProviderKeyMap: Partial<Record<ApiProvider, string>> = {
 	openrouter: "OpenRouterModelId",
 	cline: "ClineModelId",
 	"cline-pass": "ClinePassModelId",
+	"anthropic-comp": "AnthropicCompModelId",
 	openai: "OpenAiModelId",
 	ollama: "OllamaModelId",
 	lmstudio: "LmStudioModelId",
@@ -60,7 +61,7 @@ const NON_SDK_PROVIDER_DEFAULTS: Partial<Record<ApiProvider, string>> = {
 	ollama: "",
 	lmstudio: "",
 	hicap: "",
-}\n
+}
 /**
  * Get the provider-specific model ID key for a given provider and mode.
  * Different providers store their model IDs in different state keys.

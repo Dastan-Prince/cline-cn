@@ -31,7 +31,7 @@ describe("refreshClineRecommendedModels", () => {
 		}
 		const sdkSpy = vi.spyOn(sdkCore, "fetchClineRecommendedModels").mockResolvedValue(sdkResult)
 
-		const result = await refreshClineRecommendedModels();
+		const result = await refreshClineRecommendedModels()
 
 		expect(sdkSpy).toHaveBeenCalledTimes(1)
 		expect(result).toEqual(sdkResult)
@@ -65,8 +65,8 @@ describe("refreshClineRecommendedModels", () => {
 				clinePass: [],
 			})
 
-		const firstResult = await refreshClineRecommendedModels();
-		const secondResult = await refreshClineRecommendedModels();
+		const firstResult = await refreshClineRecommendedModels()
+		const secondResult = await refreshClineRecommendedModels()
 
 		expect(sdkSpy).toHaveBeenCalledTimes(2)
 		expect(firstResult).toEqual(sdkCore.FALLBACK_CLINE_RECOMMENDED_MODELS)
