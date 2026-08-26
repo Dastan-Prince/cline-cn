@@ -1,5 +1,6 @@
 import type { ClineMessage } from "@shared/ExtensionMessage"
 import { memo } from "react"
+import { useTranslation } from "react-i18next"
 import { ClineAuthStatus } from "@/components/account/ClineAuthStatus"
 import ClineFreeModelLimitError from "@/components/chat/ClineFreeModelLimitError"
 import ClineFreePromotionEndedError from "@/components/chat/ClineFreePromotionEndedError"

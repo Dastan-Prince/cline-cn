@@ -1,5 +1,4 @@
 import { memo } from "react"
-import { useTranslation } from "react-i18next"
 import { CopyButton } from "@/components/common/CopyButton"
 import MarkdownBlock from "@/components/common/MarkdownBlock"
 

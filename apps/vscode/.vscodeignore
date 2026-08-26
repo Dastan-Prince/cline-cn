@@ -10,6 +10,7 @@
 CLAUDE.local.md
 out/
 dist-standalone/
+tmp-protoc/
 node_modules/
 # Nested workspace-member node_modules (bun links these under each package).
 # Scoped to the sub-package dirs so it doesn't shadow the top-level

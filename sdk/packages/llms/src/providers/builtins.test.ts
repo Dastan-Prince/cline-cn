@@ -348,7 +348,8 @@ describe("built-in provider metadata", () => {
 	it("uses generated specs directly when no runtime override is required", () => {
 		// moonshot is intentionally absent: it carries a Cline-specific
 		// regional routing override (apiLineBaseUrls) on top of its generated
-		// spec.
+		// spec. xiaomi is absent too: the Cline CN fork overrides its default
+		// model id (mimo-v2.5) on top of the generated spec.
 		const generatedOnlyProviderIds = [
 			"fireworks",
 			"poolside",
@@ -357,7 +358,6 @@ describe("built-in provider metadata", () => {
 			"requesty",
 			"huggingface",
 			"wandb",
-			"xiaomi",
 			"tencent-tokenhub",
 		] as const;
 

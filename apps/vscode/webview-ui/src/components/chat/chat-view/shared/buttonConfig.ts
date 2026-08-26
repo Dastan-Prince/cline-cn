@@ -194,8 +194,8 @@ export const BUTTON_CONFIGS: Record<string, ButtonConfig> = {
 	foreground_command_running: {
 		sendingDisabled: true,
 		enableButtons: true,
-		primaryText: "Proceed While Running",
-		secondaryText: "Cancel",
+		primaryTextKey: "chatRow.proceedWhileRunning",
+		secondaryTextKey: "chatRow.cancel",
 		primaryAction: "proceed_while_running",
 		secondaryAction: "cancel",
 	},

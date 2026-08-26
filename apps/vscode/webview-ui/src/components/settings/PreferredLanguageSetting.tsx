@@ -1,11 +1,14 @@
-import { languageOptions } from "@shared/Languages"
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 import React from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { updateSetting } from "./utils/settingsHandlers"
 
 const PreferredLanguageSetting: React.FC = () => {
 	const { preferredLanguage } = useExtensionState()
+
+	const handleLanguageChange = (value: string) => {
+		updateSetting("preferredLanguage", value)
+	}
 
 	return (
 		<div>
@@ -38,7 +41,8 @@ const PreferredLanguageSetting: React.FC = () => {
 				<VSCodeOption value="Traditional Chinese - 繁體中文">Traditional Chinese - 繁體中文</VSCodeOption>
 				<VSCodeOption value="Turkish - Türkçe">Turkish - Türkçe</VSCodeOption>
 			</VSCodeDropdown>
-			<p className="text-sm text-description mt-1">Cline 在交流中应使用的语言。</p>\n		</div>
+			<p className="text-sm text-description mt-1">Cline 在交流中应使用的语言。</p>
+		</div>
 	)
 }
 

@@ -14,6 +14,7 @@ const VARIANT_LABELS: Record<"legacy" | "next", string> = {
 }
 
 const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutSectionProps) => {
+	const { t } = useTranslation()
 	return (
 		<div>
 			{renderSectionHeader("about")}

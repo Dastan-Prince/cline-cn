@@ -14,6 +14,7 @@ interface TerminalSettingsSectionProps {
 }
 
 const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = ({ renderSectionHeader }) => {
+	const { t } = useTranslation()
 	const {
 		shellIntegrationTimeout,
 		terminalReuseEnabled,

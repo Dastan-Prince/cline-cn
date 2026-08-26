@@ -3525,11 +3525,7 @@ describe("createContextCompactionPrepareTurn", () => {
 					{
 						type: "text",
 						id: "summary-manual",
-						text: "## Goal
-Manual compact
-
-## Next
-Continue",
+						text: "## Goal\nManual compact\n\n## Next\nContinue",
 					},
 					{ type: "done", id: "summary-manual", success: true },
 				]),
@@ -3597,11 +3593,7 @@ Continue",
 					{
 						type: "text",
 						id: "summary-auto-small",
-						text: "## Goal
-Compact a small context
-
-## Next
-Continue",
+						text: "## Goal\nCompact a small context\n\n## Next\nContinue",
 					},
 					{ type: "done", id: "summary-auto-small", success: true },
 				]),

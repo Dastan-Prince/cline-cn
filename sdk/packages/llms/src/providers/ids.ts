@@ -50,6 +50,13 @@ export enum BUILT_IN_PROVIDER {
 	HUAWEI_CLOUD_MAAS = "huawei-cloud-maas",
 	WANDB = "wandb",
 	XIAOMI = "xiaomi",
+	// Cline CN fork providers (private endpoints absent from models.dev)
+	MIMO_TP = "mimo-tp",
+	XIAOMI_ATHRAPI = "xiaomi-athrapi",
+	MIMO_TP_ATHRAPI = "mimo-tp-athrapi",
+	ZHIPU_ATHRAPI = "zhipu-athrapi",
+	DOTS_STUDIO_ATHRAPI = "dots-studio-athrapi",
+	ANTHROPIC_COMP = "anthropic-comp",
 	TENCENT_TOKENHUB = "tencent-tokenhub",
 	KILO = "kilo",
 	ZAI = "zai",

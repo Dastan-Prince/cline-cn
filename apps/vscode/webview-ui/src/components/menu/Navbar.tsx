@@ -8,6 +8,7 @@ import { TaskServiceClient, UiServiceClient } from "@/services/grpc-client"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 
 export const Navbar = () => {
+	const { t } = useTranslation()
 	const { navigateToHistory, navigateToSettings, navigateToAccount, navigateToMarketplace, navigateToChat } =
 		useExtensionState()
 

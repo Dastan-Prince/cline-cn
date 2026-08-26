@@ -22,10 +22,10 @@ export const STEP_CONFIG = {
 		],
 	},
 	[NEW_USER_TYPE.CLINE_PASS]: {
-		title: "Select a ClinePass model",
+		titleKey: "onboarding.step.clinePass.title",
 		buttons: [
-			{ text: "Create my Account", action: "signup", variant: "default" },
-			{ text: "Back", action: "back", variant: "secondary" },
+			{ textKey: "onboarding.button.createAccount", action: "signup", variant: "default" },
+			{ textKey: "onboarding.button.back", action: "back", variant: "secondary" },
 		],
 	},
 	[NEW_USER_TYPE.FREE]: {
@@ -57,16 +57,16 @@ export const STEP_CONFIG = {
 } as const
 
 const CLINE_PASS_USER_TYPE_SELECTION: UserTypeSelection = {
-	title: "ClinePass",
-	description: "Low cost subscription plan for best open weights model.",
+	titleKey: "onboarding.userType.clinePass.title",
+	descriptionKey: "onboarding.userType.clinePass.description",
 	type: NEW_USER_TYPE.CLINE_PASS,
 	learnMoreUrl: "https://docs.cline.bot/getting-started/clinepass",
 }
 
 const BASE_USER_TYPE_SELECTIONS: UserTypeSelection[] = [
-	{ title: "Absolutely Free", description: "Get started at no cost", type: NEW_USER_TYPE.FREE },
-	{ title: "Frontier Model", description: "Claude, GPT Codex, Gemini, etc.", type: NEW_USER_TYPE.POWER },
-	{ title: "Bring my own API key", description: "Use Cline with your provider of choice", type: NEW_USER_TYPE.BYOK },
+	{ titleKey: "onboarding.userType.free.title", descriptionKey: "onboarding.userType.free.description", type: NEW_USER_TYPE.FREE },
+	{ titleKey: "onboarding.userType.power.title", descriptionKey: "onboarding.userType.power.description", type: NEW_USER_TYPE.POWER },
+	{ titleKey: "onboarding.userType.byok.title", descriptionKey: "onboarding.userType.byok.description", type: NEW_USER_TYPE.BYOK },
 ]
 
 /** Free leads (and is the default); ClinePass is inserted second when its models are available. */

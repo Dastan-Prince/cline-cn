@@ -958,6 +958,10 @@
 			"byok": {
 				"title": "自带 API 密钥",
 				"description": "在您选择的提供商中使用 Cline"
+			},
+			"clinePass": {
+				"title": "ClinePass",
+				"description": "低成本订阅计划，提供最佳开源权重模型。"
 			}
 		},
 		"step": {
@@ -969,6 +973,9 @@
 			},
 			"byok": {
 				"title": "配置您的提供商"
+			},
+			"clinePass": {
+				"title": "选择一个 ClinePass 模型"
 			},
 			"almost": {
 				"title": "即将完成！",

@@ -68,6 +68,7 @@ const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: A
 }
 
 const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization, clineEnv }: ClineAccountViewProps) => {
+	const { t } = useTranslation()
 	const { email, displayName, appBaseUrl, uid } = clineUser
 	const { remoteConfigSettings, environment } = useExtensionState()
 

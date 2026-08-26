@@ -18,6 +18,7 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
 	path,
 	filePattern,
 }) => {
+	const { t } = useTranslation()
 	const safeContent = content ?? ""
 	const safePath = path ?? ""
 

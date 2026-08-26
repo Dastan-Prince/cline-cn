@@ -194,7 +194,8 @@
 				"!!src/common.ts",
 				"!!src/services/logging/distinctId.ts",
 				"!!src/core/storage/utils/state-helpers.ts",
-				"!!src/extension.ts"
+				"!!src/extension.ts",
+				"!!src/migrate-global-storage.ts"
 			],
 			"plugins": [
 				"src/dev/grit/use-cache-service.grit"

@@ -185,7 +185,9 @@ describe("provider-ids", () => {
 	});
 
 	it("registers Xiaomi as an OpenAI-compatible built-in provider", async () => {
-		const defaultModelId = generatedProviderDefault("xiaomi");
+		// Cline CN fork overrides the generated default (mimo-v2.5-pro-ultraspeed)
+		// with mimo-v2.5, matching the fork's 3.x default model.
+		const defaultModelId = "mimo-v2.5";
 		await expect(getProvider("xiaomi")).resolves.toMatchObject({
 			id: "xiaomi",
 			baseUrl: "https://api.xiaomimimo.com/v1",

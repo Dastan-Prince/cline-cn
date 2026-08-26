@@ -77,6 +77,7 @@ const BannerCardContent: React.FC<BannerCardContentProps> = ({ banner, isActive,
 }
 
 const BannerCarousel: React.FC<BannerCarouselProps> = ({ banners }) => {
+	const { t } = useTranslation()
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [isPaused, setIsPaused] = useState(false)
 	const [isTransitioning, setIsTransitioning] = useState(false)

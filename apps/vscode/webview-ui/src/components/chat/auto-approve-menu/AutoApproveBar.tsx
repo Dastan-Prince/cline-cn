@@ -11,6 +11,7 @@ interface AutoApproveBarProps {
 }
 
 const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
+	const { t } = useTranslation()
 	const { autoApprovalSettings } = useExtensionState()
 
 	const [isModalVisible, setIsModalVisible] = useState(false)

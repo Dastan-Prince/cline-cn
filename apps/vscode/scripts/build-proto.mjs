@@ -77,6 +77,11 @@ if (!fsSync.existsSync(PROTOC)) {
 }
 
 const PROTO_DIR = path.resolve("proto")
+// Cline protos import Google well-known types (google/protobuf/*.proto) that are
+// intentionally not vendored into the repo. Resolve those imports from the
+// grpc-tools bundle instead of copying them under proto/ (which buf lint would
+// also scan and reject over package-level option mismatches).
+const WELL_KNOWN_PROTO_DIR = path.join(GRPC_TOOLS_DIR, "bin")
 const TS_OUT_DIR = path.resolve("src/shared/proto")
 const GRPC_JS_OUT_DIR = path.resolve("src/generated/grpc-js")
 const NICE_JS_OUT_DIR = path.resolve("src/generated/nice-grpc")
@@ -142,6 +147,7 @@ async function compileProtos() {
 	const descriptorFile = path.join(DESCRIPTOR_OUT_DIR, "descriptor_set.pb")
 	const descriptorProtocArgs = [
 		`--proto_path=${PROTO_DIR}`,
+		`--proto_path=${WELL_KNOWN_PROTO_DIR}`,
 		`--descriptor_set_out=${descriptorFile}`,
 		"--include_imports",
 		...protoFiles,
@@ -162,6 +168,7 @@ async function compileProtos() {
 function tsProtoc(outDir, protoFiles, protoOptions) {
 	const args = [
 		`--proto_path=${PROTO_DIR}`,
+		`--proto_path=${WELL_KNOWN_PROTO_DIR}`,
 		`--plugin=protoc-gen-ts_proto=${TS_PROTO_PLUGIN}`,
 		`--ts_proto_out=${outDir}`,
 		`--ts_proto_opt=${protoOptions.join(",")}`,

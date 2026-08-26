@@ -64,7 +64,8 @@ function RefreshButton() {
 			disabled={isLoading || (retryIn !== null && retryIn > 0)}
 			onClick={() => onRefresh()}>
 			刷新 {retryIn && retryIn > 0 && <>(重试等待: {retryIn} 秒)</>}
-		</VSCodeButton>\n	)
+		</VSCodeButton>
+	)
 }
 
 interface SettingRowProps {

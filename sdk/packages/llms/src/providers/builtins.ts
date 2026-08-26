@@ -20,8 +20,10 @@ import {
 	VERCEL_OPENROUTER_MODEL_ID_ALIAS_RULES,
 } from "../catalog/model-id-aliases";
 import type {
+	ModelCapability,
 	ModelCollection,
 	ModelInfo,
+	ModelPricing,
 	ProviderClient,
 	ProviderProtocol,
 } from "../catalog/types";
@@ -471,6 +473,47 @@ function buildElevenLabsModels(): Record<string, ModelInfo> {
 				input: ["audio"],
 				output: ["text"],
 			},
+		},
+	};
+}
+
+// Dots Studio AthrAPI serves a private catalog that models.dev does not list.
+// Mirrored from the Cline CN fork so the model picker offers its two note
+// models; prices are USD per million tokens, matching the fork's ModelInfo.
+function buildDotsStudioAthrapiModels(): Record<string, ModelInfo> {
+	const capabilities: readonly ModelCapability[] = [
+		"images",
+		"tools",
+		"streaming",
+		"prompt-cache",
+		"reasoning",
+	];
+	const pricing: ModelPricing = {
+		input: 0.435,
+		output: 0.87,
+		cacheWrite: 0.435,
+		cacheRead: 0.0036,
+	};
+	return {
+		"dots3-note-prev": {
+			id: "dots3-note-prev",
+			name: "Dots3 Note Prev",
+			description:
+				"dots studio Dots3 Note Prev - Anthropic compatible API with 512K context window.",
+			maxTokens: 131_072,
+			contextWindow: 393_216,
+			capabilities: [...capabilities],
+			pricing,
+		},
+		"dots3-note": {
+			id: "dots3-note",
+			name: "Dots3 Note",
+			description:
+				"dots studio Dots3 Note - Anthropic compatible API with 512K context window.",
+			maxTokens: 131_072,
+			contextWindow: 393_216,
+			capabilities: [...capabilities],
+			pricing,
 		},
 	};
 }
@@ -989,28 +1032,6 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		metadata: GLM_THINKING_ROUTING_METADATA,
 	},
 	{
-		id: "moonshot",
-		name: "Moonshot",
-		description: "Moonshot AI Studio models",
-		family: "openai-compatible",
-		capabilities: ["tools", "reasoning"],
-		defaultModelId: "kimi-k2-0905-preview",
-		apiKeyEnv: ["MOONSHOT_API_KEY"],
-		modelsProviderId: "moonshot",
-		defaults: { baseUrl: "https://api.moonshot.ai/v1" },
-	},
-	{
-		id: "wandb",
-		name: "W&B by CoreWeave",
-		description: "Weights & Biases",
-		family: "openai-compatible",
-		capabilities: ["reasoning", "prompt-cache", "tools"],
-		defaultModelId: "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
-		apiKeyEnv: ["WANDB_API_KEY"],
-		modelsProviderId: "wandb",
-		defaults: { baseUrl: "https://api.inference.wandb.ai/v1" },
-	},
-	{
 		id: "xiaomi",
 		name: "Xiaomi",
 		description: "Xiaomi",
@@ -1077,6 +1098,9 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		capabilities: ["prompt-cache", "tools", "reasoning"],
 		defaultModelId: "dots3-note-prev",
 		apiKeyEnv: ["DOTS_STUDIO_ATHRAPI_API_KEY"],
+		// No models.dev catalog exists for this private endpoint; supply the
+		// fork's model list directly instead of the empty generated catalog.
+		modelsFactory: buildDotsStudioAthrapiModels,
 		modelsProviderId: "dots-studio-athrapi",
 		defaults: { baseUrl: "https://note3-prev-api.askdiandian.com" },
 	},

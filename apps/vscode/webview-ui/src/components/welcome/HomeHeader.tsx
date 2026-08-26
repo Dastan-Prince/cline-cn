@@ -10,6 +10,7 @@ interface HomeHeaderProps {
 }
 
 const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
+	const { t } = useTranslation()
 	const { environment } = useExtensionState()
 
 	const handleTakeATour = async () => {

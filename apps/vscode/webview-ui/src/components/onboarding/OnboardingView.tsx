@@ -4,6 +4,7 @@ import type { OnboardingModel, OnboardingModelGroup, OpenRouterModelInfo } from 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { AlertCircleIcon, CircleCheckIcon, CircleIcon, ListIcon, LoaderCircleIcon, ZapIcon } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import ClineLogoWhite from "@/assets/ClineLogoWhite"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -254,9 +255,11 @@ type UserTypeSelectionProps = {
 	userTypeSelections: ReturnType<typeof getUserTypeSelections>
 }
 
-const UserTypeSelectionStep = ({ userType, onSelectUserType, userTypeSelections }: UserTypeSelectionProps) => (
-	<div className="flex flex-col w-full items-center">
-		<div className="flex w-full max-w-lg flex-col gap-3 my-2">
+const UserTypeSelectionStep = ({ userType, onSelectUserType, userTypeSelections }: UserTypeSelectionProps) => {
+	const { t } = useTranslation()
+	return (
+		<div className="flex flex-col w-full items-center">
+			<div className="flex w-full max-w-lg flex-col gap-3 my-2">
 			{userTypeSelections.map((option) => {
 				const isSelected = userType === option.type
 
@@ -271,9 +274,9 @@ const UserTypeSelectionStep = ({ userType, onSelectUserType, userTypeSelections 
 							{isSelected ? <CircleCheckIcon className="stroke-1.5" /> : <CircleIcon className="stroke-1" />}
 						</ItemMedia>
 						<ItemContent className="w-full">
-							<ItemTitle>{option.title}</ItemTitle>
+							<ItemTitle>{t(option.titleKey)}</ItemTitle>
 							<ItemDescription>
-								{option.description}
+								{t(option.descriptionKey)}
 								{option.learnMoreUrl && (
 									<>
 										{" "}
@@ -297,7 +300,8 @@ const UserTypeSelectionStep = ({ userType, onSelectUserType, userTypeSelections 
 			})}
 		</div>
 	</div>
-)
+	)
+}
 
 type OnboardingStepContentProps = {
 	step: number
@@ -354,6 +358,7 @@ const OnboardingStepContent = ({
 }
 
 const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: OnboardingModelGroup }) => {
+	const { t } = useTranslation()
 	const { handleFieldsChange } = useApiConfigurationHandlers()
 	const { openRouterModels, hideSettings, hideAccount, setShowWelcome } = useExtensionState()
 	const { models: clineModels } = useProviderModels("cline")
@@ -610,11 +615,11 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 	const stepDisplayInfo = useMemo(() => {
 		const step = stepNumber === 0 || stepNumber === 2 ? STEP_CONFIG[stepNumber] : null
-		const title = step ? step.title : userType ? STEP_CONFIG[userType].title : STEP_CONFIG[0].title
-		const description = step ? step.description : null
+		const title = step ? t(step.titleKey) : userType ? t(STEP_CONFIG[userType].titleKey) : t(STEP_CONFIG[0].titleKey)
+		const description = step && step.descriptionKey ? t(step.descriptionKey) : undefined
 		const buttons = step ? step.buttons : userType ? STEP_CONFIG[userType].buttons : STEP_CONFIG[0].buttons
 		return { title, description, buttons }
-	}, [stepNumber, userType])
+	}, [stepNumber, userType, t])
 
 	return (
 		<div className="fixed inset-0 p-0 flex flex-col w-full">
@@ -657,11 +662,11 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 							<Button
 								className={`w-full rounded-xs ${isActionLoading ? "animate-pulse" : ""}`}
 								disabled={disabled}
-								key={btn.text}
+								key={btn.textKey}
 								onClick={() => handleFooterAction(btn.action)}
 								variant={btn.variant}>
 								{showSpinner && <LoaderCircleIcon className="mr-2 size-4 animate-spin" />}
-								{showSpinner ? "Waiting for sign in..." : btn.text}
+								{showSpinner ? "Waiting for sign in..." : t(btn.textKey)}
 							</Button>
 						)
 					})}

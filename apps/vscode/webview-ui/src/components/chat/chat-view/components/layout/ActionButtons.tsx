@@ -3,6 +3,7 @@ import type { Mode } from "@shared/storage/types"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import type React from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useExtensionState } from "../../../../../context/ExtensionStateContext"
 import { ButtonActionType, getButtonConfigFromState } from "../../shared/buttonConfig"
 import type { ChatState, MessageHandlers } from "../../types/chatTypes"
@@ -19,6 +20,7 @@ interface ActionButtonsProps {
  * Action buttons area including approve/reject buttons
  */
 export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, chatState, mode, messageHandlers }) => {
+	const { t } = useTranslation()
 	const { inputValue, selectedImages, selectedFiles, setSendingDisabled } = chatState
 	const { turnState, foregroundCommandRunning } = useExtensionState()
 
@@ -50,7 +52,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, ch
 	// message) changes on every new ask, making it the reliable signal that a fresh decision is
 	// due even when the config object is identical. Folding the config's button text in also
 	// covers a same-anchor transition between different button sets.
-	const askIdentity = `${turnState?.anchorTs ?? lastMessage?.ts ?? ""}:${buttonConfig.primaryText ?? ""}:${buttonConfig.secondaryText ?? ""}`
+	const askIdentity = `${turnState?.anchorTs ?? lastMessage?.ts ?? ""}:${buttonConfig.primaryTextKey ?? ""}:${buttonConfig.secondaryTextKey ?? ""}`
 
 	// The buttons are "processing" only while the user's click is being handled for the current
 	// ask. Because the latch is keyed on the ask identity, a new ask (even one reusing the same
@@ -116,7 +118,9 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, ch
 		return null
 	}
 
-	const { primaryText, secondaryText, primaryAction, secondaryAction, enableButtons } = buttonConfig
+	const { primaryTextKey, secondaryTextKey, primaryAction, secondaryAction, enableButtons } = buttonConfig
+	const primaryText = primaryTextKey ? t(primaryTextKey) : undefined
+	const secondaryText = secondaryTextKey ? t(secondaryTextKey) : undefined
 	const hasButtons = primaryText || secondaryText
 	const isStreaming = task.partial === true
 	const canInteract = enableButtons && !isProcessing

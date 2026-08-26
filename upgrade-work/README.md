@@ -68,21 +68,66 @@ ebee8ca91 上游基线 v4.1.16
 7. **验证**：`bun run check-types`（扩展 tsc + compat + webview tsc）全绿，
    污染扫描归零；注意 pre-commit 需要 gitleaks，本地用 --no-verify
 
+## 2026-08-26 第三轮：待办清零 + vsix 打包成功
+
+**全部 4 项待办完成，产出 `apps/vscode/claude-dev-4.1.16.vsix`（58 files, 11.69 MB）。**
+
+1. **dots-studio-athrapi 内置模型目录**：builtins.ts 新增
+   `buildDotsStudioAthrapiModels()`（dots3-note-prev / dots3-note，字段从 fork 3.x
+   ModelInfo 映射到 4.x schema：capabilities 数组 + pricing 对象）。
+   anthropic-comp 维持 allowsCustomIds 手输（fork 3.x 本就无静态列表，
+   自定义 id 走 openAiModelInfoSafeDefaults 兜底）
+2. **lint 全绿**：根 `bun run lint`（biome，sdk/cli/cline-hub/examples）0 error；
+   apps/vscode `bun run lint`（biome 1218 文件 + bash proto-lint）exit 0。
+   修复项：compaction.test.ts 两处 `\n` 污染（上游整文件恢复）、
+   RemoteConfigSection/PreferredLanguageSetting 字面 `\n` 残留、
+   10 个汉化组件 unused imports、biome.jsonc 排除 migrate-global-storage.ts
+   （fork 文件，Use CacheService grit 规则不适用于启动期迁移代码）
+3. **SDK 测试修复（前次未跑，3 处失败）**：
+   - ids.ts `BUILT_IN_PROVIDER` enum 补 6 个 fork id（mimo-tp 等）
+   - builtins.ts 删除两处迁移误带覆写：**wandb**（"W&B by CoreWeave" 旧快照数据，
+     上游 generated 已更新）与 **moonshot 重复条目**（丢失 china apiLineBaseUrls
+     区域路由 + 旧默认模型）。现在 builtins.ts 相对上游差异仅剩 7 个 fork provider
+   - ids.test.ts / builtins.test.ts 断言对齐 fork 语义（xiaomi 默认 mimo-v2.5）。
+   llms 全量 736 passed；core compaction 75 passed
+   （另有 3 个 core 测试失败为环境性：spawnSync bun ENOENT / Windows symlink /
+   MCP spawn，相关 6 文件与上游逐字节一致，非回归）
+4. **webview 102 个类型错误清零（重大发现）**：前次"check-types 全绿"对 webview
+   是**假绿**——`webview-ui/tsconfig.json` 是 project references，`tsc --noEmit`
+   （无 `-b`）不检查任何文件。真实检查 `tsc -b`（package 链里 vite build 会跑）
+   暴露汉化半成品：
+   - **i18n key 化补完**：fork 对 buttonConfig.ts / data-steps.ts 做了
+     `primaryText→primaryTextKey` 等改造，但 4.x 升级时消费方
+     （ActionButtons / OnboardingView）被重置为上游原版 → 补完消费方
+     t(*Key) 渲染 + foreground_command_running / CLINE_PASS 步骤漏网条目 +
+     locales 补 `onboarding.userType.clinePass.*` / `onboarding.step.clinePass.title`
+   - **t 作用域**：14 个组件/子组件缺 `const { t } = useTranslation()` 或
+     缺 import（hook 解构是组件局部，子组件用 t 必须各自解构）
+   - PreferredLanguageSetting 半成品合并（VSCodeDropdown JSX + shadcn imports）
+     重写；ChatTextArea `key={m}` → `key={m.key}`
+5. **proto 流程修正**：删除 3.x 遗留的 `proto/google/`（untracked 副本，
+   buf lint 会因 Google 官方文件 package 选项报错）；build-proto.mjs 增加第二个
+   `--proto_path` 指向 `node_modules/grpc-tools/bin`（well-known types 从那里解析）
+6. **vsce 打包**：必须 `--no-dependencies`（bun isolated 布局链接导致 vsce 依赖
+   收集越界：`invalid relative path: extension/../../vitest.config.ts`）+
+   `--allow-package-secrets sendgrid slack`；`.vscodeignore` 补 `tmp-protoc/`
+   （否则 12.46MB protoc.exe 混入 vsix）。BUILD.md 已重写为 4.x bun 流程
+7. **凭证链路核验**：GenericProviderSettings → useProviderConfig(providerId).write
+   → useProviderApiKeyField `write({ apiKey })` → SDK ProviderSettingsManager 持久化，
+   与上游 deepseek 等完全同路（运行时对话仍需手工回归确认）
+
 ## 待完成
 
-1.【验证】按 BUILD.md 打包 vsix → 回归测试中文界面 / MiMo（xiaomi、
-   mimo-tp、两个 athrapi）/ GLM / dots / anthropic-comp 各入口的
-   key 输入、模型选择、实际对话
+1.【人工】安装 `claude-dev-4.1.16.vsix` 回归：中文界面 / MiMo（xiaomi、mimo-tp、
+   两个 athrapi）/ GLM / dots / anthropic-comp 各入口的 key 输入、模型选择、实际对话
 2.【低】models.proto 中 fork 遗留 apiKey 字段（xiaomiApiKey 等）仅作
    存储兼容，运行时已不消费，确认无回归后可在下个大版本移除
-3.【低】anthropic-comp 与 dots-studio-athrapi 无模型目录键
-   （catalog.generated.ts），当前靠 allowsCustomIds 手输模型 id；
-   如需内置列表可在 builtins 用 modelsFactory 提供
-4.【低】`bun run lint`（biome lint + proto-lint）尚未跑（proto-lint 需 bash）
 
 ## 相关工具脚本（E:\workspace\Cline\）
 
 - `fork2.patch` 完整 fork 差异；`fB3.patch` 人工迁移桶；`gone3.txt` 上游缺失路径清单
 - `repair-pollution-v2.mjs` 全仓字面量 `\n` 修复器（regex/模板安全，dry-run 可用）
+- `patch-locale.mjs` / `patch-key.mjs` 第三轮精确补丁脚本（locales JSON 插入 /
+  ChatTextArea key 修复，文本级、保格式）
 - `cline.git` 上游完整克隆（v4.1.16 tag 可直接 git show 取原始文件）
 - `wiring-diffs.txt` 五个关键文件的 fork 改动摘录（移植参考）
