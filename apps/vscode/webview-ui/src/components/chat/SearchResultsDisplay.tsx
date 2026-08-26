@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react"
 import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import CodeAccordian from "../common/CodeAccordian"
 
 interface SearchResultsDisplayProps {
@@ -19,8 +20,7 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
 }) => {
 	const safeContent = content ?? ""
 	const safePath = path ?? ""
-
-	const parsedData = useMemo(() => {
+\n	const parsedData = useMemo(() => {
 		// Check if this is a multi-workspace result
 		const multiWorkspaceMatch = safeContent.match(/^Found \d+ results? across \d+ workspaces?\./m)
 
@@ -97,7 +97,7 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
 				border: "1px solid var(--vscode-editorGroup-border)",
 			}}>
 			<div
-				aria-label={isExpanded ? "Collapse search results" : "Expand search results"}
+				aria-label={isExpanded ? t("searchResults.collapse") : t("searchResults.expand")}
 				onClick={onToggleExpand}
 				onKeyDown={(e) => {
 					if (e.key === "Enter" || e.key === " ") {

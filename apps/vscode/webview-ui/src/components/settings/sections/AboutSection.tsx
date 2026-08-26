@@ -1,4 +1,5 @@
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
+import { useTranslation } from "react-i18next"
 import Section from "../Section"
 
 interface AboutSectionProps {
@@ -12,8 +13,7 @@ const VARIANT_LABELS: Record<"legacy" | "next", string> = {
 	next: "Next",
 }
 
-const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutSectionProps) => {
-	return (
+const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutSectionProps) => {\n	return (
 		<div>
 			{renderSectionHeader("about")}
 			<Section>
@@ -30,9 +30,8 @@ const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutS
 						An AI assistant that can use your CLI and Editor. Cline can handle complex software development tasks
 						step-by-step with tools that let him create & edit files, explore large projects, use the browser, and
 						execute terminal commands (after you grant permission).
-					</p>
-
-					<h3 className="text-md font-semibold">Community & Support</h3>
+					</p>\n
+					<h3 className="text-md font-semibold">{t("settings.about.communitySupport")}</h3>
 					<p>
 						<VSCodeLink href="https://x.com/cline">X</VSCodeLink>
 						{" • "}
@@ -41,7 +40,7 @@ const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutS
 						<VSCodeLink href="https://www.reddit.com/r/cline/"> r/cline</VSCodeLink>
 					</p>
 
-					<h3 className="text-md font-semibold">Development</h3>
+					<h3 className="text-md font-semibold">{t("settings.about.development")}</h3>
 					<p>
 						<VSCodeLink href="https://github.com/cline/cline">GitHub</VSCodeLink>
 						{" • "}
@@ -49,13 +48,13 @@ const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutS
 						{" • "}
 						<VSCodeLink href="https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop">
 							{" "}
-							Feature Requests
+							{t("settings.about.featureRequests")}
 						</VSCodeLink>
 					</p>
 
-					<h3 className="text-md font-semibold">Resources</h3>
+					<h3 className="text-md font-semibold">{t("settings.about.resources")}</h3>
 					<p>
-						<VSCodeLink href="https://docs.cline.bot/">Documentation</VSCodeLink>
+						<VSCodeLink href="https://docs.cline.bot/">{t("settings.about.documentation")}</VSCodeLink>
 						{" • "}
 						<VSCodeLink href="https://cline.bot/">https://cline.bot</VSCodeLink>
 					</p>

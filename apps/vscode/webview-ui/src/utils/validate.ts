@@ -160,7 +160,32 @@ export function validateApiConfiguration(currentMode: Mode, apiConfiguration?: A
 					return "You must provide a valid API key or choose a different provider."
 				}
 				break
-			case "hicap":
+			case "xiaomi-athrapi":
+				if (!apiConfiguration.xiaomiAthrapiKey) {
+					return "You must provide a valid API key or choose a different provider."
+				}
+				break
+			case "mimo-tp-athrapi":
+				if (!apiConfiguration.mimoTpAthrapiKey) {
+					return "You must provide a valid API key or choose a different provider."
+				}
+				break
+		case "zhipu-athrapi":
+			if (!apiConfiguration.zhipuAthrapiKey) {
+				return "You must provide a valid API key or choose a different provider."
+			}
+			break
+		case "dots-studio-athrapi":
+			if (!apiConfiguration.dotsStudioAthrapiKey) {
+				return "You must provide a valid API key or choose a different provider."
+			}
+			break
+		case "anthropic-comp":
+			if (!apiConfiguration.anthropicCompApiKey) {
+				return "You must provide a valid API key or choose a different provider."
+			}
+			break
+		case "hicap":
 				if (!apiConfiguration.hicapApiKey) {
 					return "You must provide a valid API key"
 				}

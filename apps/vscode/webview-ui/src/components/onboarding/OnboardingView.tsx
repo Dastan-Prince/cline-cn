@@ -3,8 +3,7 @@ import { StringRequest } from "@shared/proto/cline/common"
 import type { OnboardingModel, OnboardingModelGroup, OpenRouterModelInfo } from "@shared/proto/index.cline"
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { AlertCircleIcon, CircleCheckIcon, CircleIcon, ListIcon, LoaderCircleIcon, ZapIcon } from "lucide-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import ClineLogoWhite from "@/assets/ClineLogoWhite"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"\nimport ClineLogoWhite from "@/assets/ClineLogoWhite"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -83,8 +82,7 @@ const ModelSelection = ({
 	const isClinePass = userType === NEW_USER_TYPE.CLINE_PASS
 	const modelGroups = onboardingModels[getModelGroupKey(userType)]
 	// ClinePass costs are covered by the subscription, so prices are hidden.
-	const hidePrice = isClinePass
-
+	const hidePrice = isClinePass\n
 	const searchedModels = useMemo(() => {
 		if (!models || !searchTerm) {
 			return []
@@ -120,7 +118,7 @@ const ModelSelection = ({
 					</ItemTitle>
 					{isSelected && model.info && (
 						<ItemDescription>
-							<span className="text-foreground/70 text-sm">Support: </span>
+							<span className="text-foreground/70 text-sm">{t("onboarding.model.support")}</span>
 							<span className="text-foreground text-sm">{getCapabilities(model.info).join(", ")}</span>
 						</ItemDescription>
 					)}
@@ -130,14 +128,14 @@ const ModelSelection = ({
 						<div className="flex flex-col gap-3">
 							<div className="inline-flex gap-1 [&_svg]:stroke-success [&_svg]:size-3 items-center text-sm">
 								<ZapIcon />
-								<span>Speed: </span>
+								<span>{t("onboarding.model.speed")}</span>
 								<span className="text-foreground/70">{getSpeedLabel(model.latency)}</span>
 							</div>
 							{model.info && (
 								<div className="flex w-full justify-between">
 									<div className="inline-flex gap-1 [&_svg]:stroke-foreground [&_svg]:size-3 items-center text-sm">
 										<ListIcon />
-										<span>Context: </span>
+										<span>{t("onboarding.model.context")}</span>
 										<span className="text-foreground/70">{(model?.info.contextWindow || 0) / 1000}k</span>
 									</div>
 									{!hidePrice && <Badge>{getPriceRange(model.info)}</Badge>}
@@ -240,8 +238,7 @@ const ModelSelection = ({
 							{searchTerm.length > 0 && searchedModels.length === 0 && (
 								<p className="px-1 mt-1 text-sm text-foreground/70">No result found for "{searchTerm}"</p>
 							)}
-						</div>
-					</div>
+						</div>\n					</div>
 				</div>
 			)}
 		</div>
@@ -294,10 +291,9 @@ const UserTypeSelectionStep = ({ userType, onSelectUserType, userTypeSelections 
 						</ItemContent>
 					</Item>
 				)
-			})}
-		</div>
-	</div>
-)
+			})}\n		</div>
+	)
+}
 
 type OnboardingStepContentProps = {
 	step: number
@@ -354,6 +350,7 @@ const OnboardingStepContent = ({
 }
 
 const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: OnboardingModelGroup }) => {
+	const { t } = useTranslation()
 	const { handleFieldsChange } = useApiConfigurationHandlers()
 	const { openRouterModels, hideSettings, hideAccount, setShowWelcome } = useExtensionState()
 	const { models: clineModels } = useProviderModels("cline")
@@ -610,24 +607,24 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 	const stepDisplayInfo = useMemo(() => {
 		const step = stepNumber === 0 || stepNumber === 2 ? STEP_CONFIG[stepNumber] : null
-		const title = step ? step.title : userType ? STEP_CONFIG[userType].title : STEP_CONFIG[0].title
-		const description = step ? step.description : null
+		const titleKey = step ? step.titleKey : userType ? STEP_CONFIG[userType].titleKey : STEP_CONFIG[0].titleKey
+		const descriptionKey = step ? step.descriptionKey : null
 		const buttons = step ? step.buttons : userType ? STEP_CONFIG[userType].buttons : STEP_CONFIG[0].buttons
-		return { title, description, buttons }
+		return { titleKey, descriptionKey, buttons }
 	}, [stepNumber, userType])
 
 	return (
 		<div className="fixed inset-0 p-0 flex flex-col w-full">
 			<div className="h-full px-5 xs:mx-10 overflow-auto flex flex-col gap-4 items-center justify-center">
 				<ClineLogoWhite className="size-16 flex-shrink-0" />
-				<h2 className="text-lg font-semibold p-0 flex-shrink-0">{stepDisplayInfo.title}</h2>
+				<h2 className="text-lg font-semibold p-0 flex-shrink-0">{t(stepDisplayInfo.titleKey)}</h2>
 				{stepNumber === 2 && (
 					<div className="flex w-full max-w-lg flex-col gap-6 my-4 items-center ">
 						<LoaderCircleIcon className="animate-spin" />
 					</div>
 				)}
-				{stepDisplayInfo.description && (
-					<p className="text-foreground text-sm text-center m-0 p-0 flex-shrink-0">{stepDisplayInfo.description}</p>
+				{stepDisplayInfo.descriptionKey && (
+					<p className="text-foreground text-sm text-center m-0 p-0 flex-shrink-0">{t(stepDisplayInfo.descriptionKey)}</p>
 				)}
 
 				<div className="flex-1 w-full flex max-w-lg overflow-y-auto min-h-0">
@@ -670,11 +667,10 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 						<div className="items-center justify-center flex text-sm text-foreground/70 text-pretty text-center">
 							Complete sign in in your browser. We'll continue automatically once you're done.
 						</div>
-					)}
-
+					)}\n
 					{stepNumber !== 2 && (
 						<div className="items-center justify-center flex text-sm text-foreground gap-2 mb-3 text-pretty">
-							<AlertCircleIcon className="shrink-0 size-2" /> You can change this later in settings
+							<AlertCircleIcon className="shrink-0 size-2" /> {t("onboarding.footer.changeLater")}
 						</div>
 					)}
 				</footer>

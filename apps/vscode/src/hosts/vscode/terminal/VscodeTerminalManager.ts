@@ -9,8 +9,7 @@ import {
 } from "@/integrations/terminal/types"
 import { Logger } from "@/shared/services/Logger"
 import { mergePromise, VscodeTerminalProcess } from "./VscodeTerminalProcess"
-import { TerminalInfo, TerminalRegistry } from "./VscodeTerminalRegistry"
-
+import { TerminalInfo, TerminalRegistry } from "./VscodeTerminalRegistry"\n
 const CWD_COMMAND_TIMEOUT_MS = 5000
 const CWD_STATE_TIMEOUT_MS = 1000
 
@@ -79,8 +78,7 @@ export class VscodeTerminalManager {
 	private disposables: vscode.Disposable[] = []
 	private shellIntegrationTimeout = 4000
 	private terminalReuseEnabled = true
-	private defaultTerminalProfile = "default"
-
+	private defaultTerminalProfile = "default"\n
 	/**
 	 * Resolve a terminal's stored shellPath to an effective path.
 	 * Terminals created with the "default" profile have shellPath=undefined;
@@ -112,36 +110,37 @@ export class VscodeTerminalManager {
 						// Keep the target until the acquisition's finally block so the
 						// caller can confirm the resolved state before handing off.
 						terminalInfo.cwdResolved = undefined
-						resolver()
-					}
-				}
-			})
-			this.disposables.push(stateChangeDisposable)
+						resolver()\n					}
+				},
+			);
+			this.disposables.push(stateChangeDisposable);
 		} catch (error) {
-			Logger.error("Error setting up onDidChangeTerminalState", error)
+			Logger.error("Error setting up onDidChangeTerminalState", error);
 		}
 	}
 
 	//Find a TerminalInfo by its VSCode Terminal instance
-	private findTerminalInfoByTerminal(terminal: vscode.Terminal): TerminalInfo | undefined {
-		const terminals = TerminalRegistry.getAllTerminals()
-		return terminals.find((t) => t.terminal === terminal)
+	private findTerminalInfoByTerminal(
+		terminal: vscode.Terminal,
+	): TerminalInfo | undefined {
+		const terminals = TerminalRegistry.getAllTerminals();
+		return terminals.find((t) => t.terminal === terminal);
 	}
 
 	//Check if a terminal's CWD matches its expected pending change
 	private isCwdMatchingExpected(terminalInfo: TerminalInfo): boolean {
 		if (!terminalInfo.pendingCwdChange) {
-			return false
+			return false;
 		}
 
-		const currentCwd = terminalInfo.terminal.shellIntegration?.cwd?.fsPath
-		const targetCwd = vscode.Uri.file(terminalInfo.pendingCwdChange).fsPath
+		const currentCwd = terminalInfo.terminal.shellIntegration?.cwd?.fsPath;
+		const targetCwd = vscode.Uri.file(terminalInfo.pendingCwdChange).fsPath;
 
 		if (!currentCwd) {
-			return false
+			return false;
 		}
 
-		return arePathsEqual(currentCwd, targetCwd)
+		return arePathsEqual(currentCwd, targetCwd);
 	}
 
 	private async drainCommandOutput(output: AsyncIterable<string>): Promise<void> {
@@ -241,51 +240,53 @@ export class VscodeTerminalManager {
 			if (getUnobservedTerminalCommandDisposition(outcome) === "disposeBeforeNextTerminalAcquisition") {
 				TerminalRegistry.queueTerminalForCleanup(vscodeTerminalInfo)
 			}
-		})
-
+		})\n
 		const promise = new Promise<void>((resolve, reject) => {
 			process.once("continue", () => {
-				resolve()
-			})
+				resolve();
+			});
 			process.once("error", (error) => {
-				Logger.error(`Error in terminal ${vscodeTerminalInfo.id}:`, error)
-				reject(error)
-			})
-		})
+				Logger.error(`Error in terminal ${vscodeTerminalInfo.id}:`, error);
+				reject(error);
+			});
+		});
 
 		// if shell integration is already active, run the command immediately
 		if (vscodeTerminalInfo.terminal.shellIntegration) {
 			process.waitForShellIntegration = false
-			this.runTerminalProcess(process, vscodeTerminalInfo.terminal, command)
-		} else {
+			this.runTerminalProcess(process, vscodeTerminalInfo.terminal, command)\n		} else {
 			// docs recommend waiting 3s for shell integration to activate
 			Logger.log(
 				`[TerminalManager Test] Waiting for shell integration for terminal ${vscodeTerminalInfo.id} with timeout ${this.shellIntegrationTimeout}ms`,
+			);
+			pWaitFor(
+				() => vscodeTerminalInfo.terminal.shellIntegration !== undefined,
+				{
+					timeout: this.shellIntegrationTimeout,
+				},
 			)
-			pWaitFor(() => vscodeTerminalInfo.terminal.shellIntegration !== undefined, {
-				timeout: this.shellIntegrationTimeout,
-			})
 				.then(() => {
 					Logger.log(
 						`[TerminalManager Test] Shell integration activated for terminal ${vscodeTerminalInfo.id} within timeout.`,
-					)
+					);
 				})
 				.catch((err) => {
 					Logger.warn(
 						`[TerminalManager Test] Shell integration timed out or failed for terminal ${vscodeTerminalInfo.id}: ${err.message}`,
-					)
+					);
 				})
 				.finally(() => {
-					Logger.log(`[TerminalManager Test] Proceeding with command execution for terminal ${vscodeTerminalInfo.id}.`)
-					const existingProcess = this.processes.get(vscodeTerminalInfo.id)
+					Logger.log(
+						`[TerminalManager Test] Proceeding with command execution for terminal ${vscodeTerminalInfo.id}.`,
+					);
+					const existingProcess = this.processes.get(vscodeTerminalInfo.id);
 					if (existingProcess && existingProcess.waitForShellIntegration) {
 						existingProcess.waitForShellIntegration = false
-						this.runTerminalProcess(existingProcess, vscodeTerminalInfo.terminal, command)
-					}
-				})
+						this.runTerminalProcess(existingProcess, vscodeTerminalInfo.terminal, command)\n					}
+				});
 		}
 
-		return mergePromise(process, promise)
+		return mergePromise(process, promise);
 	}
 
 	/**
@@ -328,38 +329,40 @@ export class VscodeTerminalManager {
 		const terminals = TerminalRegistry.getAllTerminals()
 		const expectedShellPath = profileId !== "default" ? getShellForProfile(profileId) : undefined
 		// Resolve effective shell for comparison (so "default" and "zsh" match on macOS)
-		const effectiveExpected = VscodeTerminalManager.effectiveShellPath(expectedShellPath)
-
+		const effectiveExpected = VscodeTerminalManager.effectiveShellPath(expectedShellPath)\n
 		// Find available terminal from our pool first (created for this task)
-		Logger.log(`[TerminalManager] Looking for terminal in cwd: ${cwd}`)
-		Logger.log(`[TerminalManager] Available terminals: ${terminals.length}`)
+		Logger.log(`[TerminalManager] Looking for terminal in cwd: ${cwd}`);
+		Logger.log(`[TerminalManager] Available terminals: ${terminals.length}`);
 
 		const matchingTerminal = terminals.find((t) => {
 			if (t.busy) {
-				Logger.log(`[TerminalManager] Terminal ${t.id} is busy, skipping`)
-				return false
+				Logger.log(`[TerminalManager] Terminal ${t.id} is busy, skipping`);
+				return false;
 			}
 			// Check if effective shell path matches current configuration
 			if (VscodeTerminalManager.effectiveShellPath(t.shellPath) !== effectiveExpected) {
-				return false
-			}
-			const terminalCwd = t.terminal.shellIntegration?.cwd // one of cline's commands could have changed the cwd of the terminal
+				return false\n			}
+			const terminalCwd = t.terminal.shellIntegration?.cwd; // one of cline's commands could have changed the cwd of the terminal
 			if (!terminalCwd) {
-				Logger.log(`[TerminalManager] Terminal ${t.id} has no cwd, skipping`)
-				return false
+				Logger.log(`[TerminalManager] Terminal ${t.id} has no cwd, skipping`);
+				return false;
 			}
-			const matches = arePathsEqual(vscode.Uri.file(cwd).fsPath, terminalCwd.fsPath)
-			Logger.log(`[TerminalManager] Terminal ${t.id} cwd: ${terminalCwd.fsPath}, matches: ${matches}`)
-			return matches
-		})
+			const matches = arePathsEqual(
+				vscode.Uri.file(cwd).fsPath,
+				terminalCwd.fsPath,
+			);
+			Logger.log(
+				`[TerminalManager] Terminal ${t.id} cwd: ${terminalCwd.fsPath}, matches: ${matches}`,
+			);
+			return matches;
+		});
 		if (matchingTerminal) {
 			Logger.log(`[TerminalManager] Found matching terminal ${matchingTerminal.id} in correct cwd`)
 			// Reserve synchronously before returning so parallel acquisitions cannot
 			// select this terminal before runCommand() marks it busy.
 			matchingTerminal.busy = true
-			this.terminalIds.add(matchingTerminal.id)
-			// Cast to ITerminalInfo for interface compatibility
-			return matchingTerminal as unknown as ITerminalInfo
+			this.terminalIds.add(matchingTerminal.id)\n			// Cast to ITerminalInfo for interface compatibility
+			return matchingTerminal as unknown as ITerminalInfo;
 		}
 
 		// If no non-busy terminal in the current working dir exists and terminal reuse is enabled, try to find any non-busy terminal regardless of CWD
@@ -434,54 +437,52 @@ export class VscodeTerminalManager {
 					if (!didHandOffReservation) {
 						availableTerminal.busy = false
 					}
-				}
-			}
+				}\n			}
 		}
 
 		// If all terminals are busy or don't match shell profile, create a new one with the configured shell
 		const newTerminalInfo = TerminalRegistry.createTerminal(cwd, expectedShellPath)
 		newTerminalInfo.busy = true
-		this.terminalIds.add(newTerminalInfo.id)
-		// Cast to ITerminalInfo for interface compatibility
-		return newTerminalInfo as unknown as ITerminalInfo
+		this.terminalIds.add(newTerminalInfo.id)\n		// Cast to ITerminalInfo for interface compatibility
+		return newTerminalInfo as unknown as ITerminalInfo;
 	}
 
 	getTerminals(busy: boolean): { id: number; lastCommand: string }[] {
 		return Array.from(this.terminalIds)
 			.map((id) => TerminalRegistry.getTerminal(id))
 			.filter((t): t is TerminalInfo => t !== undefined && t.busy === busy)
-			.map((t) => ({ id: t.id, lastCommand: t.lastCommand }))
+			.map((t) => ({ id: t.id, lastCommand: t.lastCommand }));
 	}
 
 	getUnretrievedOutput(terminalId: number): string {
 		if (!this.terminalIds.has(terminalId)) {
-			return ""
+			return "";
 		}
-		const process = this.processes.get(terminalId)
-		return process ? process.getUnretrievedOutput() : ""
+		const process = this.processes.get(terminalId);
+		return process ? process.getUnretrievedOutput() : "";
 	}
 
 	isProcessHot(terminalId: number): boolean {
-		const process = this.processes.get(terminalId)
-		return process ? process.isHot : false
+		const process = this.processes.get(terminalId);
+		return process ? process.isHot : false;
 	}
 
 	disposeAll() {
 		// for (const info of this.terminals) {
 		// 	//info.terminal.dispose() // dont want to dispose terminals when task is aborted
 		// }
-		this.terminalIds.clear()
-		this.processes.clear()
-		this.disposables.forEach((disposable) => disposable.dispose())
-		this.disposables = []
+		this.terminalIds.clear();
+		this.processes.clear();
+		this.disposables.forEach((disposable) => disposable.dispose());
+		this.disposables = [];
 	}
 
 	setShellIntegrationTimeout(timeout: number): void {
-		this.shellIntegrationTimeout = timeout
+		this.shellIntegrationTimeout = timeout;
 	}
 
 	setTerminalReuseEnabled(enabled: boolean): void {
-		this.terminalReuseEnabled = enabled
+		this.terminalReuseEnabled = enabled;
 	}
 
 	setDefaultTerminalProfile(profileId: string): void {
@@ -496,6 +497,5 @@ export class VscodeTerminalManager {
 	private evictTerminal(terminalInfo: TerminalInfo): void {
 		this.terminalIds.delete(terminalInfo.id)
 		this.processes.delete(terminalInfo.id)
-		TerminalRegistry.removeTerminal(terminalInfo.id)
-	}
+		TerminalRegistry.removeTerminal(terminalInfo.id)\n	}
 }

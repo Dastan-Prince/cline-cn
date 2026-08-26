@@ -1,5 +1,5 @@
-import { BooleanRequest, KeyValuePair } from "@shared/proto/cline/common"
-import { Controller } from ".."
+import { BooleanRequest, KeyValuePair } from "@shared/proto/cline/common";
+import { Controller } from "..";
 
 /**
  * Sets the terminal execution mode
@@ -14,13 +14,12 @@ export async function setTerminalExecutionMode(controller: Controller, request: 
 
 	// Update the global state
 	controller.stateManager.setGlobalState("vscodeTerminalExecutionMode", newMode)
-	controller.handleTerminalExecutionModeChanged(previousMode, newMode)
-
+	controller.handleTerminalExecutionModeChanged(previousMode, newMode)\n
 	// Post updated state to webview
-	await controller.postStateToWebview()
+	await controller.postStateToWebview();
 
 	return KeyValuePair.create({
 		key: "terminalExecutionModeSet",
 		value: newMode,
-	})
+	});
 }

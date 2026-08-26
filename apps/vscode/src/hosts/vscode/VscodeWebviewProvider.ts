@@ -7,43 +7,44 @@ import { ExtensionRegistryInfo } from "@/registry"
 import { telemetryService } from "@/services/telemetry"
 import type { ExtensionMessage } from "@/shared/ExtensionMessage"
 import { Logger } from "@/shared/services/Logger"
-import { WebviewMessage } from "@/shared/WebviewMessage"
-
+import { WebviewMessage } from "@/shared/WebviewMessage"\n
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
 https://github.com/KumarVariable/vscode-extension-sidebar-html/blob/master/src/customSidebarViewProvider.ts
 */
 
-export class VscodeWebviewProvider extends WebviewProvider implements vscode.WebviewViewProvider {
+export class VscodeWebviewProvider
+	extends WebviewProvider
+	implements vscode.WebviewViewProvider
+{
 	// Used in package.json as the view's id. This value cannot be changed due to how vscode caches
 	// views based on their id, and updating the id would break existing instances of the extension.
-	public static readonly SIDEBAR_ID = ExtensionRegistryInfo.views.Sidebar
+	public static readonly SIDEBAR_ID = ExtensionRegistryInfo.views.Sidebar;
 
 	private webview?: vscode.WebviewView
 	private disposables: vscode.Disposable[] = []
-	private hasResolvedView = false
-
+	private hasResolvedView = false\n
 	override getWebviewUrl(path: string) {
 		if (!this.webview) {
-			throw new Error("Webview not initialized")
+			throw new Error("Webview not initialized");
 		}
-		const uri = this.webview.webview.asWebviewUri(vscode.Uri.file(path))
-		return uri.toString()
+		const uri = this.webview.webview.asWebviewUri(vscode.Uri.file(path));
+		return uri.toString();
 	}
 
 	override getCspSource() {
 		if (!this.webview) {
-			throw new Error("Webview not initialized")
+			throw new Error("Webview not initialized");
 		}
-		return this.webview.webview.cspSource
+		return this.webview.webview.cspSource;
 	}
 
 	override isVisible() {
-		return this.webview?.visible || false
+		return this.webview?.visible || false;
 	}
 
 	public getWebview(): vscode.WebviewView | undefined {
-		return this.webview
+		return this.webview;
 	}
 
 	/**
@@ -57,24 +58,22 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 		// provider when the view is moved between sidebars). Release the previous
 		// view's listeners up front in case its onDidDispose fired late or not at all.
 		this.disposeView()
-		this.webview = webviewView
-
+		this.webview = webviewView\n
 		webviewView.webview.options = {
 			// Allow scripts in the webview
 			enableScripts: true,
 			localResourceRoots: [vscode.Uri.file(HostProvider.get().extensionFsPath)],
-		}
+		};
 
 		webviewView.webview.html =
 			this.context.extensionMode === vscode.ExtensionMode.Development
 				? await this.getHMRHtmlContent()
-				: this.getHtmlContent()
+				: this.getHtmlContent();
 
 		// Sets up an event listener to listen for messages passed from the webview view context
 		// and executes code based on the message that is received
 		this.setWebviewMessageListener(webviewView.webview)
-		telemetryService.capturePanelOpened("sidebar_resolved")
-
+		telemetryService.capturePanelOpened("sidebar_resolved")\n
 		// Logs show up in bottom panel > Debug Console
 		//Logger.log("registering listener")
 
@@ -89,12 +88,12 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 				if (this.webview?.visible) {
 					telemetryService.capturePanelOpened("sidebar_visible")
 					// View becoming visible should not steal editor focus.
-					await sendShowWebviewEvent(true)
+					await sendShowWebviewEvent(true);
 				}
 			},
 			null,
 			this.disposables,
-		)
+		);
 
 		// Listen for when the view is disposed. This happens when the user moves the
 		// view between the primary and secondary sidebars: VS Code destroys the old
@@ -108,12 +107,11 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 				// event can arrive after a newer view has already been resolved. Only
 				// tear down if this view is still the active one.
 				if (this.webview === webviewView) {
-					this.disposeView()
-				}
+					this.disposeView()\n				}
 			},
 			null,
 			this.disposables,
-		)
+		);
 
 		// Clear stale task state only when the view first loads after activation.
 		// Re-resolves (e.g. the view moved between sidebars) must not terminate an
@@ -121,9 +119,8 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 		if (!this.hasResolvedView) {
 			this.hasResolvedView = true
 			this.controller.clearTask()
-		}
-
-		Logger.log("[VscodeWebviewProvider] Webview view resolved")
+		}\n
+		Logger.log("[VscodeWebviewProvider] Webview view resolved");
 
 		// Title setting logic removed to allow VSCode to use the container title primarily.
 	}
@@ -155,11 +152,11 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 	private setWebviewMessageListener(webview: vscode.Webview) {
 		webview.onDidReceiveMessage(
 			(message) => {
-				this.handleWebviewMessage(message)
+				this.handleWebviewMessage(message);
 			},
 			null,
 			this.disposables,
-		)
+		);
 	}
 
 	/**
@@ -169,23 +166,34 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 	 * @param webview A reference to the extension webview
 	 */
 	async handleWebviewMessage(message: WebviewMessage) {
-		const postMessageToWebview = (response: ExtensionMessage) => this.postMessageToWebview(response)
+		const postMessageToWebview = (response: ExtensionMessage) =>
+			this.postMessageToWebview(response);
 
 		switch (message.type) {
 			case "grpc_request": {
 				if (message.grpc_request) {
-					await handleGrpcRequest(this.controller, postMessageToWebview, message.grpc_request)
+					await handleGrpcRequest(
+						this.controller,
+						postMessageToWebview,
+						message.grpc_request,
+					);
 				}
-				break
+				break;
 			}
 			case "grpc_request_cancel": {
 				if (message.grpc_request_cancel) {
-					await handleGrpcRequestCancel(postMessageToWebview, message.grpc_request_cancel)
+					await handleGrpcRequestCancel(
+						postMessageToWebview,
+						message.grpc_request_cancel,
+					);
 				}
-				break
+				break;
 			}
 			default: {
-				Logger.error("Received unhandled WebviewMessage type:", JSON.stringify(message))
+				Logger.error(
+					"Received unhandled WebviewMessage type:",
+					JSON.stringify(message),
+				);
 			}
 		}
 	}
@@ -196,8 +204,10 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 	 * @param message - The message to send to the webview
 	 * @returns A thenable that resolves to a boolean indicating success, or undefined if the webview is not available
 	 */
-	private async postMessageToWebview(message: ExtensionMessage): Promise<boolean | undefined> {
-		return this.webview?.webview.postMessage(message)
+	private async postMessageToWebview(
+		message: ExtensionMessage,
+	): Promise<boolean | undefined> {
+		return this.webview?.webview.postMessage(message);
 	}
 
 	/**
@@ -209,9 +219,9 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 		// WebviewView doesn't have a dispose method, it's managed by VSCode
 		// We just need to clean up our disposables
 		while (this.disposables.length) {
-			const x = this.disposables.pop()
+			const x = this.disposables.pop();
 			if (x) {
-				x.dispose()
+				x.dispose();
 			}
 		}
 		this.webview = undefined
@@ -219,6 +229,5 @@ export class VscodeWebviewProvider extends WebviewProvider implements vscode.Web
 
 	override async dispose() {
 		this.disposeView()
-		await super.dispose()
-	}
+		await super.dispose()\n	}
 }

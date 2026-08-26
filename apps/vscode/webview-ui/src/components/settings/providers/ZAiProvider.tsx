@@ -81,8 +81,7 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 			modelId,
 			modelInfo,
 		}).catch((err) => console.error("Failed to commit Z AI model selection:", err))
-	}
-
+	}\n
 	return (
 		<div>
 			<DropdownContainer className="dropdown-container" style={{ position: "inherit" }}>
@@ -99,6 +98,7 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 					value={selectedEntrypoint}>
 					<VSCodeOption value="international">api.z.ai</VSCodeOption>
 					<VSCodeOption value="china">open.bigmodel.cn</VSCodeOption>
+					<VSCodeOption value="coding">(Coding Plan)open.bigmodel.cn</VSCodeOption>
 				</VSCodeDropdown>
 			</DropdownContainer>
 			<p
@@ -107,16 +107,14 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 					marginTop: 3,
 					color: "var(--vscode-descriptionForeground)",
 				}}>
-				Please select the appropriate API entrypoint based on your location. If you are in China, choose open.bigmodel.cn
-				. Otherwise, choose api.z.ai.
+				请根据您的所在位置选择合适的 API 入口点。如果您在中国，请选择 open.bigmodel.cn ；否则，请选择 api.z.ai 。使用 GLM Coding Plan订阅时，请使用(Coding Plan)入口。
 			</p>
 			<ApiKeyField
 				initialValue={savedApiKeyMask || apiConfiguration?.zaiApiKey || ""}
 				onChange={handleApiKeyChange}
 				providerName="Z AI"
 				signupUrl={
-					selectedEntrypoint === "china"
-						? "https://open.bigmodel.cn/console/overview"
+					selectedEntrypoint === "china"\n						? "https://open.bigmodel.cn/console/overview"
 						: "https://z.ai/manage-apikey/apikey-list"
 				}
 			/>

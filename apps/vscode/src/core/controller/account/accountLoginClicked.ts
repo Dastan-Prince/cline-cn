@@ -1,7 +1,6 @@
 import { EmptyRequest, String } from "@shared/proto/cline/common"
 import { AuthService } from "@/sdk/auth-service"
-import { Controller } from "../index"
-
+import { Controller } from "../index"\n
 /**
  * Handles the user clicking the login link in the UI.
  * Uses the SDK-backed AuthService to initiate the Cline OAuth flow.
@@ -10,6 +9,9 @@ import { Controller } from "../index"
  * @param controller The controller instance.
  * @returns The login URL as a string.
  */
-export async function accountLoginClicked(_controller: Controller, _: EmptyRequest): Promise<String> {
-	return await AuthService.getInstance().createAuthRequest()
+export async function accountLoginClicked(
+	_controller: Controller,
+	_: EmptyRequest,
+): Promise<String> {
+	return await AuthService.getInstance().createAuthRequest();
 }

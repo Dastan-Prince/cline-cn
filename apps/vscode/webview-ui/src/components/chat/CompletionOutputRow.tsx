@@ -1,8 +1,7 @@
 import { EmptyRequest } from "@shared/proto/cline/common"
 import { GitCompareIcon } from "lucide-react"
 import { memo, useEffect, useState } from "react"
-import { CheckpointsServiceClient } from "@/services/grpc-client"
-import { CopyButton } from "../common/CopyButton"
+import { CheckpointsServiceClient } from "@/services/grpc-client"\nimport { CopyButton } from "../common/CopyButton"
 import SuccessButton from "../common/SuccessButton"
 import { QuoteButtonState } from "./ChatRow"
 import { MarkdownRow } from "./MarkdownRow"
@@ -71,8 +70,7 @@ export const CompletionOutputRow = memo(
 			<div className="rounded-sm border border-success/20 overflow-visible bg-success/10">
 				<div className="flex items-center justify-between gap-2 pl-2 pr-1 pt-1 -mb-1.5">
 					<span className="text-xs font-medium uppercase tracking-wider text-success/70">Completed</span>
-					<CopyButton ariaLabel="Copy response" className="text-success/70" textToCopy={text} />
-				</div>
+					<CopyButton ariaLabel="Copy response" className="text-success/70" textToCopy={text} />\n				</div>
 				<div className="completion-output-content relative p-2 w-full [&_hr]:opacity-20 [&_p:last-child]:mb-0 rounded-sm">
 					<MarkdownRow markdown={text} />
 					{quoteButtonState.visible && (

@@ -13,8 +13,7 @@ import { sendSettingsButtonClickedEvent } from "./core/controller/ui/subscribeTo
 import { sendWorktreesButtonClickedEvent } from "./core/controller/ui/subscribeToWorktreesButtonClicked"
 import { WebviewProvider } from "./core/webview"
 import { createClineAPI } from "./exports"
-import "./utils/path" // necessary to have access to String.prototype.toPosix
-import path from "node:path"
+import "./utils/path" // necessary to have access to String.prototype.toPosix\nimport path from "node:path"
 import type { ExtensionContext } from "vscode"
 import { HostProvider } from "@/hosts/host-provider"
 import { vscodeHostBridgeClient } from "@/hosts/vscode/hostbridge/client/host-grpc-client"
@@ -37,6 +36,7 @@ import {
 	migrateWorkspaceToGlobalStorage,
 } from "./core/storage/state-migrations"
 import { workspaceResolver } from "./core/workspace"
+import { getFileMentionFromPath } from "./core/mentions"
 import { findMatchingNotebookCell, getContextForCommand, showWebview } from "./hosts/vscode/commandUtils"
 import { abortCommitGeneration, generateCommitMsg } from "./hosts/vscode/commit-message-generator"
 import { registerClineOutputChannel } from "./hosts/vscode/hostbridge/env/debugLog"
@@ -57,8 +57,7 @@ import { ShowMessageType } from "./shared/proto/host/window"
 import { fileExistsAtPath } from "./utils/fs"
 
 export async function reportRolloutActivation(input: RolloutBundleActivation): Promise<void> {
-	await telemetryService.captureRolloutBundleActivated(input)
-}
+	await telemetryService.captureRolloutBundleActivated(input)\n}
 
 // This method is called when the VS Code extension is activated.
 // NOTE: This is VS Code specific - services that should be registered
@@ -66,9 +65,12 @@ export async function reportRolloutActivation(input: RolloutBundleActivation): P
 export async function activate(context: vscode.ExtensionContext) {
 	const activationStartTime = performance.now()
 
-	// 1. Set up HostProvider for VSCode
+	// 0. Set up HostProvider for VSCode (needed early so Logger can output to channel)
 	// IMPORTANT: This must be done before any service can be registered
 	setupHostProvider(context)
+
+	// 1. Migrate globalStorage from old extension ID if needed (before anything else)
+	await migrateGlobalStorageIfNeeded(context)
 
 	// 2. Clean up legacy data patterns within VSCode's native storage.
 	// Moves workspace→global keys, task history→file, custom instructions→rules, etc.
@@ -309,12 +311,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Register the command handlers
 	context.subscriptions.push(
-		vscode.commands.registerCommand(commands.AddToChat, async (range?: vscode.Range, diagnostics?: vscode.Diagnostic[]) => {
-			const context = await getContextForCommand(range, diagnostics)
-			if (!context) {
+	vscode.commands.registerCommand(commands.AddToChat, async (range?: vscode.Range, diagnostics?: vscode.Diagnostic[]) => {
+		const context = await getContextForCommand(range, diagnostics)
+		if (!context) {
+			return
+		}
+		await addToCline(context.controller, context.commandContext)
+	}),
+	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand(commands.AddFileToChat, async (uri?: vscode.Uri) => {
+			if (!uri) {
 				return
 			}
-			await addToCline(context.controller, context.commandContext)
+			const fileMention = await getFileMentionFromPath(uri.fsPath)
+			await showWebview(false)
+			await sendAddToInputEvent(fileMention)
+			Logger.log("addFileToChat", uri.fsPath)
 		}),
 	)
 	context.subscriptions.push(

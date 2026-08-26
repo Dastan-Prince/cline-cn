@@ -1,6 +1,5 @@
 import type { ModelInfo } from "@shared/api"
-import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"
-
+import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"\n
 /**
  * Refreshes the OpenRouter models and returns application types.
  *
@@ -12,5 +11,4 @@ import { type ProviderCatalogController, resolveProviderModelsRecord } from "./p
  * surfaces stay consistent.
  */
 export async function refreshOpenRouterModels(controller: ProviderCatalogController): Promise<Record<string, ModelInfo>> {
-	return resolveProviderModelsRecord(controller, "openrouter")
-}
+	return resolveProviderModelsRecord(controller, "openrouter")\n}

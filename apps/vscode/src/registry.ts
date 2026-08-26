@@ -1,7 +1,7 @@
 import { name, publisher, version } from "../package.json"
 import { HostProvider } from "./hosts/host-provider"
 
-const prefix = name === "claude-dev" ? "cline" : name
+const prefix = name === "claude-dev" || name === "cline-cn" || name === "cline-cn-ai" ? "cline" : name
 
 /**
  * List of commands with the name of the extension they are registered under.
@@ -19,6 +19,7 @@ const ClineCommands = {
 	WorktreesButton: prefix + ".worktreesButtonClicked",
 	TerminalOutput: prefix + ".addTerminalOutputToChat",
 	AddToChat: prefix + ".addToChat",
+	AddFileToChat: prefix + ".addFileToChat",
 	FixWithCline: prefix + ".fixWithCline",
 	ExplainCode: prefix + ".explainCode",
 	ImproveCode: prefix + ".improveCode",
@@ -37,7 +38,7 @@ const ClineCommands = {
  * These should match the name + view IDs defined in package.json.
  */
 const ClineViewIds = {
-	Sidebar: name + ".SidebarProvider",
+	Sidebar: "claude-dev.SidebarProvider",
 }
 
 /**

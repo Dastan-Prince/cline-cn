@@ -1,6 +1,7 @@
 import { IntentEvent } from "@shared/proto/cline/ui"
 import { HistoryIcon, PlusIcon, PuzzleIcon, SettingsIcon, UserCircleIcon } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { TaskServiceClient, UiServiceClient } from "@/services/grpc-client"
@@ -8,14 +9,13 @@ import { useExtensionState } from "../../context/ExtensionStateContext"
 
 export const Navbar = () => {
 	const { navigateToHistory, navigateToSettings, navigateToAccount, navigateToMarketplace, navigateToChat } =
-		useExtensionState()
-
+		useExtensionState()\n
 	const SETTINGS_TABS = useMemo(
 		() => [
 			{
 				id: "chat",
-				name: "Chat",
-				tooltip: "New Task",
+				name: t("navbar.chat"),
+				tooltip: t("navbar.newTask"),
 				icon: PlusIcon,
 				navigate: () => {
 					UiServiceClient.trackIntent(
@@ -37,32 +37,30 @@ export const Navbar = () => {
 				name: "Customize",
 				tooltip: "Customize",
 				icon: PuzzleIcon,
-				navigate: navigateToMarketplace,
-			},
+				navigate: navigateToMarketplace,\n			},
 			{
 				id: "history",
-				name: "History",
-				tooltip: "History",
+				name: t("navbar.history"),
+				tooltip: t("navbar.history"),
 				icon: HistoryIcon,
 				navigate: navigateToHistory,
 			},
 			{
 				id: "account",
-				name: "Account",
-				tooltip: "Account",
+				name: t("navbar.account"),
+				tooltip: t("navbar.account"),
 				icon: UserCircleIcon,
 				navigate: navigateToAccount,
 			},
 			{
 				id: "settings",
-				name: "Settings",
-				tooltip: "Settings",
+				name: t("navbar.settings"),
+				tooltip: t("navbar.settings"),
 				icon: SettingsIcon,
 				navigate: navigateToSettings,
 			},
 		],
-		[navigateToAccount, navigateToChat, navigateToHistory, navigateToMarketplace, navigateToSettings],
-	)
+		[navigateToAccount, navigateToChat, navigateToHistory, navigateToMarketplace, navigateToSettings],\n	)
 
 	return (
 		<nav

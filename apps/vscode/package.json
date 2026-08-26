@@ -2,19 +2,18 @@
 	"name": "claude-dev",
 	"displayName": "Cline",
 	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
-	"version": "4.1.16",
-	"icon": "assets/icons/icon.png",
+	"version": "4.1.16",\n	"icon": "assets/icons/icon.png",
 	"engines": {
 		"vscode": "^1.101.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "Dastan-Prince"
 	},
 	"license": "Apache-2.0",
-	"publisher": "saoudrizwan",
+	"publisher": "Dastan-Prince",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline"
+		"url": "https://github.com/Dastan-Prince/cline-cn"
 	},
 	"homepage": "https://cline.bot",
 	"categories": [
@@ -111,7 +110,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"title": "CLINE CN",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -121,7 +120,7 @@
 				{
 					"type": "webview",
 					"id": "claude-dev.SidebarProvider",
-					"name": "",
+					"name": "CLINE CN",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -171,6 +170,11 @@
 			},
 			{
 				"command": "cline.addToChat",
+				"title": "Add to Cline",
+				"category": "Cline"
+			},
+			{
+				"command": "cline.addFileToChat",
 				"title": "Add to Cline",
 				"category": "Cline"
 			},
@@ -285,6 +289,19 @@
 					"command": "cline.addToChat",
 					"group": "navigation",
 					"when": "editorHasSelection"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "cline.addFileToChat",
+					"group": "navigation"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "cline.addFileToChat",
+					"group": "navigation",
+					"when": "!isInDiffEditor"
 				}
 			],
 			"terminal/context": [

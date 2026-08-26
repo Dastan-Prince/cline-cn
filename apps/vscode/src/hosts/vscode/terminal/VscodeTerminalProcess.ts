@@ -1,8 +1,11 @@
-import { TerminalOutputFailureReason, telemetryService } from "@services/telemetry"
-import { EventEmitter } from "events"
-import * as vscode from "vscode"
-import { stripAnsi } from "@/hosts/vscode/terminal/ansiUtils"
-import { getLatestTerminalOutput } from "@/hosts/vscode/terminal/get-latest-output"
+import {
+	TerminalOutputFailureReason,
+	telemetryService,
+} from "@services/telemetry";
+import { EventEmitter } from "events";
+import * as vscode from "vscode";
+import { stripAnsi } from "@/hosts/vscode/terminal/ansiUtils";
+import { getLatestTerminalOutput } from "@/hosts/vscode/terminal/get-latest-output";
 import {
 	EXIT_CODE_EVENT_TIMEOUT_MS,
 	isCompilingOutput,
@@ -14,8 +17,7 @@ import {
 	PROCESS_HOT_TIMEOUT_COMPILING,
 	PROCESS_HOT_TIMEOUT_NORMAL,
 	TRUNCATE_KEEP_LINES,
-} from "@/integrations/terminal/constants"
-import type {
+} from "@/integrations/terminal/constants"\nimport type {
 	ITerminalProcess,
 	TerminalCompletionDetails,
 	TerminalProcessEvents,
@@ -32,8 +34,7 @@ type StreamReadOutcome =
 	| { kind: "streamEnd" }
 	| { kind: "executionEnd" }
 	| { kind: "idle" }
-	| { kind: "terminalClosed" }
-
+	| { kind: "terminalClosed" }\n
 /**
  * VscodeTerminalProcess - Manages command execution in VSCode's integrated terminal.
  *
@@ -78,20 +79,18 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 			this.exitCode = terminal.exitStatus.code
 			this.emit("error", new Error("The terminal's shell process has exited; the command was not run."))
 			return
-		}
-
+		}\n
 		// When command does not produce any output, we can assume the shell integration API failed and as a fallback return the current terminal contents
 		const returnCurrentTerminalContents = async () => {
 			try {
-				const terminalSnapshot = await getLatestTerminalOutput()
+				const terminalSnapshot = await getLatestTerminalOutput();
 				if (terminalSnapshot && terminalSnapshot.trim()) {
 					const fallbackMessage = `The command's output could not be captured through shell integration. Here is the current terminal's content, which may include the command's output:\n\n${terminalSnapshot}`
-					this.emit("line", fallbackMessage)
-				}
+					this.emit("line", fallbackMessage)\n				}
 			} catch (error) {
-				Logger.error("Error capturing terminal output:", error)
+				Logger.error("Error capturing terminal output:", error);
 			}
-		}
+		};
 
 		if (terminal.shellIntegration && terminal.shellIntegration.executeCommand) {
 			// Shell integration is available (VS Code 1.93+). The read() stream yields
@@ -131,8 +130,7 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 			const resolveExecutionEnd = Promise.withResolvers<number | undefined>()
 			const endEventDisposable = vscode.window.onDidEndTerminalShellExecution((e) => {
 				if (e.terminal === terminal && e.execution === execution) {
-					resolveExecutionEnd.resolve(e.exitCode)
-				}
+					resolveExecutionEnd.resolve(e.exitCode)\n				}
 			})
 			this.activeEndEventDisposable = endEventDisposable
 
@@ -242,8 +240,7 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 							promptStrength === "strong" ? "prompt_quiet" : receivedAnyData ? "max_quiet_time" : "no_data"
 						break
 					}
-					continue
-				}
+					continue\n				}
 
 				receivedAnyData = true
 				markerlessQuietMs = 0
@@ -252,10 +249,10 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 				// Ctrl+C detection: if user presses Ctrl+C, treat as command terminated
 				if (data.includes("^C") || data.includes("\u0003")) {
 					if (this.hotTimer) {
-						clearTimeout(this.hotTimer)
+						clearTimeout(this.hotTimer);
 					}
-					this.isHot = false
-					break
+					this.isHot = false;
+					break;
 				}
 
 				const { segments } = parser.parse(data)
@@ -275,8 +272,7 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 							inCommandOutput = false
 							if (seg.event.exitCode !== undefined) {
 								this.exitCode = seg.event.exitCode
-							}
-						}
+							}\n						}
 					} else {
 						// Text segment
 						if (inCommandOutput) {
@@ -298,44 +294,45 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 				data = stripAnsi(chunkOutput)
 
 				if (!data) {
-					continue
-				}
+					continue\n				}
 
 				// 2. Set isHot depending on the command
 				// Set to hot to stall API requests until terminal is cool again
-				this.isHot = true
+				this.isHot = true;
 				if (this.hotTimer) {
-					clearTimeout(this.hotTimer)
+					clearTimeout(this.hotTimer);
 				}
 				// these markers indicate the command is some kind of local dev server recompiling the app, which we want to wait for output of before sending request to cline
-				const isCompiling = isCompilingOutput(data)
+				const isCompiling = isCompilingOutput(data);
 				this.hotTimer = setTimeout(
 					() => {
-						this.isHot = false
+						this.isHot = false;
 					},
-					isCompiling ? PROCESS_HOT_TIMEOUT_COMPILING : PROCESS_HOT_TIMEOUT_NORMAL,
-				)
+					isCompiling
+						? PROCESS_HOT_TIMEOUT_COMPILING
+						: PROCESS_HOT_TIMEOUT_NORMAL,
+				);
 
 				// For non-immediately returning commands we want to show loading spinner right away but this wouldn't happen until it emits a line break, so as soon as we get any output we emit "" to let webview know to show spinner
 				// This is only done for the sake of unblocking the UI, in case there may be some time before the command emits a full line
 				if (!didEmitEmptyLine && !this.fullOutput && data) {
-					this.emit("line", "") // empty line to indicate start of command output stream
-					didEmitEmptyLine = true
+					this.emit("line", ""); // empty line to indicate start of command output stream
+					didEmitEmptyLine = true;
 				}
 
-				this.fullOutput += data
+				this.fullOutput += data;
 
 				// Cap fullOutput at MAX_FULL_OUTPUT_SIZE to prevent memory exhaustion
 				if (this.fullOutput.length > MAX_FULL_OUTPUT_SIZE) {
 					// Keep last half of max size
-					this.fullOutput = this.fullOutput.slice(-MAX_FULL_OUTPUT_SIZE / 2)
+					this.fullOutput = this.fullOutput.slice(-MAX_FULL_OUTPUT_SIZE / 2);
 					// Reset lastRetrievedIndex since we truncated the beginning
-					this.lastRetrievedIndex = 0
+					this.lastRetrievedIndex = 0;
 				}
 
 				if (this.isListening) {
-					this.emitIfEol(data)
-					this.lastRetrievedIndex = this.fullOutput.length - this.buffer.length
+					this.emitIfEol(data);
+					this.lastRetrievedIndex = this.fullOutput.length - this.buffer.length;
 				}
 			}
 
@@ -352,8 +349,7 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 				// The iterator does not support early termination.
 			}
 			this.activeIterator = undefined
-			this.emitRemainingBufferIfListening()
-
+			this.emitRemainingBufferIfListening()\n
 			// Await the exit code from onDidEndTerminalShellExecution. Race with a
 			// timeout in case the stream ended but the event never fires —
 			// this happens when shell integration is attached but not reporting
@@ -450,15 +446,14 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 						markerlessCause,
 						terminalClosed: terminalClosed || undefined,
 					},
-				)
-			}
+				)\n			}
 
 			// for now we don't want this delaying requests since we don't send diagnostics automatically anymore (previous: "even though the command is finished, we still want to consider it 'hot' in case so that api request stalls to let diagnostics catch up")
 			// to explain this further, before we would send workspace diagnostics automatically with each request, but now we only send new diagnostics after file edits, so there's no need to wait for a bit after commands run to let diagnostics catch up
 			if (this.hotTimer) {
-				clearTimeout(this.hotTimer)
+				clearTimeout(this.hotTimer);
 			}
-			this.isHot = false
+			this.isHot = false;
 
 			if (terminalClosed) {
 				this.terminalClosedMidCommand = true
@@ -478,19 +473,21 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 				this.markCommandUnobserved("markerlessShellIntegration")
 			}
 			this.emit("completed", this.getCompletionDetails())
-			this.emit("continue")
-		} else {
+			this.emit("continue")\n		} else {
 			// no shell integration detected, we'll fallback to running the command and capturing the terminal's output after some time
-			telemetryService.captureTerminalOutputFailure(TerminalOutputFailureReason.NO_SHELL_INTEGRATION, "vscode")
-			terminal.sendText(command, true)
+			telemetryService.captureTerminalOutputFailure(
+				TerminalOutputFailureReason.NO_SHELL_INTEGRATION,
+				"vscode",
+			);
+			terminal.sendText(command, true);
 
 			// wait 3 seconds for the command to run
-			await new Promise((resolve) => setTimeout(resolve, 3000))
+			await new Promise((resolve) => setTimeout(resolve, 3000));
 
 			// For terminals without shell integration, also try to capture terminal content
-			await returnCurrentTerminalContents()
+			await returnCurrentTerminalContents();
 			// Check if clipboard fallback worked
-			const terminalSnapshot = await getLatestTerminalOutput()
+			const terminalSnapshot = await getLatestTerminalOutput();
 			if (terminalSnapshot && terminalSnapshot.trim()) {
 				telemetryService.captureTerminalExecution(true, "vscode", "clipboard", {
 					terminalExecutionMode: "vscodeTerminal",
@@ -504,33 +501,32 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 			// So we'll just emit the continue event after a delay
 			this.markCommandUnobserved("sendText")
 			this.emit("completed", this.getCompletionDetails())
-			this.emit("continue")
-		}
+			this.emit("continue")\n		}
 	}
 
 	// Inspired by https://github.com/sindresorhus/execa/blob/main/lib/transform/split.js
 	private emitIfEol(chunk: string) {
-		this.buffer += chunk
-		let lineEndIndex: number
+		this.buffer += chunk;
+		let lineEndIndex: number;
 		while ((lineEndIndex = this.buffer.indexOf("\n")) !== -1) {
-			const line = this.buffer.slice(0, lineEndIndex).trimEnd() // removes trailing \r
+			const line = this.buffer.slice(0, lineEndIndex).trimEnd(); // removes trailing \r
 			// Remove \r if present (for Windows-style line endings)
 			// if (line.endsWith("\r")) {
 			// 	line = line.slice(0, -1)
 			// }
-			this.emit("line", line)
-			this.buffer = this.buffer.slice(lineEndIndex + 1)
+			this.emit("line", line);
+			this.buffer = this.buffer.slice(lineEndIndex + 1);
 		}
 	}
 
 	private emitRemainingBufferIfListening() {
 		if (this.buffer && this.isListening) {
-			const remainingBuffer = this.removeLastLineArtifacts(this.buffer)
+			const remainingBuffer = this.removeLastLineArtifacts(this.buffer);
 			if (remainingBuffer) {
-				this.emit("line", remainingBuffer)
+				this.emit("line", remainingBuffer);
 			}
-			this.buffer = ""
-			this.lastRetrievedIndex = this.fullOutput.length
+			this.buffer = "";
+			this.lastRetrievedIndex = this.fullOutput.length;
 		}
 	}
 
@@ -541,8 +537,7 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 		this.emitRemainingBufferIfListening()
 		this.isListening = false
 		this.removeAllListeners("line")
-		this.emit("continue")
-	}
+		this.emit("continue")\n	}
 
 	/**
 	 * Resolve the awaited promise while the command keeps running ("Proceed
@@ -587,19 +582,23 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 	 * @returns The unretrieved output (truncated if necessary)
 	 */
 	getUnretrievedOutput(): string {
-		const unretrieved = this.fullOutput.slice(this.lastRetrievedIndex)
-		this.lastRetrievedIndex = this.fullOutput.length
+		const unretrieved = this.fullOutput.slice(this.lastRetrievedIndex);
+		this.lastRetrievedIndex = this.fullOutput.length;
 
 		// Truncate if too many lines to prevent context overflow
-		const lines = unretrieved.split("\n")
+		const lines = unretrieved.split("\n");
 		if (lines.length > MAX_UNRETRIEVED_LINES) {
-			const first = lines.slice(0, TRUNCATE_KEEP_LINES)
-			const last = lines.slice(-TRUNCATE_KEEP_LINES)
-			const skipped = lines.length - first.length - last.length
-			return this.removeLastLineArtifacts([...first, `\n... (${skipped} lines truncated) ...\n`, ...last].join("\n"))
+			const first = lines.slice(0, TRUNCATE_KEEP_LINES);
+			const last = lines.slice(-TRUNCATE_KEEP_LINES);
+			const skipped = lines.length - first.length - last.length;
+			return this.removeLastLineArtifacts(
+				[...first, `\n... (${skipped} lines truncated) ...\n`, ...last].join(
+					"\n",
+				),
+			);
 		}
 
-		return this.removeLastLineArtifacts(unretrieved)
+		return this.removeLastLineArtifacts(unretrieved);
 	}
 
 	getCompletionDetails(): TerminalCompletionDetails {
@@ -608,35 +607,42 @@ export class VscodeTerminalProcess extends EventEmitter<TerminalProcessEvents> i
 			signal: this.signal,
 			terminalClosed: this.terminalClosedMidCommand,
 			unobservedCommand: this.unobservedCommand,
-		}
-	}
+		}\n	}
 
 	// some processing to remove artifacts like '%' at the end of the buffer (it seems that since vsode uses % at the beginning of newlines in terminal, it makes its way into the stream)
 	// This modification will remove '%', '$', '#', or '>' followed by optional whitespace
 	removeLastLineArtifacts(output: string) {
-		const lines = output.trimEnd().split("\n")
+		const lines = output.trimEnd().split("\n");
 		if (lines.length > 0) {
-			const lastLine = lines[lines.length - 1]
+			const lastLine = lines[lines.length - 1];
 			// Remove prompt characters and trailing whitespace from the last line
-			lines[lines.length - 1] = lastLine.replace(/[%$#>]\s*$/, "")
+			lines[lines.length - 1] = lastLine.replace(/[%$#>]\s*$/, "");
 		}
-		return lines.join("\n").trimEnd()
+		return lines.join("\n").trimEnd();
 	}
 }
 
-export type TerminalProcessResultPromise = VscodeTerminalProcess & Promise<void>
+export type TerminalProcessResultPromise = VscodeTerminalProcess &
+	Promise<void>;
 
 // Similar to execa's ResultPromise, this lets us create a mixin of both a TerminalProcess and a Promise: https://github.com/sindresorhus/execa/blob/main/lib/methods/promise.js
-export function mergePromise(process: VscodeTerminalProcess, promise: Promise<void>): TerminalProcessResultPromise {
-	const nativePromisePrototype = (async () => {})().constructor.prototype
+export function mergePromise(
+	process: VscodeTerminalProcess,
+	promise: Promise<void>,
+): TerminalProcessResultPromise {
+	const nativePromisePrototype = (async () => {})().constructor.prototype;
 	const descriptors = ["then", "catch", "finally"].map(
-		(property) => [property, Reflect.getOwnPropertyDescriptor(nativePromisePrototype, property)] as const,
-	)
+		(property) =>
+			[
+				property,
+				Reflect.getOwnPropertyDescriptor(nativePromisePrototype, property),
+			] as const,
+	);
 	for (const [property, descriptor] of descriptors) {
 		if (descriptor) {
-			const value = descriptor.value.bind(promise)
-			Reflect.defineProperty(process, property, { ...descriptor, value })
+			const value = descriptor.value.bind(promise);
+			Reflect.defineProperty(process, property, { ...descriptor, value });
 		}
 	}
-	return process as TerminalProcessResultPromise
+	return process as TerminalProcessResultPromise;
 }

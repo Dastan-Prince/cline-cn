@@ -371,7 +371,8 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	}, [queuedPromptCount, taskTs, scrollToBottomSmooth, scrollToBottomAuto, disableAutoScrollRef])
 
 	const placeholderText = useMemo(() => {
-		const text = task ? "Type a message..." : "Type your task here..."
+		// const text = task ? "Type a message..." : "Type your task here..."
+		const text = task ? "输入信息..." : "输入你的任务..."
 		return text
 	}, [task])
 

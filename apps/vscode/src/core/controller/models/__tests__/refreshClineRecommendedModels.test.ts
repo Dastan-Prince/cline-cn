@@ -7,8 +7,7 @@ import { refreshClineRecommendedModels, resetClineRecommendedModelsCacheForTests
 // (`@cline/core` `fetchClineRecommendedModels`). These tests cover the
 // extension-side wrapper: delegation to the SDK and in-memory caching. There is
 // intentionally no feature-flag gate here; onboarding must not race against the
-// remote-config cache and accidentally keep the hardcoded fallback list.
-
+// remote-config cache and accidentally keep the hardcoded fallback list.\n
 describe("refreshClineRecommendedModels", () => {
 	beforeEach(() => {
 		resetClineRecommendedModelsCacheForTests()
@@ -30,9 +29,8 @@ describe("refreshClineRecommendedModels", () => {
 			free: [{ id: "cline-free/glm-5", name: "GLM 5", description: "Remote free", tags: [] }],
 			clinePass: [],
 		}
-		const sdkSpy = vi.spyOn(sdkCore, "fetchClineRecommendedModels").mockResolvedValue(sdkResult)
-
-		const result = await refreshClineRecommendedModels()
+		const sdkSpy = vi.spyOn(sdkCore, "fetchClineRecommendedModels").mockResolvedValue(sdkResult)\n
+		const result = await refreshClineRecommendedModels();
 
 		expect(sdkSpy).toHaveBeenCalledTimes(1)
 		expect(result).toEqual(sdkResult)
@@ -64,13 +62,12 @@ describe("refreshClineRecommendedModels", () => {
 				],
 				free: [],
 				clinePass: [],
-			})
-
-		const firstResult = await refreshClineRecommendedModels()
-		const secondResult = await refreshClineRecommendedModels()
+			})\n
+		const firstResult = await refreshClineRecommendedModels();
+		const secondResult = await refreshClineRecommendedModels();
 
 		expect(sdkSpy).toHaveBeenCalledTimes(2)
 		expect(firstResult).toEqual(sdkCore.FALLBACK_CLINE_RECOMMENDED_MODELS)
 		expect(secondResult).not.toEqual(sdkCore.FALLBACK_CLINE_RECOMMENDED_MODELS)
 	})
-})
+})\n

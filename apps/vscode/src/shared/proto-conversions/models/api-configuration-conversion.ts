@@ -247,8 +247,7 @@ function convertProtoToOpenAiCompatibleModelInfo(
 // spelling (`openai`) so they never leak into stored state, where every
 // provider-keyed code path expects the legacy id.
 export function convertProtoToApiProvider(provider: string | undefined): ApiProvider {
-	return toLegacyApiProvider(provider || "anthropic")
-}
+	return toLegacyApiProvider(provider || "anthropic")\n}
 
 // Converts application ApiConfiguration to proto ApiConfiguration
 export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoApiConfiguration {
@@ -326,6 +325,14 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		huaweiCloudMaasApiKey: config.huaweiCloudMaasApiKey,
 		zaiApiLine: config.zaiApiLine,
 		zaiApiKey: config.zaiApiKey,
+		xiaomiApiKey: config.xiaomiApiKey,
+		mimoTokenPlanApiKey: config.mimoTokenPlanApiKey,
+		xiaomiAthrapiKey: config.xiaomiAthrapiKey,
+		mimoTpAthrapiKey: config.mimoTpAthrapiKey,
+		zhipuAthrapiKey: config.zhipuAthrapiKey,
+		dotsStudioAthrapiKey: config.dotsStudioAthrapiKey,
+		anthropicCompApiKey: config.anthropicCompApiKey,
+		anthropicCompBaseUrl: config.anthropicCompBaseUrl,
 		difyApiKey: config.difyApiKey,
 		difyBaseUrl: config.difyBaseUrl,
 		ocaBaseUrl: config.ocaBaseUrl,
@@ -385,6 +392,8 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		planModeNousResearchModelId: config.planModeNousResearchModelId,
 		planModeVercelAiGatewayModelId: config.planModeVercelAiGatewayModelId,
 		planModeVercelAiGatewayModelInfo: convertModelInfoToProtoOpenRouter(config.planModeVercelAiGatewayModelInfo),
+		planModeAnthropicCompModelId: config.planModeAnthropicCompModelId,
+		planModeAnthropicCompModelInfo: convertModelInfoToProtoOpenRouter(config.planModeAnthropicCompModelInfo),
 
 		// Act mode configurations
 		actModeApiProvider: config.actModeApiProvider,
@@ -431,6 +440,8 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		actModeNousResearchModelId: config.actModeNousResearchModelId,
 		actModeVercelAiGatewayModelId: config.actModeVercelAiGatewayModelId,
 		actModeVercelAiGatewayModelInfo: convertModelInfoToProtoOpenRouter(config.actModeVercelAiGatewayModelInfo),
+		actModeAnthropicCompModelId: config.actModeAnthropicCompModelId,
+		actModeAnthropicCompModelInfo: convertModelInfoToProtoOpenRouter(config.actModeAnthropicCompModelInfo),
 	}
 }
 
@@ -510,6 +521,14 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		huaweiCloudMaasApiKey: protoConfig.huaweiCloudMaasApiKey,
 		zaiApiLine: protoConfig.zaiApiLine,
 		zaiApiKey: protoConfig.zaiApiKey,
+		xiaomiApiKey: protoConfig.xiaomiApiKey,
+		mimoTokenPlanApiKey: protoConfig.mimoTokenPlanApiKey,
+		xiaomiAthrapiKey: protoConfig.xiaomiAthrapiKey,
+		mimoTpAthrapiKey: protoConfig.mimoTpAthrapiKey,
+		zhipuAthrapiKey: protoConfig.zhipuAthrapiKey,
+		dotsStudioAthrapiKey: protoConfig.dotsStudioAthrapiKey,
+		anthropicCompApiKey: protoConfig.anthropicCompApiKey,
+		anthropicCompBaseUrl: protoConfig.anthropicCompBaseUrl,
 		difyApiKey: protoConfig.difyApiKey,
 		difyBaseUrl: protoConfig.difyBaseUrl,
 		ocaBaseUrl: protoConfig.ocaBaseUrl,
@@ -572,6 +591,8 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		planModeNousResearchModelId: protoConfig.planModeNousResearchModelId,
 		planModeVercelAiGatewayModelId: protoConfig.planModeVercelAiGatewayModelId,
 		planModeVercelAiGatewayModelInfo: convertProtoToModelInfo(protoConfig.planModeVercelAiGatewayModelInfo),
+		planModeAnthropicCompModelId: protoConfig.planModeAnthropicCompModelId,
+		planModeAnthropicCompModelInfo: convertProtoToModelInfo(protoConfig.planModeAnthropicCompModelInfo),
 
 		// Act mode configurations
 		actModeApiProvider:
@@ -619,5 +640,7 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		actModeNousResearchModelId: protoConfig.actModeNousResearchModelId,
 		actModeVercelAiGatewayModelId: protoConfig.actModeVercelAiGatewayModelId,
 		actModeVercelAiGatewayModelInfo: convertProtoToModelInfo(protoConfig.actModeVercelAiGatewayModelInfo),
+		actModeAnthropicCompModelId: protoConfig.actModeAnthropicCompModelId,
+		actModeAnthropicCompModelInfo: convertProtoToModelInfo(protoConfig.actModeAnthropicCompModelInfo),
 	}
 }

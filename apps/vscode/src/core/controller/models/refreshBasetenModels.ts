@@ -1,6 +1,5 @@
 import type { ModelInfo } from "@shared/api"
-import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"
-
+import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"\n
 /**
  * Refreshes the Baseten models and returns application types.
  *
@@ -10,5 +9,4 @@ import { type ProviderCatalogController, resolveProviderModelsRecord } from "./p
  * the CLI uses.
  */
 export async function refreshBasetenModels(controller: ProviderCatalogController): Promise<Record<string, ModelInfo>> {
-	return resolveProviderModelsRecord(controller, "baseten")
-}
+	return resolveProviderModelsRecord(controller, "baseten")\n}

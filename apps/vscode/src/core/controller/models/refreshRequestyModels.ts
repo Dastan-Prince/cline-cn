@@ -1,8 +1,7 @@
 import { EmptyRequest } from "@shared/proto/cline/common"
 import { OpenRouterCompatibleModelInfo } from "@shared/proto/cline/models"
 import { toProtobufModels } from "@/shared/proto-conversions/models/typeConversion"
-import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"
-
+import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"\n
 /**
  * Refreshes the Requesty models and returns the updated model list.
  *
@@ -15,5 +14,4 @@ export async function refreshRequestyModels(
 	_request: EmptyRequest,
 ): Promise<OpenRouterCompatibleModelInfo> {
 	const models = await resolveProviderModelsRecord(controller, "requesty")
-	return OpenRouterCompatibleModelInfo.create({ models: toProtobufModels(models) })
-}
+	return OpenRouterCompatibleModelInfo.create({ models: toProtobufModels(models) })\n}

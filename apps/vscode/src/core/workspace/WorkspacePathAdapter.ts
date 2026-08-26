@@ -89,7 +89,7 @@ export class WorkspacePathAdapter {
 	 * Gets all possible paths for a relative path across all workspaces
 	 * Useful for search operations or when checking if a file exists in any workspace
 	 *
-	 * @param relativePath - The relative path to resolve
+	 * @param relativePath - The relative path to resolve (can be relative or absolute)
 	 * @returns Array of absolute paths, one for each workspace
 	 */
 	getAllPossiblePaths(relativePath: string): string[] {
@@ -98,7 +98,14 @@ export class WorkspacePathAdapter {
 			return [resolveWorkspacePath(this.config.cwd, relativePath, "WorkspacePathAdapter-getAllPaths") as string]
 		}
 
-		// Multi-root mode
+		// If the path is already absolute, return it directly without joining
+		// This prevents path duplication when LLMs provide absolute paths
+		if (path.isAbsolute(relativePath)) {
+			Logger.debug(`[WorkspacePathAdapter] Path is absolute, returning as-is: ${relativePath}`)
+			return [relativePath]
+		}
+
+		// Multi-root mode - join relative path with each workspace root
 		const manager = this.config.workspaceManager as WorkspaceRootManager
 		return manager.getRoots().map((root) => path.join(root.path, relativePath))
 	}

@@ -1,7 +1,7 @@
-import { Empty } from "@shared/proto/cline/common"
-import { TaskFavoriteRequest } from "@shared/proto/cline/task"
-import { Logger } from "@/shared/services/Logger"
-import { Controller } from "../"
+import { Empty } from "@shared/proto/cline/common";
+import { TaskFavoriteRequest } from "@shared/proto/cline/task";
+import { Logger } from "@/shared/services/Logger";
+import { Controller } from "../";
 
 export async function toggleTaskFavorite(controller: Controller, request: TaskFavoriteRequest): Promise<Empty> {
 	if (!request.taskId) {
@@ -15,5 +15,4 @@ export async function toggleTaskFavorite(controller: Controller, request: TaskFa
 	} catch (error) {
 		Logger.error("Error in toggleTaskFavorite:", error)
 		throw error
-	}
-}
+	}\n}

@@ -10,15 +10,17 @@ import { refreshBasetenModels } from "../models/refreshBasetenModels"
 import { refreshGroqModels } from "../models/refreshGroqModels"
 import { refreshHicapModels } from "../models/refreshHicapModels"
 import { refreshLiteLlmModels } from "../models/refreshLiteLlmModels"
-import { refreshOpenRouterModels } from "../models/refreshOpenRouterModels"
-
+import { refreshOpenRouterModels } from "../models/refreshOpenRouterModels"\n
 /**
  * Initialize webview when it launches
  * @param controller The controller instance
  * @param request The empty request
  * @returns Empty response
  */
-export async function initializeWebview(controller: Controller, _request: EmptyRequest): Promise<Empty> {
+export async function initializeWebview(
+	controller: Controller,
+	_request: EmptyRequest,
+): Promise<Empty> {
 	try {
 		// Sync workflow toggles with the files on disk so the chat input's slash
 		// command menu knows about workflows without requiring the user to open
@@ -195,8 +197,7 @@ export async function initializeWebview(controller: Controller, _request: EmptyR
 
 						// Update plan mode model info if we have a model ID
 						if (planModelId && response.models[planModelId]) {
-							updates.planModeHicapModelInfo = response.models[planModelId]
-						}
+							updates.planModeHicapModelInfo = response.models[planModelId]\n						}
 
 						// Update act mode model info if we have a model ID
 						if (actModelId && response.models[actModelId]) {
@@ -211,30 +212,28 @@ export async function initializeWebview(controller: Controller, _request: EmptyR
 					}
 				}
 			})
-			.catch((error) => Logger.warn("Failed to refresh Hicap models on webview launch:", error))
-
-		const liteLlmBaseUrl = controller.stateManager.getGlobalSettingsKey("liteLlmBaseUrl")
-		const liteLlmApiKey = controller.stateManager.getSecretKey("liteLlmApiKey")
+			.catch((error) => Logger.warn("Failed to refresh Hicap models on webview launch:", error))\n
+		const liteLlmBaseUrl =
+			controller.stateManager.getGlobalSettingsKey("liteLlmBaseUrl");
+		const liteLlmApiKey = controller.stateManager.getSecretKey("liteLlmApiKey");
 		if (liteLlmBaseUrl && liteLlmApiKey) {
-			await refreshLiteLlmModels(controller)
-		}
+			await refreshLiteLlmModels(controller)\n		}
 
 		// GUI relies on model info to be up-to-date to provide the most accurate pricing, so we need to fetch the latest details on launch.
 		// We do this for all users since many users switch between api providers and if they were to switch back to openrouter it would be showing outdated model info if we hadn't retrieved the latest at this point
 		// (see normalizeApiConfiguration > openrouter)
-		// Prefetch OpenRouter models
-
+		// Prefetch OpenRouter models\n
 		// Initialize telemetry service with user's current setting
 		controller.getStateToPostToWebview().then((state) => {
-			const { telemetrySetting } = state
-			const isOptedIn = telemetrySetting !== "disabled"
-			telemetryService.updateTelemetryState(isOptedIn)
-		})
+			const { telemetrySetting } = state;
+			const isOptedIn = telemetrySetting !== "disabled";
+			telemetryService.updateTelemetryState(isOptedIn);
+		});
 
-		return Empty.create({})
+		return Empty.create({});
 	} catch (error) {
-		Logger.error("Failed to initialize webview:", error)
+		Logger.error("Failed to initialize webview:", error);
 		// Return empty response even on error to not break the frontend
-		return Empty.create({})
+		return Empty.create({});
 	}
 }

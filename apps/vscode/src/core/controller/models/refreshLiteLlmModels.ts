@@ -3,8 +3,7 @@ import { OpenRouterCompatibleModelInfo } from "@shared/proto/cline/models"
 import { toProtobufModels } from "@/shared/proto-conversions/models/typeConversion"
 import { Logger } from "@/shared/services/Logger"
 import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"
-import { sendLiteLlmModelsEvent } from "./subscribeToLiteLlmModels"
-
+import { sendLiteLlmModelsEvent } from "./subscribeToLiteLlmModels"\n
 /**
  * Core function: Refreshes the LiteLLM models and returns application types
  * @param controller The controller instance
@@ -27,9 +26,8 @@ export async function refreshLiteLlmModels(controller: ProviderCatalogController
 			Logger.error("Error sending LiteLLM models event:", error)
 		}
 
-		return models
-	} catch (error) {
-		Logger.error("Error fetching LiteLLM models:", error)
-		throw error
+		return models\n	} catch (error) {
+		Logger.error("Error fetching LiteLLM models:", error);
+		throw error;
 	}
 }

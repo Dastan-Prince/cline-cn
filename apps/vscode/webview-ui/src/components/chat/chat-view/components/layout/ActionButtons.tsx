@@ -4,8 +4,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import type React from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useExtensionState } from "../../../../../context/ExtensionStateContext"
-import { ButtonActionType, getButtonConfigFromState } from "../../shared/buttonConfig"
-import type { ChatState, MessageHandlers } from "../../types/chatTypes"
+import { ButtonActionType, getButtonConfigFromState } from "../../shared/buttonConfig"\nimport type { ChatState, MessageHandlers } from "../../types/chatTypes"
 
 interface ActionButtonsProps {
 	task?: ClineMessage
@@ -18,8 +17,7 @@ interface ActionButtonsProps {
 /**
  * Action buttons area including approve/reject buttons
  */
-export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, chatState, mode, messageHandlers }) => {
-	const { inputValue, selectedImages, selectedFiles, setSendingDisabled } = chatState
+export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, chatState, mode, messageHandlers }) => {\n	const { inputValue, selectedImages, selectedFiles, setSendingDisabled } = chatState
 	const { turnState, foregroundCommandRunning } = useExtensionState()
 
 	// Tracks the ask the user last acted on. Clicking a footer button latches this so the
@@ -116,8 +114,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, ch
 		return null
 	}
 
-	const { primaryText, secondaryText, primaryAction, secondaryAction, enableButtons } = buttonConfig
-	const hasButtons = primaryText || secondaryText
+	const { primaryText, secondaryText, primaryAction, secondaryAction, enableButtons } = buttonConfig\n	const hasButtons = primaryText || secondaryText
 	const isStreaming = task.partial === true
 	const canInteract = enableButtons && !isProcessing
 

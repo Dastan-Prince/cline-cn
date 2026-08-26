@@ -22,13 +22,12 @@ export const ACTION_METADATA: ActionMetadata[] = [
 	{
 		id: "useBrowser",
 		label: "Fetch web content",
-		shortName: "Web Fetch",
-		icon: "codicon-globe",
+		shortName: "Web Fetch",\n		icon: "codicon-globe",
 	},
 	{
 		id: "useMcp",
-		label: "Use MCP servers",
-		shortName: "MCP",
+		label: "autoApprove.actions.useMcpServers",
+		shortName: "autoApprove.actions.shortNames.useMcp",
 		icon: "codicon-server",
 	},
 ]

@@ -1,6 +1,5 @@
 import type { ModelInfo } from "@shared/api"
-import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"
-
+import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"\n
 /**
  * Refreshes the Groq models and returns application types.
  *
@@ -9,5 +8,4 @@ import { type ProviderCatalogController, resolveProviderModelsRecord } from "./p
  * `resolveProviderConfig`, the same source the CLI uses.
  */
 export async function refreshGroqModels(controller: ProviderCatalogController): Promise<Record<string, ModelInfo>> {
-	return resolveProviderModelsRecord(controller, "groq")
-}
+	return resolveProviderModelsRecord(controller, "groq")\n}

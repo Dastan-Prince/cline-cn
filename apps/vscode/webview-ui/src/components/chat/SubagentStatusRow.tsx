@@ -16,6 +16,7 @@ import {
 	NetworkIcon,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import MarkdownBlock from "../common/MarkdownBlock"
 
 interface SubagentStatusRowProps {
@@ -120,6 +121,7 @@ function parseSubagentRowData(message: ClineMessage): SubagentRowData | null {
 }
 
 function SubagentPromptText({ prompt, isExpanded, onShowMore }: SubagentPromptTextProps) {
+	const { t } = useTranslation()
 	const promptRef = useRef<HTMLDivElement | null>(null)
 	const [showMoreVisible, setShowMoreVisible] = useState(false)
 
@@ -170,7 +172,7 @@ function SubagentPromptText({ prompt, isExpanded, onShowMore }: SubagentPromptTe
 						className="pointer-events-none absolute inset-y-0 -left-[6px] w-[6px]"
 						style={{ background: "linear-gradient(to left, var(--vscode-editor-background), transparent)" }}
 					/>
-					Show more
+					{t("common.showMore")}
 				</button>
 			)}
 		</div>
@@ -178,12 +180,13 @@ function SubagentPromptText({ prompt, isExpanded, onShowMore }: SubagentPromptTe
 }
 
 export default function SubagentStatusRow({ message, isLast, lastModifiedMessage }: SubagentStatusRowProps) {
+	const { t } = useTranslation()
 	const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({})
 	const [expandedPrompts, setExpandedPrompts] = useState<Record<number, boolean>>({})
 	const data = useMemo(() => parseSubagentRowData(message), [message])
 
 	if (!data) {
-		return <div className="text-foreground opacity-80">Subagent status update unavailable.</div>
+		return <div className="text-foreground opacity-80">{t("subagent.statusUnavailable")}</div>
 	}
 
 	const resumedBeforeNextVisibleMessage =
@@ -197,7 +200,7 @@ export default function SubagentStatusRow({ message, isLast, lastModifiedMessage
 			resumedBeforeNextVisibleMessage)
 
 	const singular = data.items.length === 1
-	const title = singular ? "Cline wants to use a subagent:" : "Cline wants to use subagents:"
+	const title = singular ? t("subagent.wantsToUseSingular") : t("subagent.wantsToUsePlural")
 	const isPromptConstructionRow = message.ask === "use_subagents" || message.say === "use_subagents"
 	const toggleItem = (index: number) => {
 		setExpandedItems((prev) => ({
@@ -262,7 +265,7 @@ export default function SubagentStatusRow({ message, isLast, lastModifiedMessage
 									) : (
 										<ChevronRightIcon className="size-2 shrink-0" />
 									)}
-									<span className="shrink-0">{isExpanded ? "Hide output" : "Show output"}</span>
+									<span className="shrink-0">{isExpanded ? t("subagent.hideOutput") : t("subagent.showOutput")}</span>
 								</button>
 							)}
 							{shouldShowStats && !hasDetails && latestToolCallText && (

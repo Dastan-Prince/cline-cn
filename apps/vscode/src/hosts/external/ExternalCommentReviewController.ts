@@ -1,5 +1,4 @@
-import { CommentReviewController, type ReviewComment } from "@/integrations/editor/CommentReviewController"
-
+import { CommentReviewController, type ReviewComment } from "@/integrations/editor/CommentReviewController"\n
 /**
  * External (non-VS Code) implementation of CommentReviewController.
  *
@@ -47,7 +46,7 @@ export class ExternalCommentReviewController extends CommentReviewController {
 	}
 
 	getThreadCount(): number {
-		return 0
+		return 0;
 	}
 
 	async closeDiffViews(): Promise<void> {

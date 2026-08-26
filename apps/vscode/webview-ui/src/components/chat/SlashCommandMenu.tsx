@@ -1,5 +1,6 @@
 import type { McpServer } from "@shared/mcp"
 import React, { useCallback, useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import ScreenReaderAnnounce from "@/components/common/ScreenReaderAnnounce"
 import { useMenuAnnouncement } from "@/hooks/useMenuAnnouncement"
 import type { SlashCommand } from "@/utils/slash-commands"
@@ -30,6 +31,7 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
 	remoteWorkflows,
 	mcpServers = [],
 }) => {
+	const { t } = useTranslation()
 	const menuRef = useRef<HTMLDivElement>(null)
 
 	// Filter commands based on query
@@ -145,11 +147,10 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
 					<>
 						{renderCommandSection(defaultCommands, "Default Commands", 0, true)}
 						{renderCommandSection(workflowCommands, "Workflow Commands", defaultCommands.length, false)}
-						{renderCommandSection(mcpCommands, "MCP Prompts", defaultCommands.length + workflowCommands.length, true)}
-					</>
+						{renderCommandSection(mcpCommands, "MCP Prompts", defaultCommands.length + workflowCommands.length, true)}\n					</>
 				) : (
 					<div aria-selected="false" className="py-2 px-3 cursor-default flex flex-col" role="option">
-						<div className="text-[0.85em] text-(--vscode-descriptionForeground)">No matching commands found</div>
+						<div className="text-[0.85em] text-(--vscode-descriptionForeground)">{t("slashCommand.noMatchingCommands")}</div>
 					</div>
 				)}
 			</div>

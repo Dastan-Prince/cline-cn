@@ -11,8 +11,7 @@ const gitUtilsMock = () => ({ ...actualGitUtils, getGitDiff: getGitDiffStub })
 mock.module("@/utils/git", gitUtilsMock)
 mock.module("@utils/git", gitUtilsMock)
 
-import { getGitDiffStagedFirst } from "../commit-message-generator"
-
+import { getGitDiffStagedFirst } from "../commit-message-generator"\n
 describe("commit-message-generator", () => {
 	describe("getGitDiffStagedFirst", () => {
 		beforeEach(() => {
@@ -26,38 +25,35 @@ describe("commit-message-generator", () => {
 
 		it("should return staged changes when they exist", async () => {
 			const stub = getGitDiffStub
-			stub.withArgs("/repo", true).resolves("staged diff content")
-
-			const result = await getGitDiffStagedFirst("/repo")
-			result.should.equal("staged diff content")
-			stub.calledOnceWith("/repo", true).should.be.true()
-		})
+			stub.withArgs("/repo", true).resolves("staged diff content")\n
+			const result = await getGitDiffStagedFirst("/repo");
+			result.should.equal("staged diff content");
+			stub.calledOnceWith("/repo", true).should.be.true();
+		});
 
 		it("should fall back to all changes when no staged changes exist", async () => {
 			const stub = getGitDiffStub
 			stub.withArgs("/repo", true).rejects(new Error("No changes in workspace for commit message"))
-			stub.withArgs("/repo", false).resolves("all diff content")
-
-			const result = await getGitDiffStagedFirst("/repo")
-			result.should.equal("all diff content")
-			stub.calledTwice.should.be.true()
-			stub.firstCall.args.should.deepEqual(["/repo", true])
-			stub.secondCall.args.should.deepEqual(["/repo", false])
-		})
+			stub.withArgs("/repo", false).resolves("all diff content")\n
+			const result = await getGitDiffStagedFirst("/repo");
+			result.should.equal("all diff content");
+			stub.calledTwice.should.be.true();
+			stub.firstCall.args.should.deepEqual(["/repo", true]);
+			stub.secondCall.args.should.deepEqual(["/repo", false]);
+		});
 
 		it("should propagate error when both staged and all changes fail", async () => {
 			const stub = getGitDiffStub
 			stub.withArgs("/repo", true).rejects(new Error("No changes"))
-			stub.withArgs("/repo", false).rejects(new Error("No changes in workspace for commit message"))
-
-			let error: Error | undefined
+			stub.withArgs("/repo", false).rejects(new Error("No changes in workspace for commit message"))\n
+			let error: Error | undefined;
 			try {
-				await getGitDiffStagedFirst("/repo")
+				await getGitDiffStagedFirst("/repo");
 			} catch (e) {
-				error = e as Error
+				error = e as Error;
 			}
-			;(error !== undefined).should.be.true()
-			error!.message.should.equal("No changes in workspace for commit message")
-		})
-	})
-})
+			(error !== undefined).should.be.true();
+			error!.message.should.equal("No changes in workspace for commit message");
+		});
+	});
+});
