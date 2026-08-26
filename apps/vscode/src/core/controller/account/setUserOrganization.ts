@@ -18,7 +18,8 @@ export async function setUserOrganization(
 		// Switch to the specified organization using the account service
 		await controller.accountService.switchAccount(request.organizationId)
 		await controller.refreshRemoteConfig()
-		return {}\n	} catch (error) {
+		return {}
+	} catch (error) {
 		throw error;
 	}
 }

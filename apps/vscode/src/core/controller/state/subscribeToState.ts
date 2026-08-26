@@ -87,7 +87,8 @@ export async function sendStateUpdate(state: ExtensionState): Promise<void> {
 			Logger.error("Error sending state update:", error)
 			activeStateSubscriptions.delete(responseStream)
 		})
-	}\n}
+	}
+}
 
 function recordStateSizeTelemetry(sizeBytes: number): void {
 	telemetryService.captureGrpcResponseSize(

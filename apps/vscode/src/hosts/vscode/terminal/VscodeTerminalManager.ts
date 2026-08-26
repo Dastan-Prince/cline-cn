@@ -437,7 +437,8 @@ export class VscodeTerminalManager {
 					if (!didHandOffReservation) {
 						availableTerminal.busy = false
 					}
-				}\n			}
+				}
+			}
 		}
 
 		// If all terminals are busy or don't match shell profile, create a new one with the configured shell

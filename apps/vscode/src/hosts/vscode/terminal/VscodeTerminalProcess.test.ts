@@ -6,7 +6,8 @@ import * as sinon from "sinon"
 import * as vscode from "vscode"
 import { VscodeTerminalProcess } from "./VscodeTerminalProcess"
 import { TerminalRegistry } from "./VscodeTerminalRegistry"
-\n// Create a mock stream for simulating terminal output - this is only used for tests
+
+// Create a mock stream for simulating terminal output - this is only used for tests
 // that need controlled output which can't be guaranteed with real terminals
 function createMockStream(
 	lines: string[] = ["test-command", "line1", "line2", "line3"],

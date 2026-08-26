@@ -10,20 +10,18 @@ import { telemetryService } from "../../../services/telemetry"
 import { Controller } from ".."
 import { accountLogoutClicked } from "../account/accountLogoutClicked"
 import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "../models/taskApiModel"
-import { normalizeOpenaiReasoningEffort } from "./reasoningEffort"\n
+import { normalizeOpenaiReasoningEffort } from "./reasoningEffort"
+
 /**
  * Updates multiple extension settings in a single request
  * @param controller The controller instance
  * @param request The request containing the settings to update
  * @returns An empty response
  */
-export async function updateSettingsCli(
-	controller: Controller,
-	request: UpdateSettingsRequestCli,
-): Promise<Empty> {
+export async function updateSettingsCli(controller: Controller, request: UpdateSettingsRequestCli): Promise<Empty> {
 	const convertPlanActMode = (mode: PlanActMode): Mode => {
-		return mode === PlanActMode.PLAN ? "plan" : "act";
-	};
+		return mode === PlanActMode.PLAN ? "plan" : "act"
+	}
 
 	if (request.environment !== undefined) {
 		ClineEnv.setEnvironment(request.environment)
@@ -115,7 +113,8 @@ export async function updateSettingsCli(
 		// Update telemetry setting
 		if (telemetrySetting) {
 			await controller.updateTelemetrySetting(telemetrySetting as TelemetrySetting)
-		}\n
+		}
+
 		// Update auto-condense setting (requires telemetry)
 		if (useAutoCondense !== undefined) {
 			if (controller.task) {
@@ -123,7 +122,8 @@ export async function updateSettingsCli(
 					controller.task.ulid,
 					useAutoCondense,
 					controller.task.api.getModel().id,
-				)\n			}
+				)
+			}
 			controller.stateManager.setGlobalState("useAutoCondense", useAutoCondense)
 		}
 
@@ -182,14 +182,16 @@ export async function updateSettingsCli(
 			// is needed: the run_commands tool re-reads the profile each time a
 			// model request is built, so the description and execution both pick
 			// up the new shell at the next request boundary.
-			controller.terminalManager?.setDefaultTerminalProfile(defaultTerminalProfile)\n		}
+			controller.terminalManager?.setDefaultTerminalProfile(defaultTerminalProfile)
+		}
 	}
 
 	// Handle secrets updates
 	if (request.secrets) {
 		const filteredSecrets = Object.fromEntries(Object.entries(request.secrets).filter(([_, value]) => value !== undefined))
 
-		controller.stateManager.setSecretsBatch(filteredSecrets)\n	}
+		controller.stateManager.setSecretsBatch(filteredSecrets)
+	}
 
 	// Post updated state to webview
 	await controller.postStateToWebview()

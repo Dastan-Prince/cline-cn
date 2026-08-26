@@ -81,7 +81,7 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 			modelId,
 			modelInfo,
 		}).catch((err) => console.error("Failed to commit Z AI model selection:", err))
-	}\n
+	}
 	return (
 		<div>
 			<DropdownContainer className="dropdown-container" style={{ position: "inherit" }}>
@@ -114,7 +114,8 @@ export const ZAiProvider = ({ showModelOptions, isPopup, currentMode }: ZAiProvi
 				onChange={handleApiKeyChange}
 				providerName="Z AI"
 				signupUrl={
-					selectedEntrypoint === "china"\n						? "https://open.bigmodel.cn/console/overview"
+					selectedEntrypoint === "china"
+						? "https://open.bigmodel.cn/console/overview"
 						: "https://z.ai/manage-apikey/apikey-list"
 				}
 			/>

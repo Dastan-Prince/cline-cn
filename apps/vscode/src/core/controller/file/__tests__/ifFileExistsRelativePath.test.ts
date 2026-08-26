@@ -18,7 +18,8 @@ import { ifFileExistsRelativePath } from "../ifFileExistsRelativePath"
 describe("ifFileExistsRelativePath", () => {
 	let mockController: Controller
 
-	beforeEach(() => {\n		// Create a mock controller
+	beforeEach(() => {
+		// Create a mock controller
 		mockController = {} as any;
 
 		// Reset the module-level getWorkspacePath stub

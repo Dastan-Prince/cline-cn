@@ -50,8 +50,14 @@ export type ApiProvider =
 	| "nousResearch"
 	| "wandb"
 	| "xiaomi"
+	| "mimo-tp"
+	| "xiaomi-athrapi"
+	| "mimo-tp-athrapi"
+	| "zhipu-athrapi"
+	| "dots-studio-athrapi"
+	| "anthropic-comp"
 	| "tencent-tokenhub"
-	| "chutes"\n
+	| "chutes"
 export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider
 
 export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {

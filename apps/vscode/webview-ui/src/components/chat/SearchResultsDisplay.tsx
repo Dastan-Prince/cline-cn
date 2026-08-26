@@ -20,7 +20,8 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
 }) => {
 	const safeContent = content ?? ""
 	const safePath = path ?? ""
-\n	const parsedData = useMemo(() => {
+
+	const parsedData = useMemo(() => {
 		// Check if this is a multi-workspace result
 		const multiWorkspaceMatch = safeContent.match(/^Found \d+ results? across \d+ workspaces?\./m)
 

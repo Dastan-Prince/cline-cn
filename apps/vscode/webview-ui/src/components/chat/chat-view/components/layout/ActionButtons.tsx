@@ -17,7 +17,8 @@ interface ActionButtonsProps {
 /**
  * Action buttons area including approve/reject buttons
  */
-export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, chatState, mode, messageHandlers }) => {\n	const { inputValue, selectedImages, selectedFiles, setSendingDisabled } = chatState
+export const ActionButtons: React.FC<ActionButtonsProps> = ({ task, messages, chatState, mode, messageHandlers }) => {
+	const { inputValue, selectedImages, selectedFiles, setSendingDisabled } = chatState
 	const { turnState, foregroundCommandRunning } = useExtensionState()
 
 	// Tracks the ask the user last acted on. Clicking a footer button latches this so the

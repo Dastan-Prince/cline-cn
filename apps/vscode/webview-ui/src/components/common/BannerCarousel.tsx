@@ -76,7 +76,8 @@ const BannerCardContent: React.FC<BannerCardContentProps> = ({ banner, isActive,
 	)
 }
 
-const BannerCarousel: React.FC<BannerCarouselProps> = ({ banners }) => {\n	const [currentIndex, setCurrentIndex] = useState(0)
+const BannerCarousel: React.FC<BannerCarouselProps> = ({ banners }) => {
+	const [currentIndex, setCurrentIndex] = useState(0)
 	const [isPaused, setIsPaused] = useState(false)
 	const [isTransitioning, setIsTransitioning] = useState(false)
 	const autoPlayIntervalRef = useRef<NodeJS.Timeout | null>(null)

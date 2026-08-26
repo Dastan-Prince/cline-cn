@@ -15,4 +15,5 @@ export async function toggleTaskFavorite(controller: Controller, request: TaskFa
 	} catch (error) {
 		Logger.error("Error in toggleTaskFavorite:", error)
 		throw error
-	}\n}
+	}
+}

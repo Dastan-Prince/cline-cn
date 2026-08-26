@@ -37,7 +37,8 @@ export const Navbar = () => {
 				name: "Customize",
 				tooltip: "Customize",
 				icon: PuzzleIcon,
-				navigate: navigateToMarketplace,\n			},
+				navigate: navigateToMarketplace,
+			},
 			{
 				id: "history",
 				name: t("navbar.history"),
@@ -60,7 +61,8 @@ export const Navbar = () => {
 				navigate: navigateToSettings,
 			},
 		],
-		[navigateToAccount, navigateToChat, navigateToHistory, navigateToMarketplace, navigateToSettings],\n	)
+		[navigateToAccount, navigateToChat, navigateToHistory, navigateToMarketplace, navigateToSettings],
+	)
 
 	return (
 		<nav

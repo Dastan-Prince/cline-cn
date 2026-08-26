@@ -125,7 +125,8 @@ export async function updateTaskSettings(
 					"compact",
 				);
 			}
-\n			if (planModeApiProvider !== undefined) {
+
+			if (planModeApiProvider !== undefined) {
 				const converted = convertProtoToApiProvider(planModeApiProvider);
 				controller.stateManager.setTaskSettings(
 					taskId,

@@ -52,9 +52,10 @@ const MCP_SETTINGS_MIGRATION_VERSION = 2
 const YOLO_MODE_MIGRATION_VERSION = 3
 
 /** Bump this when adding new migration steps. */
-const CURRENT_MIGRATION_VERSION = YOLO_MODE_MIGRATION_VERSION\n
+const CURRENT_MIGRATION_VERSION = YOLO_MODE_MIGRATION_VERSION
+
 /** Sentinel key written to both globalState and workspaceState to track migration independently. */
-const MIGRATION_VERSION_KEY = "__vscodeMigrationVersion";
+const MIGRATION_VERSION_KEY = "__vscodeMigrationVersion"
 
 /**
  * Keys that should NOT be migrated from VSCode storage.
@@ -64,7 +65,7 @@ const MIGRATION_VERSION_KEY = "__vscodeMigrationVersion";
  */
 const SKIP_GLOBAL_STATE_KEYS = new Set<string>([
 	"taskHistory", // Already file-based in tasks/taskHistory.json
-]);
+])
 
 export interface MigrationResult {
 	migrated: boolean
@@ -75,7 +76,8 @@ export interface MigrationResult {
 	mcpServersAdded: number
 	mcpServersSkippedExisting: number
 	/** True when a legacy YOLO / auto-approve-all toggle was folded into autoApprovalSettings. */
-	yoloModeMigrated: boolean\n}
+	yoloModeMigrated: boolean
+}
 
 /**
  * Run the one-time migration from VSCode ExtensionContext storage to file-backed stores.
@@ -104,27 +106,27 @@ export async function exportVSCodeStorageToSharedFiles(
 		mcpServersAdded: 0,
 		mcpServersSkippedExisting: 0,
 		yoloModeMigrated: false,
-	}\n
+	}
+
 	// Check sentinels independently
-	const globalVersion = storage.globalState.get<number>(MIGRATION_VERSION_KEY);
-	const workspaceVersion = storage.workspaceState.get<number>(
-		MIGRATION_VERSION_KEY,
-	);
+	const globalVersion = storage.globalState.get<number>(MIGRATION_VERSION_KEY)
+	const workspaceVersion = storage.workspaceState.get<number>(MIGRATION_VERSION_KEY)
 
 	const needGlobalMigration = globalVersion === undefined || globalVersion < FILE_BACKED_STORAGE_EXPORT_VERSION
 	const needWorkspaceMigration = workspaceVersion === undefined || workspaceVersion < FILE_BACKED_STORAGE_EXPORT_VERSION
 	const needMcpSettingsMigration = globalVersion === undefined || globalVersion < MCP_SETTINGS_MIGRATION_VERSION
-	const needYoloModeMigration = globalVersion === undefined || globalVersion < YOLO_MODE_MIGRATION_VERSION\n
+	const needYoloModeMigration = globalVersion === undefined || globalVersion < YOLO_MODE_MIGRATION_VERSION
+
 	if (!needGlobalMigration && !needWorkspaceMigration && !needMcpSettingsMigration && !needYoloModeMigration) {
 		Logger.info(
 			`[Migration] File-backed stores already current (global: v${globalVersion}, workspace: v${workspaceVersion}), skipping.`,
-		);
-		return result;
+		)
+		return result
 	}
 
 	Logger.info(
 		`[Migration] Starting VSCode → file-backed migration (global: ${globalVersion ?? "none"}, workspace: ${workspaceVersion ?? "none"}, target: ${CURRENT_MIGRATION_VERSION})`,
-	);
+	)
 
 	try {
 		// ─── 0. Migrate legacy MCP settings files (if needed) ───────────
@@ -137,60 +139,58 @@ export async function exportVSCodeStorageToSharedFiles(
 		// ─── 1. Migrate global state + secrets (if needed) ─────────────
 		if (needGlobalMigration) {
 			// Batch global state keys
-			const globalStateBatch: Record<string, any> = {};
+			const globalStateBatch: Record<string, any> = {}
 			for (const key of GlobalStateAndSettingKeys) {
 				if (SKIP_GLOBAL_STATE_KEYS.has(key)) {
-					continue;
+					continue
 				}
 
-				const vscodeValue = vscodeContext.globalState.get(key);
+				const vscodeValue = vscodeContext.globalState.get(key)
 				if (vscodeValue === undefined) {
-					continue;
+					continue
 				}
 
-				const existingFileValue = storage.globalState.get(key);
+				const existingFileValue = storage.globalState.get(key)
 				if (existingFileValue !== undefined) {
-					result.skippedExisting++;
-					continue;
+					result.skippedExisting++
+					continue
 				}
 
-				globalStateBatch[key] = vscodeValue;
-				result.globalStateCount++;
+				globalStateBatch[key] = vscodeValue
+				result.globalStateCount++
 			}
 
 			// Add sentinel to batch. This advances straight to CURRENT because the
 			// v2 MCP migration already ran above when needed.
-			globalStateBatch[MIGRATION_VERSION_KEY] = CURRENT_MIGRATION_VERSION\n
+			globalStateBatch[MIGRATION_VERSION_KEY] = CURRENT_MIGRATION_VERSION
+
 			// Write all global state in one operation
-			storage.globalState.setBatch(globalStateBatch);
+			storage.globalState.setBatch(globalStateBatch)
 
 			// Batch secrets
-			const secretsBatch: Record<string, string> = {};
+			const secretsBatch: Record<string, string> = {}
 			for (const key of SecretKeys) {
 				try {
-					const vscodeValue = await vscodeContext.secrets.get(key);
+					const vscodeValue = await vscodeContext.secrets.get(key)
 					if (vscodeValue === undefined || vscodeValue === "") {
-						continue;
+						continue
 					}
 
-					const existingFileValue = storage.secrets.get(key);
+					const existingFileValue = storage.secrets.get(key)
 					if (existingFileValue !== undefined && existingFileValue !== "") {
-						result.skippedExisting++;
-						continue;
+						result.skippedExisting++
+						continue
 					}
 
-					secretsBatch[key] = vscodeValue;
-					result.secretsCount++;
+					secretsBatch[key] = vscodeValue
+					result.secretsCount++
 				} catch (error) {
-					Logger.error(
-						`[Migration] Failed to read secret '${key}' from VSCode:`,
-						error,
-					);
+					Logger.error(`[Migration] Failed to read secret '${key}' from VSCode:`, error)
 				}
 			}
 
 			// Write all secrets in one operation
-			storage.secrets.setBatch(secretsBatch);
+			storage.secrets.setBatch(secretsBatch)
 		}
 
 		// ─── 1b. Fold removed YOLO / auto-approve-all toggles into
@@ -202,28 +202,29 @@ export async function exportVSCodeStorageToSharedFiles(
 		// ─── 2. Migrate workspace state (if needed) ────────────────────
 		if (needWorkspaceMigration) {
 			// Batch workspace state keys
-			const workspaceStateBatch: Record<string, any> = {};
+			const workspaceStateBatch: Record<string, any> = {}
 			for (const key of LocalStateKeys) {
-				const vscodeValue = vscodeContext.workspaceState.get(key);
+				const vscodeValue = vscodeContext.workspaceState.get(key)
 				if (vscodeValue === undefined) {
-					continue;
+					continue
 				}
 
-				const existingFileValue = storage.workspaceState.get(key);
+				const existingFileValue = storage.workspaceState.get(key)
 				if (existingFileValue !== undefined) {
-					result.skippedExisting++;
-					continue;
+					result.skippedExisting++
+					continue
 				}
 
-				workspaceStateBatch[key] = vscodeValue;
-				result.workspaceStateCount++;
+				workspaceStateBatch[key] = vscodeValue
+				result.workspaceStateCount++
 			}
 
 			// Add sentinel to batch. This advances straight to CURRENT because any
 			// global v2-only migrations already ran above when needed.
-			workspaceStateBatch[MIGRATION_VERSION_KEY] = CURRENT_MIGRATION_VERSION\n
+			workspaceStateBatch[MIGRATION_VERSION_KEY] = CURRENT_MIGRATION_VERSION
+
 			// Write all workspace state in one operation
-			storage.workspaceState.setBatch(workspaceStateBatch);
+			storage.workspaceState.setBatch(workspaceStateBatch)
 		}
 
 		// If the original v1 export was already complete, still advance sentinels
@@ -242,22 +243,21 @@ export async function exportVSCodeStorageToSharedFiles(
 			needWorkspaceMigration ||
 			needMcpSettingsMigration ||
 			needYoloModeMigration ||
-			result.mcpServersAdded > 0\n
+			result.mcpServersAdded > 0
+
 		Logger.info(
 			`[Migration] Complete: ${result.globalStateCount} global state keys, ` +
 				`${result.secretsCount} secrets, ${result.workspaceStateCount} workspace state keys migrated. ` +
 				`${result.skippedExisting} keys skipped (already in file store). ` +
 				`Legacy MCP migration added ${result.mcpServersAdded} server(s), skipped ${result.mcpServersSkippedExisting} existing server(s).`,
-		)\n	} catch (error) {
-		Logger.error(
-			"[Migration] Fatal error during VSCode → file-backed migration:",
-			error,
-		);
+		)
+	} catch (error) {
+		Logger.error("[Migration] Fatal error during VSCode → file-backed migration:", error)
 		// Don't write sentinel on failure — migration will retry next startup
-		throw error;
+		throw error
 	}
 
-	return result;
+	return result
 }
 
 /**

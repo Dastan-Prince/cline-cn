@@ -13,7 +13,8 @@ interface TerminalSettingsSectionProps {
 	renderSectionHeader: (tabId: string) => JSX.Element | null
 }
 
-const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = ({ renderSectionHeader }) => {\n	const {
+const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = ({ renderSectionHeader }) => {
+	const {
 		shellIntegrationTimeout,
 		terminalReuseEnabled,
 		defaultTerminalProfile,

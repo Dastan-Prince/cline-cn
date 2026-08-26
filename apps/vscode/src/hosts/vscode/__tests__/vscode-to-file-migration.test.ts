@@ -96,7 +96,8 @@ describe("vscode-to-file-migration", () => {
 			delete process.env.CLINE_MCP_SETTINGS_PATH
 		} else {
 			process.env.CLINE_MCP_SETTINGS_PATH = originalMcpSettingsPath
-		}\n		try {
+		}
+		try {
 			fs.rmSync(tempDir, { recursive: true, force: true });
 		} catch {
 			// Ignore cleanup errors

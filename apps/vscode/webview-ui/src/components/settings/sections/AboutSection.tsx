@@ -13,7 +13,8 @@ const VARIANT_LABELS: Record<"legacy" | "next", string> = {
 	next: "Next",
 }
 
-const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutSectionProps) => {\n	return (
+const AboutSection = ({ version, extensionVariant, renderSectionHeader }: AboutSectionProps) => {
+	return (
 		<div>
 			{renderSectionHeader("about")}
 			<Section>

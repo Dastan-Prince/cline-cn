@@ -9,7 +9,8 @@ import {
 	clinePassDefaultModelId,
 	liteLlmDefaultModelId,
 	openRouterDefaultModelId,
-	requestyDefaultModelId,\n} from "../api"
+	requestyDefaultModelId,
+} from "../api"
 
 const ProviderKeyMap: Partial<Record<ApiProvider, string>> = {
 	openrouter: "OpenRouterModelId",
@@ -45,7 +46,8 @@ const ProviderKeyMap: Partial<Record<ApiProvider, string>> = {
  * Anything not listed here falls through to the SDK catalog default for
  * its `providerId` (handled by `getProviderDefaultModelId` below).
  */
-const NON_SDK_PROVIDER_DEFAULTS: Partial<Record<ApiProvider, string>> = {\n	openrouter: openRouterDefaultModelId,
+const NON_SDK_PROVIDER_DEFAULTS: Partial<Record<ApiProvider, string>> = {
+	openrouter: openRouterDefaultModelId,
 	cline: openRouterDefaultModelId,
 	"cline-pass": clinePassDefaultModelId,
 	together: openRouterDefaultModelId,
