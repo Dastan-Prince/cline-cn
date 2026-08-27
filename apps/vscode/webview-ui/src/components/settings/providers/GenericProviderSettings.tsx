@@ -1,6 +1,8 @@
+import type { ModelInfo } from "@shared/api"
 import { fromProtobufModelOverrides, type ProviderModelOverrides } from "@shared/proto-conversions/models/modelOverrides"
 import { Mode } from "@shared/storage/types"
 import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import { type ProviderId } from "@/context/ExtensionStateContext"
 import { useProviderConfig } from "@/hooks/useProviderConfig"
 import { useProviderModelSelection } from "@/hooks/useProviderModelSelection"
@@ -41,6 +43,11 @@ export interface GenericProviderSettingsProps {
 	 * user-entered model ids (no discoverable models endpoint).
 	 */
 	skipModelListFetch?: boolean
+	/**
+	 * Default ModelInfo used when the user enters a custom model ID.
+	 * Falls back to openAiModelInfoSafeDefaults when not provided.
+	 */
+	defaultModelInfo?: ModelInfo
 	showModelOptions: boolean
 	isPopup?: boolean
 	currentMode: Mode
@@ -62,10 +69,12 @@ export const GenericProviderSettings = ({
 	allowsCustomIds,
 	allowsModelOverrides,
 	skipModelListFetch,
+	defaultModelInfo,
 	showModelOptions,
 	isPopup,
 	currentMode,
 }: GenericProviderSettingsProps) => {
+	const { t } = useTranslation()
 	const { models, defaultModelId, isLoading, isStale, error } = useProviderModels(providerId, {
 		autoFetch: !skipModelListFetch,
 	})
@@ -181,7 +190,7 @@ export const GenericProviderSettings = ({
 			<ApiKeyField
 				initialValue={savedApiKeyMask}
 				onChange={handleApiKeyChange}
-				placeholder="Enter API Key..."
+				placeholder={t("settings.apiConfig.apiKeyPlaceholder")}
 				providerName={providerName}
 				signupUrl={signupUrl}
 			/>
@@ -201,6 +210,7 @@ export const GenericProviderSettings = ({
 				<>
 					<ModelPickerWithManualEntry
 						allowsCustomIds={allowsCustomIds}
+						defaultModelInfo={defaultModelInfo}
 						error={error}
 						isLoading={isLoading}
 						isStale={isStale}

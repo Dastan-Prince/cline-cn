@@ -1,10 +1,14 @@
+import type { ModelInfo } from "@shared/api"
 import type { ProviderListing } from "@shared/proto/cline/models"
 import type { GenericProviderSettingsProps } from "./GenericProviderSettings"
 
 type GenericProviderSettingsConfig = Omit<GenericProviderSettingsProps, "currentMode" | "isPopup" | "showModelOptions">
 
 type GenericProviderPresentationOverride = Pick<GenericProviderSettingsConfig, "signupUrl" | "baseUrlField"> &
-	Partial<Pick<GenericProviderSettingsConfig, "allowsCustomIds" | "allowsModelOverrides" | "skipModelListFetch">>
+	Partial<Pick<GenericProviderSettingsConfig, "allowsCustomIds" | "allowsModelOverrides" | "skipModelListFetch">> & {
+		/** Default ModelInfo used when the user enters a custom model ID for this provider. */
+		defaultModelInfo?: ModelInfo
+	}
 
 const CUSTOM_PROVIDER_SETTINGS_IDS = new Set([
 	"aihubmix",
@@ -119,6 +123,15 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 			placeholder: "https://api.example.com/anthropic",
 			alwaysVisible: true,
 		},
+		defaultModelInfo: {
+			contextWindow: 512_000,
+			maxTokens: 128_000,
+			supportsImages: true,
+			supportsPromptCache: false,
+			inputPrice: 0.7,
+			outputPrice: 1.5,
+			temperature: 0.5,
+		},
 	},
 	"tencent-tokenhub": {
 		signupUrl: "https://cloud.tencent.com/document/product/1823/130050",
@@ -170,6 +183,7 @@ export function getGenericProviderSettings(
 		allowsCustomIds: overrides?.allowsCustomIds ?? listing.allowsCustomModelIds,
 		providerId: listing.id,
 		providerName: listing.name,
+		defaultModelInfo: overrides?.defaultModelInfo,
 	}
 }
 
@@ -210,5 +224,6 @@ export function getFallbackGenericProviderSettings(providerId: string): GenericP
 		allowsCustomIds: overrides?.allowsCustomIds ?? false,
 		providerId,
 		providerName,
+		defaultModelInfo: overrides?.defaultModelInfo,
 	}
 }

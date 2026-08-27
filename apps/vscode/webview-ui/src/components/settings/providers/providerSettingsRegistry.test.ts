@@ -235,6 +235,15 @@ describe("providerSettingsRegistry", () => {
 				placeholder: "https://api.example.com/anthropic",
 				alwaysVisible: true,
 			},
+			defaultModelInfo: {
+				contextWindow: 512_000,
+				maxTokens: 128_000,
+				supportsImages: true,
+				supportsPromptCache: false,
+				inputPrice: 0.7,
+				outputPrice: 1.5,
+				temperature: 0.5,
+			},
 			providerId: "anthropic-comp",
 			providerName: "Anthropic Compatible",
 		})

@@ -1,6 +1,7 @@
-import { type ModelInfo, openAiModelInfoSafeDefaults } from "@shared/api"
+﻿import { type ModelInfo, openAiModelInfoSafeDefaults } from "@shared/api"
 import { VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import type { ProviderId } from "@/context/ExtensionStateContext"
 import { DropdownContainer } from "../common/ModelSelector"
 
@@ -18,6 +19,11 @@ export interface ModelPickerWithManualEntryProps {
 	allowsCustomIds: boolean
 	selectedModel: ModelPickerSelection
 	onSelect: (selection: ModelPickerSelection) => void
+	/**
+	 * Provider-specific default ModelInfo for custom model IDs.
+	 * Falls back to openAiModelInfoSafeDefaults when not provided.
+	 */
+	defaultModelInfo?: ModelInfo
 }
 
 function customModelInfo(modelId: string): ModelInfo {
@@ -35,7 +41,10 @@ export function ModelPickerWithManualEntry({
 	allowsCustomIds,
 	selectedModel,
 	onSelect,
+	defaultModelInfo,
 }: ModelPickerWithManualEntryProps) {
+	const { t } = useTranslation()
+	const fallbackModelInfo: ModelInfo = defaultModelInfo ?? { ...openAiModelInfoSafeDefaults }
 	const [isManualEntryVisible, setIsManualEntryVisible] = useState(false)
 	const [customModelId, setCustomModelId] = useState(() => (selectedModel.modelId in models ? "" : selectedModel.modelId))
 	const modelIds = Object.keys(models).sort((a, b) => a.localeCompare(b))
@@ -66,7 +75,7 @@ export function ModelPickerWithManualEntry({
 		onSelect({
 			providerId: selectedModel.providerId,
 			modelId: trimmed,
-			modelInfo: models[trimmed] ?? customModelInfo(trimmed),
+			modelInfo: models[trimmed] ?? { ...fallbackModelInfo, name: trimmed },
 		})
 		setIsManualEntryVisible(false)
 	}
@@ -74,11 +83,11 @@ export function ModelPickerWithManualEntry({
 	return (
 		<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 			<label htmlFor="provider-model-picker">
-				<span className="font-medium">Model</span>
+				<span className="font-medium">{t("settings.apiConfig.modelPicker.model")}</span>
 			</label>
 
-			{isStale && <div role="status">Model list may be stale for the current provider configuration.</div>}
-			{isLoading && <div role="status">Loading models…</div>}
+			{isStale && <div role="status">{t("settings.apiConfig.modelPicker.staleList")}</div>}
+			{isLoading && <div role="status">{t("settings.apiConfig.modelPicker.loading")}</div>}
 			{error && <div role="alert">{error}</div>}
 
 			{hasModels && (
@@ -102,20 +111,24 @@ export function ModelPickerWithManualEntry({
 						}}
 						value={selectedModelInList ? selectedModel.modelId : ""}>
 						{!selectedModelInList && allowsCustomIds && selectedModel.modelId && (
-							<VSCodeOption value="">{selectedModel.modelId} (not in current list)</VSCodeOption>
+							<VSCodeOption value="">
+								{selectedModel.modelId} ({t("settings.apiConfig.modelPicker.notInList")})
+							</VSCodeOption>
 						)}
 						{modelIds.map((modelId) => (
 							<VSCodeOption className="break-words whitespace-normal max-w-full" key={modelId} value={modelId}>
 								{modelId}
 							</VSCodeOption>
 						))}
-						{allowsCustomIds && <VSCodeOption value="__custom__">Use custom model ID…</VSCodeOption>}
+						{allowsCustomIds && (
+							<VSCodeOption value="__custom__">{t("settings.apiConfig.modelPicker.useCustomId")}</VSCodeOption>
+						)}
 					</VSCodeDropdown>
 				</DropdownContainer>
 			)}
 
 			{!selectedModelInList && selectedModel.modelId && hasModels && (
-				<div role="status">Selected model “{selectedModel.modelId}” is not in the current list.</div>
+				<div role="status">{t("settings.apiConfig.modelPicker.notInListStatus", { modelId: selectedModel.modelId })}</div>
 			)}
 
 			{showManualEntry && (
@@ -130,16 +143,16 @@ export function ModelPickerWithManualEntry({
 								commitCustomModel(customModelId)
 							}
 						}}
-						placeholder="Enter custom model ID"
+						placeholder={t("settings.apiConfig.modelPicker.customIdPlaceholder")}
 						style={{ flexGrow: 1 }}
 						value={customModelId}>
-						<span className="font-medium">Custom model ID</span>
+						<span className="font-medium">{t("settings.apiConfig.modelPicker.customIdLabel")}</span>
 					</VSCodeTextField>
 					<VSCodeButton
 						appearance="secondary"
 						disabled={!customModelId.trim()}
 						onClick={() => commitCustomModel(customModelId)}>
-						Use custom model
+						{t("settings.apiConfig.modelPicker.useCustomButton")}
 					</VSCodeButton>
 				</div>
 			)}

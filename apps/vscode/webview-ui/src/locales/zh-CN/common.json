@@ -646,6 +646,30 @@
 				"outputPrice": "输出价格 / 100万 tokens",
 				"temperature": "温度"
 			},
+			"modelConfig": {
+				"title": "模型配置",
+				"supportsImages": "支持图像",
+				"supportsReasoning": "支持推理",
+				"contextWindowSize": "上下文窗口大小",
+				"maxOutputTokens": "最大输出 Token 数",
+				"inputPrice": "输入价格 / 100万 tokens",
+				"outputPrice": "输出价格 / 100万 tokens",
+				"temperature": "温度",
+				"invalidNumber": "{{field}} 必须是有效数字。",
+				"notSet": "未设置",
+				"description": "此处设置的值将作为所选模型的覆盖值，优先于提供商的内置元数据。清除字段可回退到提供商的默认值。"
+			},
+			"modelPicker": {
+				"model": "模型",
+				"staleList": "当前提供商配置下的模型列表可能已过时。",
+				"loading": "正在加载模型…",
+				"notInList": "不在当前列表中",
+				"notInListStatus": "所选模型 \"{{modelId}}\" 不在当前列表中。",
+				"useCustomId": "使用自定义模型 ID…",
+				"customIdLabel": "自定义模型 ID",
+				"customIdPlaceholder": "输入自定义模型 ID",
+				"useCustomButton": "使用自定义模型"
+			},
 			"providerHelpText": {
 				"lmstudio": "启动 LM Studio 并加载模型以开始",
 				"ollama": "运行 `ollama serve` 并拉取模型",

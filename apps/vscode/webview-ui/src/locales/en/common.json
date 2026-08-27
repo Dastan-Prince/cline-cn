@@ -646,6 +646,30 @@
 				"outputPrice": "Output Price / 1M tokens",
 				"temperature": "Temperature"
 			},
+			"modelConfig": {
+				"title": "Model Configuration",
+				"supportsImages": "Supports Images",
+				"supportsReasoning": "Supports Reasoning",
+				"contextWindowSize": "Context Window Size",
+				"maxOutputTokens": "Max Output Tokens",
+				"inputPrice": "Input Price / 1M tokens",
+				"outputPrice": "Output Price / 1M tokens",
+				"temperature": "Temperature",
+				"invalidNumber": "{{field}} must be a valid number.",
+				"notSet": "not set",
+				"description": "Values set here are stored as overrides for the selected model and take precedence over the provider's built-in metadata. Clear a field to fall back to the provider value."
+			},
+			"modelPicker": {
+				"model": "Model",
+				"staleList": "Model list may be stale for the current provider configuration.",
+				"loading": "Loading models…",
+				"notInList": "not in current list",
+				"notInListStatus": "Selected model \"{{modelId}}\" is not in the current list.",
+				"useCustomId": "Use custom model ID…",
+				"customIdLabel": "Custom model ID",
+				"customIdPlaceholder": "Enter custom model ID",
+				"useCustomButton": "Use custom model"
+			},
 			"providerHelpText": {
 				"lmstudio": "Start LM Studio and load a model to begin",
 				"ollama": "Run `ollama serve` and pull a model",

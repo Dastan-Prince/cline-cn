@@ -1,7 +1,23 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+﻿import { fireEvent, render, screen } from "@testing-library/react"
+import i18n from "i18next"
 import type { ChangeEventHandler, FormEventHandler, KeyboardEventHandler, ReactNode } from "react"
 import { describe, expect, it, vi } from "vitest"
+import enCommon from "../../../locales/en/common.json"
 import { type ModelPickerSelection, ModelPickerWithManualEntry } from "./ModelPickerWithManualEntry"
+
+// Create an i18n instance for tests (English only).
+const testI18n = i18n.createInstance()
+testI18n.init({
+	resources: { en: { common: enCommon } },
+	lng: "en",
+	fallbackLng: "en",
+	defaultNS: "common",
+	interpolation: { escapeValue: false },
+})
+
+vi.mock("react-i18next", () => ({
+	useTranslation: () => ({ t: (key: string, opts?: Record<string, unknown>) => testI18n.t(key, opts) }),
+}))
 
 // Render the toolkit web components as native elements so value/change
 // behavior is observable in jsdom.
@@ -220,7 +236,9 @@ describe("ModelPickerWithManualEntry", () => {
 		)
 
 		expect(screen.getByText("Model list may be stale for the current provider configuration.")).toBeInTheDocument()
-		expect(screen.getByText("Selected model “custom-outside-list” is not in the current list.")).toBeInTheDocument()
+		expect(
+			screen.getByText((content) => content.includes("custom-outside-list") && content.includes("not in the current list")),
+		).toBeInTheDocument()
 		expect(onSelect).not.toHaveBeenCalled()
 	})
 
@@ -238,7 +256,11 @@ describe("ModelPickerWithManualEntry", () => {
 			/>,
 		)
 
-		expect(screen.getByText("Selected model “retired-static-model” is not in the current list.")).toBeInTheDocument()
+		expect(
+			screen.getByText(
+				(content) => content.includes("retired-static-model") && content.includes("not in the current list"),
+			),
+		).toBeInTheDocument()
 		expect(screen.queryByLabelText("Custom model ID")).not.toBeInTheDocument()
 		expect(onSelect).not.toHaveBeenCalled()
 	})

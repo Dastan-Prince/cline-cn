@@ -1,13 +1,29 @@
-import type { ProviderConfigResponse } from "@shared/proto/cline/models"
+﻿import type { ProviderConfigResponse } from "@shared/proto/cline/models"
 import { ApiFormat } from "@shared/proto/cline/models"
 import { toProtobufModelOverrides } from "@shared/proto-conversions/models/modelOverrides"
 import { toProtobufModelInfo } from "@shared/proto-conversions/models/typeConversion"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import i18n from "i18next"
 import type { ChangeEventHandler, ReactNode } from "react"
 import { describe, expect, it, vi } from "vitest"
 import { useProviderConfig } from "@/hooks/useProviderConfig"
 import { useProviderModels } from "@/hooks/useProviderModels"
+import enCommon from "../../../locales/en/common.json"
 import { GenericProviderSettings } from "./GenericProviderSettings"
+
+// Create an i18n instance for tests (English only, synchronous init).
+const testI18n = i18n.createInstance()
+testI18n.init({
+	resources: { en: { common: enCommon } },
+	lng: "en",
+	fallbackLng: "en",
+	defaultNS: "common",
+	interpolation: { escapeValue: false },
+})
+
+vi.mock("react-i18next", () => ({
+	useTranslation: () => ({ t: (key: string, opts?: Record<string, unknown>) => testI18n.t(key, opts) }),
+}))
 
 const providerConfig = (config: Partial<ProviderConfigResponse>): ProviderConfigResponse => config as ProviderConfigResponse
 

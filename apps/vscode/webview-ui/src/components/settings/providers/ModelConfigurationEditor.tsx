@@ -1,7 +1,8 @@
-import type { ModelInfo } from "@shared/api"
+﻿import type { ModelInfo } from "@shared/api"
 import type { ProviderModelOverrides } from "@shared/proto-conversions/models/modelOverrides"
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
 import { useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "@/utils/vscStyles"
 import { DebouncedTextField } from "../common/DebouncedTextField"
 
@@ -45,6 +46,7 @@ interface ModelConfigurationEditorProps {
  * parent via `onOverrideChange`.
  */
 export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange }: ModelConfigurationEditorProps) {
+	const { t } = useTranslation()
 	const [isExpanded, setIsExpanded] = useState(false)
 	const [fieldErrors, setFieldErrors] = useState<Partial<Record<NumericModelOverrideKey, string>>>({})
 	// Last value emitted per field, so a debounced echo of a value the user
@@ -102,10 +104,13 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 		})
 	}
 
-	const handleNumericChange = (key: NumericModelOverrideKey, label: string, value: string) => {
+	const handleNumericChange = (key: NumericModelOverrideKey, labelKey: string, value: string) => {
 		const parsed = parseOptionalFiniteNumber(value)
 		if (!parsed.valid) {
-			setFieldErrors((current) => ({ ...current, [key]: `${label} must be a valid number.` }))
+			setFieldErrors((current) => ({
+				...current,
+				[key]: t("settings.apiConfig.modelConfig.invalidNumber", { field: t(labelKey) }),
+			}))
 			return
 		}
 		setFieldErrors((current) => {
@@ -144,7 +149,7 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 					className={`codicon ${isExpanded ? "codicon-chevron-down" : "codicon-chevron-right"}`}
 					style={{ marginRight: "4px" }}
 				/>
-				<span style={{ fontWeight: 700, textTransform: "uppercase" }}>Model Configuration</span>
+				<span style={{ fontWeight: 700, textTransform: "uppercase" }}>{t("settings.apiConfig.modelConfig.title")}</span>
 			</div>
 
 			{isExpanded && (
@@ -154,14 +159,14 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							checked={isChecked("supportsVision", modelInfo.supportsImages)}
 							disabled={disabled}
 							onChange={(e: any) => handleCapabilityToggle("supportsVision", e.target.checked === true)}>
-							Supports Images
+							{t("settings.apiConfig.modelConfig.supportsImages")}
 						</VSCodeCheckbox>
 
 						<VSCodeCheckbox
 							checked={isChecked("supportsReasoning", modelInfo.supportsReasoning)}
 							disabled={disabled}
 							onChange={(e: any) => handleCapabilityToggle("supportsReasoning", e.target.checked === true)}>
-							Supports Reasoning
+							{t("settings.apiConfig.modelConfig.supportsReasoning")}
 						</VSCodeCheckbox>
 					</div>
 
@@ -170,8 +175,14 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							<DebouncedTextField
 								disabled={disabled}
 								initialValue={formatOptionalModelNumber(modelInfo.contextWindow)}
-								onChange={(value) => handleNumericChange("contextWindow", "Context Window Size", value)}>
-								<span style={{ fontWeight: 500 }}>Context Window Size</span>
+								onChange={(value) =>
+									handleNumericChange(
+										"contextWindow",
+										"settings.apiConfig.modelConfig.contextWindowSize",
+										value,
+									)
+								}>
+								<span style={{ fontWeight: 500 }}>{t("settings.apiConfig.modelConfig.contextWindowSize")}</span>
 							</DebouncedTextField>
 							{fieldErrors.contextWindow && <div role="alert">{fieldErrors.contextWindow}</div>}
 						</div>
@@ -180,9 +191,11 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							<DebouncedTextField
 								disabled={disabled}
 								initialValue={formatOptionalModelNumber(modelInfo.maxTokens)}
-								onChange={(value) => handleNumericChange("maxTokens", "Max Output Tokens", value)}
-								placeholder="not set">
-								<span style={{ fontWeight: 500 }}>Max Output Tokens</span>
+								onChange={(value) =>
+									handleNumericChange("maxTokens", "settings.apiConfig.modelConfig.maxOutputTokens", value)
+								}
+								placeholder={t("settings.apiConfig.modelConfig.notSet")}>
+								<span style={{ fontWeight: 500 }}>{t("settings.apiConfig.modelConfig.maxOutputTokens")}</span>
 							</DebouncedTextField>
 							{fieldErrors.maxTokens && <div role="alert">{fieldErrors.maxTokens}</div>}
 						</div>
@@ -193,8 +206,10 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							<DebouncedTextField
 								disabled={disabled}
 								initialValue={formatOptionalModelNumber(modelInfo.inputPrice)}
-								onChange={(value) => handleNumericChange("inputPrice", "Input Price", value)}>
-								<span style={{ fontWeight: 500 }}>Input Price / 1M tokens</span>
+								onChange={(value) =>
+									handleNumericChange("inputPrice", "settings.apiConfig.modelConfig.inputPrice", value)
+								}>
+								<span style={{ fontWeight: 500 }}>{t("settings.apiConfig.modelConfig.inputPrice")}</span>
 							</DebouncedTextField>
 							{fieldErrors.inputPrice && <div role="alert">{fieldErrors.inputPrice}</div>}
 						</div>
@@ -203,8 +218,10 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							<DebouncedTextField
 								disabled={disabled}
 								initialValue={formatOptionalModelNumber(modelInfo.outputPrice)}
-								onChange={(value) => handleNumericChange("outputPrice", "Output Price", value)}>
-								<span style={{ fontWeight: 500 }}>Output Price / 1M tokens</span>
+								onChange={(value) =>
+									handleNumericChange("outputPrice", "settings.apiConfig.modelConfig.outputPrice", value)
+								}>
+								<span style={{ fontWeight: 500 }}>{t("settings.apiConfig.modelConfig.outputPrice")}</span>
 							</DebouncedTextField>
 							{fieldErrors.outputPrice && <div role="alert">{fieldErrors.outputPrice}</div>}
 						</div>
@@ -215,9 +232,11 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							<DebouncedTextField
 								disabled={disabled}
 								initialValue={formatOptionalModelNumber(modelInfo.temperature)}
-								onChange={(value) => handleNumericChange("temperature", "Temperature", value)}
-								placeholder="not set">
-								<span style={{ fontWeight: 500 }}>Temperature</span>
+								onChange={(value) =>
+									handleNumericChange("temperature", "settings.apiConfig.modelConfig.temperature", value)
+								}
+								placeholder={t("settings.apiConfig.modelConfig.notSet")}>
+								<span style={{ fontWeight: 500 }}>{t("settings.apiConfig.modelConfig.temperature")}</span>
 							</DebouncedTextField>
 							{fieldErrors.temperature && <div role="alert">{fieldErrors.temperature}</div>}
 						</div>
@@ -229,8 +248,7 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 							marginTop: 3,
 							color: getAsVar(VSC_DESCRIPTION_FOREGROUND),
 						}}>
-						Values set here are stored as overrides for the selected model and take precedence over the
-						provider&apos;s built-in metadata. Clear a field to fall back to the provider value.
+						{t("settings.apiConfig.modelConfig.description")}
 					</p>
 				</>
 			)}
