@@ -7,7 +7,11 @@ import * as vscode from "vscode";
 import { stripAnsi } from "@/hosts/vscode/terminal/ansiUtils";
 import { getLatestTerminalOutput } from "@/hosts/vscode/terminal/get-latest-output";
 import {
+	EXIT_CODE_EVENT_TIMEOUT_MS,
 	isCompilingOutput,
+	MARKERLESS_FIRST_DATA_TIMEOUT,
+	MARKERLESS_IDLE_TIMEOUT,
+	MARKERLESS_MAX_QUIET_TIME,
 	MAX_FULL_OUTPUT_SIZE,
 	MAX_UNRETRIEVED_LINES,
 	PROCESS_HOT_TIMEOUT_COMPILING,
@@ -19,7 +23,8 @@ import type {
 	TerminalCompletionDetails,
 	TerminalProcessEvents,
 } from "@/integrations/terminal/types";
-import { Logger } from "@/shared/services/Logger";
+import { Logger } from "@/shared/services/Logger"
+import { classifyShellPrompt, getLastLine } from "./shellPromptHeuristics";
 
 /**
  * VscodeTerminalProcess - Manages command execution in VSCode's integrated terminal.
@@ -49,6 +54,10 @@ export class VscodeTerminalProcess
 	private hotTimer: NodeJS.Timeout | null = null;
 	private exitCode: number | null | undefined = undefined;
 	private signal: NodeJS.Signals | null = null;
+	private terminalClosedMidCommand = false;
+	private activeCloseDisposable: vscode.Disposable | undefined;
+	private activeEndEventDisposable: vscode.Disposable | undefined;
+	private activeIterator: AsyncIterator<string> | undefined;
 
 	async run(terminal: vscode.Terminal, command: string) {
 		this.exitCode = undefined;
@@ -68,15 +77,149 @@ export class VscodeTerminalProcess
 		};
 
 		if (terminal.shellIntegration && terminal.shellIntegration.executeCommand) {
-			// Track that we're using shell integration
+			// Fail fast if terminal is already dead
+			if (terminal.exitStatus !== undefined) {
+				this.exitCode = terminal.exitStatus.code;
+				this.emit("error", new Error("The terminal's shell process has exited; the command was not run."));
+				return;
+			}
+
 			const execution = terminal.shellIntegration.executeCommand(command);
 			const stream = execution.read();
-			// todo: need to handle errors
 			let isFirstChunk = true;
 			let didOutputNonCommand = false;
 			let didEmitEmptyLine = false;
 
-			for await (let data of stream) {
+			// Listen for shell execution end event to capture exit code independently.
+			// onDidEndTerminalShellExecution has been stable API since VS Code 1.93,
+			// but our minimum supported version is 1.84. Feature-detect at runtime.
+			let resolveExecutionEnd!: (value: number | undefined) => void;
+			const executionEndPromise = new Promise<number | undefined>((resolve) => {
+				resolveExecutionEnd = resolve;
+			});
+			let endEventDisposable: vscode.Disposable | undefined;
+			if (typeof (vscode.window as any).onDidEndTerminalShellExecution === "function") {
+				endEventDisposable = (vscode.window as any).onDidEndTerminalShellExecution(
+					(e: { terminal: vscode.Terminal; execution: any; exitCode: number | undefined }) => {
+						if (e.terminal === terminal && e.execution === execution) {
+							resolveExecutionEnd(e.exitCode);
+						}
+					},
+				);
+			}
+			this.activeEndEventDisposable = endEventDisposable;
+
+			// Track terminal closure so a dying pty can't leave the read loop blocked forever
+			let terminalClosed = false;
+			let resolveTerminalClosed!: () => void;
+			const terminalClosedPromise = new Promise<void>((resolve) => {
+				resolveTerminalClosed = resolve;
+			});
+			const closeDisposable = vscode.window.onDidCloseTerminal((closedTerminal) => {
+				if (closedTerminal === terminal) {
+					terminalClosed = true;
+					resolveTerminalClosed();
+				}
+			});
+			this.activeCloseDisposable = closeDisposable;
+
+			// Use manual iterator + Promise.race so each read can be raced against
+			// idle timeouts and terminal closure. When a timer wins the race, the
+			// outstanding read is kept and reused on the next iteration.
+			type StreamReadOutcome =
+				| { kind: "data"; data: string }
+				| { kind: "streamEnd" }
+				| { kind: "executionEnd" }
+				| { kind: "idle" }
+				| { kind: "terminalClosed" };
+
+			const iterator = stream[Symbol.asyncIterator]();
+			this.activeIterator = iterator;
+			let pendingRead: Promise<IteratorResult<string>> | undefined;
+			const readNext = async (idleTimeoutMs: number | undefined): Promise<StreamReadOutcome> => {
+				pendingRead ??= iterator.next();
+				let idleTimer: NodeJS.Timeout | undefined;
+				const racers: Promise<StreamReadOutcome>[] = [
+					pendingRead.then(
+						(result): StreamReadOutcome =>
+							result.done ? { kind: "streamEnd" } : { kind: "data", data: result.value },
+					),
+					executionEndPromise.then((): StreamReadOutcome => ({ kind: "executionEnd" })),
+					terminalClosedPromise.then((): StreamReadOutcome => ({ kind: "terminalClosed" })),
+				];
+				if (idleTimeoutMs !== undefined) {
+					racers.push(
+						new Promise<StreamReadOutcome>((resolve) => {
+							idleTimer = setTimeout(() => resolve({ kind: "idle" }), idleTimeoutMs);
+						}),
+					);
+				}
+				try {
+					const outcome = await Promise.race(racers);
+					if (outcome.kind === "data" || outcome.kind === "streamEnd") {
+						pendingRead = undefined;
+					}
+					return outcome;
+				} finally {
+					if (idleTimer) {
+						clearTimeout(idleTimer);
+					}
+				}
+			};
+
+			// Markerless completion tracking: when shell integration is present but
+			// not emitting OSC 633 markers (e.g. ssh session), the read() stream
+			// never ends. These variables track idle time and prompt heuristics to
+			// detect command completion without markers.
+			let completedWithoutMarkers = false;
+			let markerlessQuietMs = 0;
+			let receivedAnyData = false;
+			let didSeeCommandExecuted = false;
+
+			while (true) {
+				// Until the C marker arrives, shell integration may not actually
+				// be working, so bound each read with an idle timeout. Once C is
+				// seen the markers are trusted to delimit the command — however
+				// long and quiet it runs — and only terminal closure can
+				// interrupt the read.
+				const idleTimeoutMs = didSeeCommandExecuted
+					? undefined
+					: receivedAnyData
+						? MARKERLESS_IDLE_TIMEOUT
+						: MARKERLESS_FIRST_DATA_TIMEOUT;
+				const outcome = await readNext(idleTimeoutMs);
+
+				if (outcome.kind === "streamEnd" || outcome.kind === "executionEnd") {
+					break;
+				}
+				if (outcome.kind === "terminalClosed") {
+					Logger.warn("[TerminalProcess] Terminal closed while a command was running");
+					this.terminalClosedMidCommand = true;
+					break;
+				}
+				if (outcome.kind === "idle") {
+					markerlessQuietMs += idleTimeoutMs ?? 0;
+					// Check if the last line looks like a shell prompt
+					const promptCandidate = getLastLine(stripAnsi(this.fullOutput || this.buffer || ""));
+					const promptStrength = classifyShellPrompt(promptCandidate);
+					const quietTimeoutReached = markerlessQuietMs >= MARKERLESS_MAX_QUIET_TIME;
+					if (promptStrength === "strong" || quietTimeoutReached) {
+						completedWithoutMarkers = true;
+						break;
+					}
+					continue;
+				}
+
+				// Got data — reset idle tracking
+				receivedAnyData = true;
+				markerlessQuietMs = 0;
+				let data = outcome.data;
+
+				// Check for ]633;C marker (command executed / start of output)
+				if (data.includes("]633;C")) {
+					didSeeCommandExecuted = true;
+				}
+
 				// Parse shell integration completion markers when present.
 				// Sequence format: ]633;D;<exitCode>
 				const completionMatches = [...data.matchAll(/\]633;D(?:;(-?\d+))?/g)];
@@ -221,38 +364,89 @@ export class VscodeTerminalProcess
 				}
 			}
 
+			// Cleanup: dispose listeners and release iterator
+			closeDisposable.dispose();
+			this.activeCloseDisposable = undefined;
+			try {
+				iterator.return?.()?.catch?.(() => {});
+			} catch {
+				// The iterator does not support early termination.
+			}
+			this.activeIterator = undefined;
 			this.emitRemainingBufferIfListening();
+
+			// Await exit code from onDidEndTerminalShellExecution. Race with a
+			// timeout in case the stream ended but the event never fires.
+			let exitCodeEventTimedOut = false;
+			const eventExitCode = await Promise.race([
+				executionEndPromise,
+				new Promise<undefined>((resolve) => {
+					setTimeout(() => {
+						exitCodeEventTimedOut = true;
+						resolve(undefined);
+					}, EXIT_CODE_EVENT_TIMEOUT_MS);
+				}),
+			]);
+			endEventDisposable?.dispose();
+			this.activeEndEventDisposable = undefined;
+
+			if (exitCodeEventTimedOut) {
+				Logger.warn(
+					`[TerminalProcess] onDidEndTerminalShellExecution did not fire within ${EXIT_CODE_EVENT_TIMEOUT_MS}ms; exit code unknown`,
+				);
+			}
+
+			// Prefer the event-captured exit code. Fall back to the parser-extracted
+			// exit code (from the ]633;D marker) if the event didn't fire in time.
+			if (eventExitCode !== undefined) {
+				this.exitCode = eventExitCode;
+			}
+
+			// Emit informational messages for non-standard completion paths
+			if (this.terminalClosedMidCommand) {
+				this.emit("line", "[The terminal closed while the command was running; output may be incomplete.]");
+			} else if (completedWithoutMarkers) {
+				this.emit(
+					"line",
+					"[Shell integration did not report command completion; output was captured with a timing heuristic, may be incomplete or include the shell prompt.]",
+				);
+			}
 
 			// the command process is finished, let's check the output to see if we need to use the terminal capture fallback
 			if (!this.fullOutput.trim()) {
 				// No output captured via shell integration, trying fallback
 				telemetryService.captureTerminalOutputFailure(
-					TerminalOutputFailureReason.TIMEOUT,
+					this.terminalClosedMidCommand
+						? TerminalOutputFailureReason.TERMINAL_CLOSED
+						: TerminalOutputFailureReason.TIMEOUT,
 					"vscode",
 				);
-				await returnCurrentTerminalContents();
-				// Check if fallback worked
-				const terminalSnapshot = await getLatestTerminalOutput();
-				if (terminalSnapshot && terminalSnapshot.trim()) {
-					telemetryService.captureTerminalExecution(
-						true,
-						"vscode",
-						"clipboard",
-					);
+				if (!this.terminalClosedMidCommand) {
+					await returnCurrentTerminalContents();
+					// Check if fallback worked
+					const terminalSnapshot = await getLatestTerminalOutput();
+					if (terminalSnapshot && terminalSnapshot.trim()) {
+						telemetryService.captureTerminalExecution(
+							true,
+							"vscode",
+							"clipboard",
+						);
+					} else {
+						telemetryService.captureTerminalExecution(false, "vscode", "none");
+					}
 				} else {
 					telemetryService.captureTerminalExecution(false, "vscode", "none");
 				}
 			} else {
-				// Shell integration worked
+				// Shell integration worked — distinguish how it was completed
 				telemetryService.captureTerminalExecution(
-					true,
+					!this.terminalClosedMidCommand,
 					"vscode",
-					"shell_integration",
+					completedWithoutMarkers ? "markerless_heuristic" : "shell_integration",
 				);
 			}
 
-			// for now we don't want this delaying requests since we don't send diagnostics automatically anymore (previous: "even though the command is finished, we still want to consider it 'hot' in case so that api request stalls to let diagnostics catch up")
-			// to explain this further, before we would send workspace diagnostics automatically with each request, but now we only send new diagnostics after file edits, so there's no need to wait for a bit after commands run to let diagnostics catch up
+			// for now we don't want this delaying requests since we don't send diagnostics automatically anymore
 			if (this.hotTimer) {
 				clearTimeout(this.hotTimer);
 			}
@@ -323,6 +517,23 @@ export class VscodeTerminalProcess
 		this.isListening = false;
 		this.removeAllListeners("line");
 		this.emit("continue");
+	}
+
+	/**
+	 * Release resources held by an active execution (listeners, iterator).
+	 * Safe to call multiple times; no-ops when nothing is active.
+	 */
+	releaseActiveExecutionResources(): void {
+		this.activeCloseDisposable?.dispose();
+		this.activeCloseDisposable = undefined;
+		this.activeEndEventDisposable?.dispose();
+		this.activeEndEventDisposable = undefined;
+		try {
+			this.activeIterator?.return?.()?.catch?.(() => {});
+		} catch {
+			// The iterator does not support early termination.
+		}
+		this.activeIterator = undefined;
 	}
 
 	/**

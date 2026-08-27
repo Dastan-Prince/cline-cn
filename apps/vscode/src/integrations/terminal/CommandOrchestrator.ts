@@ -112,6 +112,21 @@ export async function orchestrateCommandExecution(
 		clearCommandState()
 	})
 
+	// Safety net: if neither "completed" nor "error" fires within a reasonable
+	// time (e.g. the terminal process died without emitting events), force
+	// clearCommandState so the UI doesn't hang on "Skipped" forever.
+	// The timeout is set slightly above MARKERLESS_MAX_QUIET_TIME (30s) to give
+	// the VscodeTerminalProcess markerless fallback a chance to complete first.
+	const COMMAND_COMPLETION_GUARD_MS = 35_000
+	const completionGuardTimer = setTimeout(() => {
+		Logger.warn("[CommandOrchestrator] Command completion guard timeout - forcing clearCommandState")
+		clearCommandState()
+	}, COMMAND_COMPLETION_GUARD_MS)
+
+	// If the process completes normally, cancel the guard timer
+	process.once("completed", () => clearTimeout(completionGuardTimer))
+	process.once("error", () => clearTimeout(completionGuardTimer))
+
 	let userFeedback: { text?: string; images?: string[]; files?: string[] } | undefined
 	let didContinue = false
 	let didCancelViaUi = false

@@ -77,6 +77,34 @@ export const DEFAULT_TERMINAL_OUTPUT_LINE_LIMIT = 500
 export const BACKGROUND_COMMAND_TIMEOUT_MS = 10 * 60 * 1000
 
 // =============================================================================
+// Markerless Shell Integration Fallback
+// =============================================================================
+// When shell integration is attached but not emitting OSC 633 markers (e.g.
+// the user ssh'd from the terminal so commands run in a remote shell), the
+// execution's read() stream never ends. These bound how long we wait before
+// falling back to prompt-heuristic completion. Once the CommandExecuted (C)
+// marker is seen, shell integration is trusted and these do not apply.
+
+/** How long to wait for the first data before checking for markerless completion (10 seconds) */
+export const MARKERLESS_FIRST_DATA_TIMEOUT = 10_000
+
+/** Idle gap between data chunks that triggers a prompt-heuristic check (3 seconds) */
+export const MARKERLESS_IDLE_TIMEOUT = 3_000
+
+/** Quiet time after which a markerless command is considered done even without a prompt (30 seconds) */
+export const MARKERLESS_MAX_QUIET_TIME = 30_000
+
+// =============================================================================
+// Exit Code Event Race
+// =============================================================================
+// onDidEndTerminalShellExecution fires asynchronously after the read() stream
+// completes. We await it with a bounded race so a command whose shell
+// integration never reports completion doesn't hang indefinitely.
+
+/** How long to wait for onDidEndTerminalShellExecution after the stream ends (3 seconds) */
+export const EXIT_CODE_EVENT_TIMEOUT_MS = 3_000
+
+// =============================================================================
 // Compilation Detection Markers
 // =============================================================================
 // Used to detect if a command is compiling/building
