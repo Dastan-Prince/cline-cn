@@ -249,4 +249,72 @@ describe("providerSettingsRegistry", () => {
 		})
 		expect(getFallbackGenericProviderSettings("openai")).toBeUndefined()
 	})
+
+	it("exposes presets plus custom id and model overrides for the athrapi series", () => {
+		expect(getFallbackGenericProviderSettings("xiaomi-athrapi")).toEqual({
+			allowsCustomIds: true,
+			allowsModelOverrides: true,
+			defaultModelInfo: {
+				contextWindow: 256_000,
+				maxTokens: 8_192,
+				supportsImages: false,
+				supportsPromptCache: true,
+				supportsReasoning: true,
+				inputPrice: 0,
+				outputPrice: 0,
+				temperature: 0,
+			},
+			providerId: "xiaomi-athrapi",
+			providerName: "Xiaomi MiMo (Anthropic)",
+		})
+		expect(getFallbackGenericProviderSettings("xiaomi-tp-athrapi")).toEqual({
+			allowsCustomIds: true,
+			allowsModelOverrides: true,
+			defaultModelInfo: {
+				contextWindow: 256_000,
+				maxTokens: 8_192,
+				supportsImages: false,
+				supportsPromptCache: true,
+				supportsReasoning: true,
+				inputPrice: 0,
+				outputPrice: 0,
+				temperature: 0,
+			},
+			providerId: "xiaomi-tp-athrapi",
+			providerName: "Xiaomi Token Plan (Anthropic)",
+		})
+		expect(getFallbackGenericProviderSettings("zhipu-athrapi")).toEqual({
+			allowsCustomIds: true,
+			allowsModelOverrides: true,
+			signupUrl: "https://open.bigmodel.cn/",
+			defaultModelInfo: {
+				contextWindow: 131_072,
+				maxTokens: 8_192,
+				supportsImages: false,
+				supportsPromptCache: true,
+				supportsReasoning: true,
+				inputPrice: 0,
+				outputPrice: 0,
+				temperature: 0,
+			},
+			providerId: "zhipu-athrapi",
+			providerName: "Zhipu GLM (Anthropic)",
+		})
+		expect(getFallbackGenericProviderSettings("dots-studio-athrapi")).toEqual({
+			allowsCustomIds: true,
+			allowsModelOverrides: true,
+			defaultModelInfo: {
+				contextWindow: 393_216,
+				maxTokens: 131_072,
+				supportsImages: true,
+				supportsPromptCache: false,
+				supportsReasoning: true,
+				inputPrice: 0.435,
+				outputPrice: 0.87,
+				temperature: 0,
+			},
+			providerId: "dots-studio-athrapi",
+			providerName: "Dots Studio (Anthropic)",
+		})
+	})
 })

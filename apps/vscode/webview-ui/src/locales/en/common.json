@@ -668,7 +668,9 @@
 				"useCustomId": "Use custom model ID…",
 				"customIdLabel": "Custom model ID",
 				"customIdPlaceholder": "Enter custom model ID",
-				"useCustomButton": "Use custom model"
+				"useCustomButton": "Use custom model",
+				"currentModel": "Current model: {{modelId}}",
+				"changeButton": "Change"
 			},
 			"providerHelpText": {
 				"lmstudio": "Start LM Studio and load a model to begin",

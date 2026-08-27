@@ -50,6 +50,10 @@ export function ModelPickerWithManualEntry({
 	const modelIds = Object.keys(models).sort((a, b) => a.localeCompare(b))
 	const hasModels = modelIds.length > 0
 	const selectedModelInList = selectedModel.modelId in models
+	// A custom model ID that has already been committed (selected) but is not
+	// part of the fetched catalog — e.g. when the provider has no model list
+	// (skipModelListFetch) and the user typed the ID manually.
+	const hasCommittedCustom = allowsCustomIds && Boolean(selectedModel.modelId) && !selectedModelInList
 
 	// The committed selection and the model catalog both hydrate asynchronously
 	// after mount, so the lazy useState init above can capture a placeholder
@@ -59,8 +63,13 @@ export function ModelPickerWithManualEntry({
 	useEffect(() => {
 		setCustomModelId(selectedModelInList ? "" : selectedModel.modelId)
 	}, [selectedModel.modelId, selectedModelInList])
+	// When the provider has no catalog (e.g. skipModelListFetch) and a custom
+	// model ID was already committed and the user is not actively editing, hide
+	// the input and show a read-only "current model" row instead.
 	const showManualEntry =
-		allowsCustomIds && (isManualEntryVisible || !hasModels || isLoading || Boolean(error) || !selectedModelInList)
+		allowsCustomIds &&
+		(isManualEntryVisible || !hasModels || isLoading || Boolean(error) || !selectedModelInList) &&
+		!(!hasModels && hasCommittedCustom && !isManualEntryVisible)
 
 	// Force VSCodeDropdown to re-initialize after async catalog/selection
 	// hydration, otherwise it ignores the value prop for dynamically rendered
@@ -77,6 +86,7 @@ export function ModelPickerWithManualEntry({
 			modelId: trimmed,
 			modelInfo: models[trimmed] ?? { ...fallbackModelInfo, name: trimmed },
 		})
+		setCustomModelId("")
 		setIsManualEntryVisible(false)
 	}
 
@@ -153,6 +163,22 @@ export function ModelPickerWithManualEntry({
 						disabled={!customModelId.trim()}
 						onClick={() => commitCustomModel(customModelId)}>
 						{t("settings.apiConfig.modelPicker.useCustomButton")}
+					</VSCodeButton>
+				</div>
+			)}
+
+			{!hasModels && hasCommittedCustom && !isManualEntryVisible && (
+				<div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+					<span role="status" style={{ flexGrow: 1, wordBreak: "break-all" }}>
+						{t("settings.apiConfig.modelPicker.currentModel", { modelId: selectedModel.modelId })}
+					</span>
+					<VSCodeButton
+						appearance="secondary"
+						onClick={() => {
+							setCustomModelId(selectedModel.modelId)
+							setIsManualEntryVisible(true)
+						}}>
+						{t("settings.apiConfig.modelPicker.changeButton")}
 					</VSCodeButton>
 				</div>
 			)}

@@ -668,7 +668,9 @@
 				"useCustomId": "使用自定义模型 ID…",
 				"customIdLabel": "自定义模型 ID",
 				"customIdPlaceholder": "输入自定义模型 ID",
-				"useCustomButton": "使用自定义模型"
+				"useCustomButton": "使用自定义模型",
+				"currentModel": "当前模型：{{modelId}}",
+				"changeButton": "更改"
 			},
 			"providerHelpText": {
 				"lmstudio": "启动 LM Studio 并加载模型以开始",

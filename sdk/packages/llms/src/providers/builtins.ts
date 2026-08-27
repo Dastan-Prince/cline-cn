@@ -1077,7 +1077,7 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		capabilities: ["prompt-cache", "tools", "reasoning"],
 		defaultModelId: "glm-5.2",
 		apiKeyEnv: ["ZHIPU_ATHRAPI_API_KEY"],
-		modelsProviderId: "zai",
+		modelsProviderId: "zhipuai-coding-plan",
 		defaults: { baseUrl: "https://open.bigmodel.cn/api/anthropic" },
 	},
 	{
