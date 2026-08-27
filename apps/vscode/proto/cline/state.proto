@@ -108,10 +108,10 @@ message Secrets {
   optional string wandb_api_key = 50;
   optional string xiaomi_api_key = 51;
   optional string xiaomi_athrapi_key = 52;
-  optional string mimo_tp_athrapi_key = 53;
   optional string zhipu_athrapi_key = 54;
   optional string dots_studio_athrapi_key = 55;
   optional string anthropic_comp_api_key = 56;
+  optional string xiaomi_tp_athrapi_key = 57;
 }
 
 // NOTE: Add new fields under API_HANDLER_SETTINGS_FIELDS or USER_SETTINGS_FIELDS

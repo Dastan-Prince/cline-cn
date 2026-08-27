@@ -19,9 +19,9 @@ Cline CN 是一个 VSCode AI 编程助手扩展，基于 Cline 项目进行本�
 | | |
 | ----- | ----- |
 |Xiaomi MiMo  | API Key接口（OpenAI兼容）|
-MiMo Token Plan  |Token Plan接口（OpenAI兼容）|
+Xiaomi Token Plan  |Token Plan接口（OpenAI兼容）|
 Xiaomi Mimo AthrAPI  | API Key接口（Anthropic兼容）|
-Mimo TP AthrAPI  |Token Plan接口（Anthropic兼容）|
+Xiaomi TP AthrAPI  |Token Plan接口（Anthropic兼容）|
 |  |  |
 
 - mimo-v2.5-pro

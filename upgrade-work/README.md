@@ -30,7 +30,7 @@ ebee8ca91 上游基线 v4.1.16
 1. 全部冲突解决（363 块；仅 proto 字段号冲突延后，见下）
 2. 28 个 fork 纯新增文件落地（i18n 汉化、BUILD.md、native-athrapi 提示词变体等）
 3. SDK builtins.ts 注册 6 个 AthrAPI provider：
-   xiaomi-athrapi / mimo-tp-athrapi / zhipu-athrapi / dots-studio-athrapi /
+   xiaomi-athrapi / xiaomi-tp-athrapi / zhipu-athrapi / dots-studio-athrapi /
    anthropic-comp（family+protocol=anthropic；zhipu 复用 zai 模型目录，
    xiaomi 系复用 xiaomi 目录）
 4. shared/api.ts ApiProvider union 补充 6 个入口（xiaomi 上游已有）
@@ -57,7 +57,7 @@ ebee8ca91 上游基线 v4.1.16
    - 删除 7 个组件 + ApiOptions 专属分支，修复 ApiOptions 中断残片
    - providerSettingsRegistry.ts 注册 6 个 fallback 名称/覆写
      （anthropic-comp 带 baseUrlField + allowsCustomIds；dots 允许手输模型）
-   - builtins.ts 补 **mimo-tp**（此前遗漏！token-plan OpenAI 兼容端点，
+   - builtins.ts 补 **xiaomi-tp**（此前遗漏！token-plan OpenAI 兼容端点，
      复用 xiaomi 目录）；xiaomi 去掉 openai-responses 覆写
      （回到 3.x 验证过的 chat-completions 协议）
    - provider-id.ts KNOWN_API_PROVIDERS 补全 6 个 id
@@ -84,7 +84,7 @@ ebee8ca91 上游基线 v4.1.16
    10 个汉化组件 unused imports、biome.jsonc 排除 migrate-global-storage.ts
    （fork 文件，Use CacheService grit 规则不适用于启动期迁移代码）
 3. **SDK 测试修复（前次未跑，3 处失败）**：
-   - ids.ts `BUILT_IN_PROVIDER` enum 补 6 个 fork id（mimo-tp 等）
+   - ids.ts `BUILT_IN_PROVIDER` enum 补 6 个 fork id（xiaomi-tp 等）
    - builtins.ts 删除两处迁移误带覆写：**wandb**（"W&B by CoreWeave" 旧快照数据，
      上游 generated 已更新）与 **moonshot 重复条目**（丢失 china apiLineBaseUrls
      区域路由 + 旧默认模型）。现在 builtins.ts 相对上游差异仅剩 7 个 fork provider
@@ -118,7 +118,7 @@ ebee8ca91 上游基线 v4.1.16
 
 ## 待完成
 
-1.【人工】安装 `claude-dev-4.1.16.vsix` 回归：中文界面 / MiMo（xiaomi、mimo-tp、
+1.【人工】安装 `claude-dev-4.1.16.vsix` 回归：中文界面 / MiMo（xiaomi、xiaomi-tp、
    两个 athrapi）/ GLM / dots / anthropic-comp 各入口的 key 输入、模型选择、实际对话
 2.【低】models.proto 中 fork 遗留 apiKey 字段（xiaomiApiKey 等）仅作
    存储兼容，运行时已不消费，确认无回归后可在下个大版本移除

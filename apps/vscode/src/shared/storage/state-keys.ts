@@ -364,7 +364,7 @@ const SECRETS_KEYS = [
 	"wandbApiKey",
 	"xiaomiApiKey",
 	"xiaomiAthrapiKey",
-	"mimoTpAthrapiKey",
+	"xiaomiTpAthrapiKey",
 	"zhipuAthrapiKey",
 	"dotsStudioAthrapiKey",
 	"anthropicCompApiKey",

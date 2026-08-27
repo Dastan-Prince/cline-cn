@@ -106,7 +106,7 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 	},
 	xiaomi: {},
 	"xiaomi-athrapi": {},
-	"mimo-tp-athrapi": {},
+	"xiaomi-tp-athrapi": {},
 	"zhipu-athrapi": {
 		signupUrl: "https://open.bigmodel.cn/",
 	},
@@ -200,7 +200,7 @@ const FALLBACK_GENERIC_PROVIDER_NAMES = {
 	wandb: "W&B",
 	xiaomi: "Xiaomi",
 	"xiaomi-athrapi": "Xiaomi MiMo (Anthropic)",
-	"mimo-tp-athrapi": "MiMo Token Plan (Anthropic)",
+	"xiaomi-tp-athrapi": "Xiaomi Token Plan (Anthropic)",
 	"zhipu-athrapi": "Zhipu GLM (Anthropic)",
 	"dots-studio-athrapi": "Dots Studio (Anthropic)",
 	"anthropic-comp": "Anthropic Compatible",

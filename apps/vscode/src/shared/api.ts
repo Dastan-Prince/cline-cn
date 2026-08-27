@@ -51,7 +51,7 @@ export type ApiProvider =
 	| "wandb"
 	| "xiaomi"
 	| "xiaomi-athrapi"
-	| "mimo-tp-athrapi"
+	| "xiaomi-tp-athrapi"
 	| "zhipu-athrapi"
 	| "dots-studio-athrapi"
 	| "anthropic-comp"

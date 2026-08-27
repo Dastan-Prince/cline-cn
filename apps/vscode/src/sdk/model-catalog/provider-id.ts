@@ -58,7 +58,7 @@ const KNOWN_API_PROVIDERS = {
 	wandb: true,
 	xiaomi: true,
 	"xiaomi-athrapi": true,
-	"mimo-tp-athrapi": true,
+	"xiaomi-tp-athrapi": true,
 	"zhipu-athrapi": true,
 	"dots-studio-athrapi": true,
 	"anthropic-comp": true,

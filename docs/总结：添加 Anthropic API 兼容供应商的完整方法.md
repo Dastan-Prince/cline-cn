@@ -10,8 +10,8 @@
 
 | 文件路径 | 用途 | 参考模板 |
 |---------|------|---------|
-| `apps/vscode/src/core/api/providers/{provider-id}.ts` | API 处理器，继承 `ApiHandler` | `xiaomi-athrapi.ts` / `mimo-tp-athrapi.ts` |
-| `apps/vscode/webview-ui/src/components/settings/providers/{ProviderName}Provider.tsx` | 设置面板 UI 组件 | `MimoTpAthrapiProvider.tsx` |
+| `apps/vscode/src/core/api/providers/{provider-id}.ts` | API 处理器，继承 `ApiHandler` | `xiaomi-athrapi.ts` / `xiaomi-tp-athrapi.ts` |
+| `apps/vscode/webview-ui/src/components/settings/providers/{ProviderName}Provider.tsx` | 设置面板 UI 组件 | `XiaomiTpAthrapiProvider.tsx` |
 
 ### 🔧 修改文件（11个）
 
@@ -87,10 +87,10 @@ cd apps/vscode && npm run protos
 | 类别 | 文件 | 说明 |
 |------|------|------|
 | **Anthropic 兼容参考** | `xiaomi-athrapi.ts` | 标准 Anthropic SDK 接入 |
-| **Token Plan 参考** | `mimo-tp-athrapi.ts` | 无外部 headers 版本 |
-| **UI 组件参考** | `MimoTpAthrapiProvider.tsx` | 含 ThinkingBudgetSlider |
+| **Token Plan 参考** | `xiaomi-tp-athrapi.ts` | 无外部 headers 版本 |
+| **UI 组件参考** | `XiaomiTpAthrapiProvider.tsx` | 含 ThinkingBudgetSlider |
 | **Proto 转换参考** | `api-configuration-conversion.ts` | 搜索 `zhipu-athrapi` 找最近添加的 |
-| **验证参考** | `validate.ts` | 搜索 `mimo-tp-athrapi` |
+| **验证参考** | `validate.ts` | 搜索 `xiaomi-tp-athrapi` |
 
 ---
 
@@ -113,7 +113,7 @@ cd apps/vscode && npm run protos
 
 ## 背景
 
-完成供应商添加后，Anthropic 兼容供应商（`xiaomi-athrapi`、`mimo-tp-athrapi`、`zhipu-athrapi`、`dots-studio-athrapi`、`anthropic-comp`）虽然使用 Anthropic SDK 原生支持 `tool_use` / `input_json_delta`，但 Cline 的原生工具调用路径对它们是关闭的。
+完成供应商添加后，Anthropic 兼容供应商（`xiaomi-athrapi`、`xiaomi-tp-athrapi`、`zhipu-athrapi`、`dots-studio-athrapi`、`anthropic-comp`）虽然使用 Anthropic SDK 原生支持 `tool_use` / `input_json_delta`，但 Cline 的原生工具调用路径对它们是关闭的。
 
 **症状：** 模型输出 `<parameter name="path">value` 风格的标签，而非 Cline XML 解析器期望的 `<path>value` 元素风格，导致 `sayAndCreateMissingParamError`。
 

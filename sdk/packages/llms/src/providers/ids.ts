@@ -52,7 +52,7 @@ export enum BUILT_IN_PROVIDER {
 	XIAOMI = "xiaomi",
 	// Cline CN fork providers (private endpoints absent from models.dev)
 	XIAOMI_ATHRAPI = "xiaomi-athrapi",
-	MIMO_TP_ATHRAPI = "mimo-tp-athrapi",
+	XIAOMI_TP_ATHRAPI = "xiaomi-tp-athrapi",
 	ZHIPU_ATHRAPI = "zhipu-athrapi",
 	DOTS_STUDIO_ATHRAPI = "dots-studio-athrapi",
 	ANTHROPIC_COMP = "anthropic-comp",
