@@ -113,6 +113,24 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 	"dots-studio-athrapi": {
 		allowsCustomIds: true,
 	},
+	"dots-studio": {
+		allowsCustomIds: true,
+		allowsModelOverrides: true,
+		baseUrlField: {
+			label: "Base URL",
+			placeholder: "https://note3-prev-api.askdiandian.com/v1",
+		},
+		defaultModelInfo: {
+			contextWindow: 393_216,
+			maxTokens: 131_072,
+			supportsImages: true,
+			supportsPromptCache: false,
+			supportsReasoning: true,
+			inputPrice: 0.435,
+			outputPrice: 0.87,
+			temperature: 0,
+		},
+	},
 	"anthropic-comp": {
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
@@ -203,6 +221,7 @@ const FALLBACK_GENERIC_PROVIDER_NAMES = {
 	"xiaomi-tp-athrapi": "Xiaomi Token Plan (Anthropic)",
 	"zhipu-athrapi": "Zhipu GLM (Anthropic)",
 	"dots-studio-athrapi": "Dots Studio (Anthropic)",
+	"dots-studio": "Dots Studio",
 	"anthropic-comp": "Anthropic Compatible",
 	"tencent-tokenhub": "Tencent TokenHub",
 	chutes: "Chutes",

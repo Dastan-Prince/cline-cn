@@ -54,6 +54,7 @@ export type ApiProvider =
 	| "xiaomi-tp-athrapi"
 	| "zhipu-athrapi"
 	| "dots-studio-athrapi"
+	| "dots-studio"
 	| "anthropic-comp"
 	| "tencent-tokenhub"
 	| "chutes"

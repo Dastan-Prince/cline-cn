@@ -61,6 +61,7 @@ const KNOWN_API_PROVIDERS = {
 	"xiaomi-tp-athrapi": true,
 	"zhipu-athrapi": true,
 	"dots-studio-athrapi": true,
+	"dots-studio": true,
 	"anthropic-comp": true,
 	"tencent-tokenhub": true,
 	chutes: true,

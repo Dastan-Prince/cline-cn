@@ -477,10 +477,12 @@ function buildElevenLabsModels(): Record<string, ModelInfo> {
 	};
 }
 
-// Dots Studio AthrAPI serves a private catalog that models.dev does not list.
-// Mirrored from the Cline CN fork so the model picker offers its two note
-// models; prices are USD per million tokens, matching the fork's ModelInfo.
-function buildDotsStudioAthrapiModels(): Record<string, ModelInfo> {
+// Dots Studio serves a private catalog that models.dev does not list. Mirrored
+// from the Cline CN fork so the model picker offers its two note models; prices
+// are USD per million tokens, matching the fork's ModelInfo. Shared by both the
+// Anthropic-compatible (`dots-studio-athrapi`) and OpenAI-compatible
+// (`dots-studio`) built-in specs.
+function buildDotsStudioModels(): Record<string, ModelInfo> {
 	const capabilities: readonly ModelCapability[] = [
 		"images",
 		"tools",
@@ -499,9 +501,9 @@ function buildDotsStudioAthrapiModels(): Record<string, ModelInfo> {
 			id: "dots3-note-prev",
 			name: "Dots3 Note Prev",
 			description:
-				"dots studio Dots3 Note Prev - Anthropic compatible API with 512K context window.",
+				"dots studio Dots3 Note Prev - 512K context window, supports reasoning.",
 			maxTokens: 131_072,
-			contextWindow: 393_216,
+			contextWindow: 350_000,
 			capabilities: [...capabilities],
 			pricing,
 		},
@@ -509,9 +511,9 @@ function buildDotsStudioAthrapiModels(): Record<string, ModelInfo> {
 			id: "dots3-note",
 			name: "Dots3 Note",
 			description:
-				"dots studio Dots3 Note - Anthropic compatible API with 512K context window.",
+				"dots studio Dots3 Note - 512K context window, supports reasoning.",
 			maxTokens: 131_072,
-			contextWindow: 393_216,
+			contextWindow: 350_000,
 			capabilities: [...capabilities],
 			pricing,
 		},
@@ -1089,9 +1091,26 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		apiKeyEnv: ["DOTS_STUDIO_ATHRAPI_API_KEY"],
 		// No models.dev catalog exists for this private endpoint; supply the
 		// fork's model list directly instead of the empty generated catalog.
-		modelsFactory: buildDotsStudioAthrapiModels,
+		modelsFactory: buildDotsStudioModels,
 		modelsProviderId: "dots-studio-athrapi",
 		defaults: { baseUrl: "https://note3-prev-api.askdiandian.com" },
+	},
+	{
+		// OpenAI-compatible sibling of dots-studio-athrapi. Same private
+		// endpoint family, but routed through the OpenAI Chat Completions
+		// protocol. Shares the fork's static model catalog so the picker offers
+		// preset models, while still allowing custom model ids and per-model
+		// overrides (context window / pricing / reasoning) like zai-coding-plan.
+		id: "dots-studio",
+		name: "Dots Studio",
+		description: "Dots Studio models via OpenAI-compatible endpoint",
+		family: "openai-compatible",
+		capabilities: ["tools", "reasoning"],
+		defaultModelId: "dots3-note",
+		apiKeyEnv: ["DOTS_STUDIO_API_KEY"],
+		modelsFactory: buildDotsStudioModels,
+		modelsProviderId: "dots-studio",
+		defaults: { baseUrl: "https://note3-prev-api.askdiandian.com/v1" },
 	},
 	{
 		id: "anthropic-comp",

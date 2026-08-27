@@ -367,6 +367,7 @@ const SECRETS_KEYS = [
 	"xiaomiTpAthrapiKey",
 	"zhipuAthrapiKey",
 	"dotsStudioAthrapiKey",
+	"dotsStudioApiKey",
 	"anthropicCompApiKey",
 ] as const
 

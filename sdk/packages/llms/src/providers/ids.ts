@@ -55,6 +55,7 @@ export enum BUILT_IN_PROVIDER {
 	XIAOMI_TP_ATHRAPI = "xiaomi-tp-athrapi",
 	ZHIPU_ATHRAPI = "zhipu-athrapi",
 	DOTS_STUDIO_ATHRAPI = "dots-studio-athrapi",
+	DOTS_STUDIO = "dots-studio",
 	ANTHROPIC_COMP = "anthropic-comp",
 	TENCENT_TOKENHUB = "tencent-tokenhub",
 	KILO = "kilo",

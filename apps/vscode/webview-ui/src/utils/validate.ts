@@ -180,6 +180,11 @@ export function validateApiConfiguration(currentMode: Mode, apiConfiguration?: A
 					return "You must provide a valid API key or choose a different provider."
 				}
 				break
+			case "dots-studio":
+				if (!apiConfiguration.dotsStudioApiKey) {
+					return "You must provide a valid API key or choose a different provider."
+				}
+				break
 			case "anthropic-comp":
 				if (!apiConfiguration.anthropicCompApiKey) {
 					return "You must provide a valid API key or choose a different provider."
