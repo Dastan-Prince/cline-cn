@@ -168,7 +168,7 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
 		baseUrlField: {
-			label: "Base URL",
+			label: "基础 URL",
 			placeholder: "https://note3-prev-api.askdiandian.com/v1",
 		},
 		defaultModelInfo: {
@@ -187,7 +187,7 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		allowsModelOverrides: true,
 		skipModelListFetch: true,
 		baseUrlField: {
-			label: "Base URL",
+			label: "基础 URL",
 			placeholder: "https://api.example.com/anthropic",
 			alwaysVisible: true,
 		},
@@ -256,7 +256,7 @@ export function getGenericProviderSettings(
 }
 
 const FALLBACK_GENERIC_PROVIDER_NAMES = {
-	deepseek: "DeepSeek",
+	deepseek: "深度求索（DeepSeek）",
 	doubao: "Doubao",
 	gemini: "Gemini",
 	"huawei-cloud-maas": "Huawei Cloud MaaS",
@@ -268,15 +268,15 @@ const FALLBACK_GENERIC_PROVIDER_NAMES = {
 	v0: "Vercel v0",
 	wandb: "W&B",
 	xiaomi: "Xiaomi",
-	"xiaomi-athrapi": "Xiaomi MiMo (Anthropic)",
-	"xiaomi-tp-athrapi": "Xiaomi Token Plan (Anthropic)",
-	"zhipu-athrapi": "Zhipu GLM (Anthropic)",
-	"dots-studio-athrapi": "Dots Studio (Anthropic)",
+	"xiaomi-athrapi": "小米 MiMo（Anthropic 兼容）",
+	"xiaomi-tp-athrapi": "小米 Token 套餐（Anthropic 兼容）",
+	"zhipu-athrapi": "智谱 GLM（Anthropic 兼容）",
+	"dots-studio-athrapi": "Dots Studio（Anthropic 兼容）",
 	"dots-studio": "Dots Studio",
-	"anthropic-comp": "Anthropic Compatible",
-	"tencent-tokenhub": "Tencent TokenHub",
+	"anthropic-comp": "Anthropic 兼容端点",
+	"tencent-tokenhub": "腾讯 TokenHub",
 	chutes: "Chutes",
-	"zai-coding-plan": "Z.AI Coding Plan",
+	"zai-coding-plan": "智谱 AI 编程套餐（Z.AI Coding Plan）",
 } as const
 
 export function getFallbackGenericProviderSettings(providerId: string): GenericProviderSettingsConfig | undefined {

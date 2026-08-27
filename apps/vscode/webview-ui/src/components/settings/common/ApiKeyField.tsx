@@ -23,9 +23,9 @@ export const ApiKeyField = ({
 	onChange,
 	providerName,
 	signupUrl,
-	placeholder = "Enter API Key...",
+	placeholder = "输入 API 密钥...",
 	helpText,
-	label = `${providerName} API Key`,
+	label = `${providerName} API 密钥`,
 }: ApiKeyFieldProps) => {
 	const [localValue, setLocalValue] = useState(initialValue)
 	const isFocusedRef = useRef(false)
@@ -95,7 +95,7 @@ export const ApiKeyField = ({
 							display: "inline",
 							fontSize: "inherit",
 						}}>
-						You can get a{/^[aeiou]/i.test(providerName) ? "n" : ""} {providerName} API key by signing up here.
+						您可以通过在此注册获取 {providerName} 的 API 密钥。
 					</VSCodeLink>
 				)}
 			</p>

@@ -238,7 +238,7 @@ describe("OpenAICompatibleProvider", () => {
 		expect(mocks.refreshOpenAiModels).toHaveBeenCalledWith(
 			expect.objectContaining({ baseUrl: "http://localhost:1234/v1", apiKey: "" }),
 		)
-		expect(screen.getByLabelText("OpenAI Compatible API key")).toHaveValue("••••••••••••")
+		expect(screen.getByLabelText("OpenAI 兼容 API 密钥")).toHaveValue("••••••••••••")
 	})
 
 	it("persists base URL and API key edits made before config loads", async () => {
@@ -252,10 +252,10 @@ describe("OpenAICompatibleProvider", () => {
 		renderProvider()
 		await act(async () => {})
 
-		fireEvent.change(screen.getByPlaceholderText("Enter base URL..."), {
+		fireEvent.change(screen.getByPlaceholderText("输入基础 URL..."), {
 			target: { value: "http://early.example:1234/v1" },
 		})
-		fireEvent.change(screen.getByLabelText("OpenAI Compatible API key"), { target: { value: "early-secret" } })
+		fireEvent.change(screen.getByLabelText("OpenAI 兼容 API 密钥"), { target: { value: "early-secret" } })
 
 		expect(mocks.write).toHaveBeenCalledWith({ baseUrl: "http://early.example:1234/v1" })
 		expect(mocks.write).toHaveBeenCalledWith({ apiKey: "early-secret" })
@@ -265,7 +265,7 @@ describe("OpenAICompatibleProvider", () => {
 		renderProvider()
 		await act(async () => {})
 
-		fireEvent.change(screen.getByLabelText("OpenAI Compatible API key"), { target: { value: "new-secret" } })
+		fireEvent.change(screen.getByLabelText("OpenAI 兼容 API 密钥"), { target: { value: "new-secret" } })
 
 		expect(mocks.write).toHaveBeenCalledWith({ apiKey: "new-secret" })
 	})
@@ -275,7 +275,7 @@ describe("OpenAICompatibleProvider", () => {
 		renderProvider()
 		await act(async () => {})
 
-		fireEvent.change(screen.getByLabelText("Model ID"), { target: { value: "listed-model" } })
+		fireEvent.change(screen.getByLabelText("模型 ID"), { target: { value: "listed-model" } })
 
 		expect(mocks.commitSelection).toHaveBeenCalledWith("act", {
 			providerId: "custom-openai",
@@ -289,7 +289,7 @@ describe("OpenAICompatibleProvider", () => {
 		renderProvider()
 		await act(async () => {})
 
-		fireEvent.change(screen.getByLabelText("Model ID"), { target: { value: "listed-model" } })
+		fireEvent.change(screen.getByLabelText("模型 ID"), { target: { value: "listed-model" } })
 
 		expect(mocks.commitSelection).toHaveBeenCalledWith("act", {
 			providerId: "custom-openai",
@@ -303,10 +303,10 @@ describe("OpenAICompatibleProvider", () => {
 		setCommittedSelection({ inputPrice: 3, outputPrice: 15 })
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.change(screen.getByLabelText("Model ID"), { target: { value: "listed-model" } })
-		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "0.25" } })
+		fireEvent.change(screen.getByLabelText("模型 ID"), { target: { value: "listed-model" } })
+		fireEvent.change(screen.getByLabelText("温度"), { target: { value: "0.25" } })
 
 		expect(mocks.commitSelection).toHaveBeenLastCalledWith("act", {
 			providerId: "custom-openai",
@@ -359,12 +359,12 @@ describe("OpenAICompatibleProvider", () => {
 		const view = render(<OpenAICompatibleProvider currentMode="act" providerId="custom-openai" showModelOptions={false} />)
 		await act(async () => {})
 
-		fireEvent.change(screen.getByLabelText("Model ID"), { target: { value: "listed-model" } })
+		fireEvent.change(screen.getByLabelText("模型 ID"), { target: { value: "listed-model" } })
 
 		view.rerender(<OpenAICompatibleProvider currentMode="plan" providerId="custom-openai" showModelOptions={false} />)
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
-		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "0.25" } })
+		fireEvent.click(screen.getByText("模型配置"))
+		fireEvent.change(screen.getByLabelText("温度"), { target: { value: "0.25" } })
 
 		expect(mocks.commitSelection).toHaveBeenLastCalledWith("plan", {
 			providerId: "custom-openai",
@@ -420,16 +420,16 @@ describe("OpenAICompatibleProvider", () => {
 		})
 		const view = render(<OpenAICompatibleProvider currentMode="act" providerId="custom-openai" showModelOptions={false} />)
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "0.25" } })
+		fireEvent.change(screen.getByLabelText("温度"), { target: { value: "0.25" } })
 
 		view.rerender(<OpenAICompatibleProvider currentMode="plan" providerId="custom-openai" showModelOptions={false} />)
 		await act(async () => {})
 		view.rerender(<OpenAICompatibleProvider currentMode="act" providerId="custom-openai" showModelOptions={false} />)
 		await act(async () => {})
 
-		fireEvent.change(screen.getByLabelText("Output Price / 1M tokens"), { target: { value: "20" } })
+		fireEvent.change(screen.getByLabelText("输出价格 / 100万 tokens"), { target: { value: "20" } })
 
 		expect(mocks.commitSelection).toHaveBeenLastCalledWith("act", {
 			providerId: "custom-openai",
@@ -452,9 +452,9 @@ describe("OpenAICompatibleProvider", () => {
 		})
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.click(screen.getByRole("checkbox", { name: "Supports Images" }))
+		fireEvent.click(screen.getByRole("checkbox", { name: "支持图像" }))
 
 		expect(mocks.commitSelection).toHaveBeenCalledWith("act", {
 			providerId: "custom-openai",
@@ -473,9 +473,9 @@ describe("OpenAICompatibleProvider", () => {
 	it("persists a temperature edit without adding resolved defaults", async () => {
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "0.25" } })
+		fireEvent.change(screen.getByLabelText("温度"), { target: { value: "0.25" } })
 
 		expect(mocks.commitSelection).toHaveBeenCalledWith("act", {
 			providerId: "custom-openai",
@@ -485,13 +485,13 @@ describe("OpenAICompatibleProvider", () => {
 	})
 
 	it.each([
-		["Context Window Size", "contextWindow", "64000", 64_000],
-		["Max Output Tokens", "maxTokens", "4096", 4_096],
-		["Output Price / 1M tokens", "outputPrice", "2.5", 2.5],
+		["上下文窗口大小", "contextWindow", "64000", 64_000],
+		["最大输出 Token 数", "maxTokens", "4096", 4_096],
+		["输出价格 / 100万 tokens", "outputPrice", "2.5", 2.5],
 	] as const)("maps %s only to the %s override", async (label, key, input, expected) => {
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
 		fireEvent.change(screen.getByLabelText(label), { target: { value: input } })
 
@@ -510,7 +510,7 @@ describe("OpenAICompatibleProvider", () => {
 		})
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
 		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "" } })
 
@@ -531,9 +531,9 @@ describe("OpenAICompatibleProvider", () => {
 		})
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.change(screen.getByLabelText("Input Price / 1M tokens"), { target: { value: "1.25" } })
+		fireEvent.change(screen.getByLabelText("输入价格 / 100万 tokens"), { target: { value: "1.25" } })
 
 		expect(mocks.commitSelection).toHaveBeenCalledWith("act", {
 			providerId: "custom-openai",
@@ -550,7 +550,7 @@ describe("OpenAICompatibleProvider", () => {
 		setCommittedSelection({ temperature: 0.4 })
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
 		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "" } })
 
@@ -564,20 +564,20 @@ describe("OpenAICompatibleProvider", () => {
 	it("shows invalid-number feedback without committing", async () => {
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.change(screen.getByLabelText("Max Output Tokens"), { target: { value: "80000o" } })
+		fireEvent.change(screen.getByLabelText("最大输出 Token 数"), { target: { value: "80000o" } })
 
-		expect(screen.getByRole("alert")).toHaveTextContent("Max Output Tokens must be a valid number.")
+		expect(screen.getByRole("alert")).toHaveTextContent("最大输出 Token 数 必须是有效数字。")
 		expect(mocks.commitSelection).not.toHaveBeenCalled()
 	})
 
 	it("merges rapid edits using the pending override set", async () => {
 		renderProvider()
 		await act(async () => {})
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("模型配置"))
 
-		fireEvent.change(screen.getByLabelText("Temperature"), { target: { value: "0.25" } })
+		fireEvent.change(screen.getByLabelText("温度"), { target: { value: "0.25" } })
 		fireEvent.change(screen.getByLabelText("Input Price / 1M tokens"), { target: { value: "1.5" } })
 
 		expect(mocks.commitSelection).toHaveBeenLastCalledWith("act", {

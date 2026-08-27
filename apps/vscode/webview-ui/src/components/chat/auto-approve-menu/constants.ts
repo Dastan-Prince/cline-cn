@@ -3,26 +3,26 @@ import { ActionMetadata } from "./types"
 export const ACTION_METADATA: ActionMetadata[] = [
 	{
 		id: "readFiles",
-		label: "Read files",
-		shortName: "Read",
+		label: "autoApprove.actions.readProjectFiles",
+		shortName: "autoApprove.actions.shortNames.readFiles",
 		icon: "codicon-search",
 	},
 	{
 		id: "editFiles",
-		label: "Edit files",
-		shortName: "Edit",
+		label: "autoApprove.actions.editProjectFiles",
+		shortName: "autoApprove.actions.shortNames.editFiles",
 		icon: "codicon-edit",
 	},
 	{
 		id: "executeSafeCommands",
-		label: "Execute commands",
-		shortName: "Commands",
+		label: "autoApprove.actions.executeSafeCommands",
+		shortName: "autoApprove.actions.shortNames.executeSafeCommands",
 		icon: "codicon-terminal",
 	},
 	{
 		id: "useBrowser",
-		label: "Fetch web content",
-		shortName: "Web Fetch",
+		label: "autoApprove.actions.useBrowser",
+		shortName: "autoApprove.actions.shortNames.useBrowser",
 		icon: "codicon-globe",
 	},
 	{
