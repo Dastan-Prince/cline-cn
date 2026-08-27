@@ -362,6 +362,124 @@ describe("normalizeProviderReasoningSettings", () => {
 })
 
 // ---------------------------------------------------------------------------
+// anthropic-comp reasoning defaults
+// ---------------------------------------------------------------------------
+
+describe("anthropic-comp reasoning defaults", () => {
+	it("defaults to thinking-on/high when the provider has no stored settings", async () => {
+		mocks.stateManager.getApiConfiguration.mockReturnValue({
+			actModeApiProvider: "anthropic-comp",
+			actModeApiModelId: "glm-5.3",
+			actModeAnthropicCompModelId: "glm-5.3",
+			anthropicCompApiKey: "test-key",
+		} as any)
+		mocks.providerSettingsManager.getProviderSettings.mockImplementation((providerId?: string) => {
+			if (providerId !== "anthropic-comp") {
+				return undefined
+			}
+			// Settings record exists but carries no reasoning block at all.
+			return { provider: "anthropic-comp", apiKey: "test-key", model: "glm-5.3" } as any
+		})
+
+		const config = await buildSessionConfig({ cwd: "/tmp/workspace" })
+
+		expect(config.providerId).toBe("anthropic-comp")
+		expect(config.thinking).toBe(true)
+		expect(config.reasoningEffort).toBe("high")
+	})
+
+	it("defaults to thinking-on/high when reasoning settings normalize to empty", async () => {
+		mocks.stateManager.getApiConfiguration.mockReturnValue({
+			actModeApiProvider: "anthropic-comp",
+			actModeApiModelId: "glm-5.3",
+			actModeAnthropicCompModelId: "glm-5.3",
+			anthropicCompApiKey: "test-key",
+		} as any)
+		mocks.providerSettingsManager.getProviderSettings.mockImplementation((providerId?: string) => {
+			if (providerId !== "anthropic-comp") {
+				return undefined
+			}
+			// An empty reasoning object normalizes to {} — still default.
+			return { provider: "anthropic-comp", apiKey: "test-key", model: "glm-5.3", reasoning: {} } as any
+		})
+
+		const config = await buildSessionConfig({ cwd: "/tmp/workspace" })
+
+		expect(config.thinking).toBe(true)
+		expect(config.reasoningEffort).toBe("high")
+	})
+
+	it("respects an explicit user disable over the fork default", async () => {
+		mocks.stateManager.getApiConfiguration.mockReturnValue({
+			actModeApiProvider: "anthropic-comp",
+			actModeApiModelId: "glm-5.3",
+			actModeAnthropicCompModelId: "glm-5.3",
+			anthropicCompApiKey: "test-key",
+		} as any)
+		mocks.providerSettingsManager.getProviderSettings.mockImplementation((providerId?: string) => {
+			if (providerId !== "anthropic-comp") {
+				return undefined
+			}
+			return {
+				provider: "anthropic-comp",
+				apiKey: "test-key",
+				model: "glm-5.3",
+				reasoning: { enabled: false },
+			} as any
+		})
+
+		const config = await buildSessionConfig({ cwd: "/tmp/workspace" })
+
+		expect(config.thinking).toBe(false)
+		expect(config.reasoningEffort).toBeUndefined()
+	})
+
+	it("keeps an explicit user effort over the fork default", async () => {
+		mocks.stateManager.getApiConfiguration.mockReturnValue({
+			actModeApiProvider: "anthropic-comp",
+			actModeApiModelId: "glm-5.3",
+			actModeAnthropicCompModelId: "glm-5.3",
+			anthropicCompApiKey: "test-key",
+		} as any)
+		mocks.providerSettingsManager.getProviderSettings.mockImplementation((providerId?: string) => {
+			if (providerId !== "anthropic-comp") {
+				return undefined
+			}
+			return {
+				provider: "anthropic-comp",
+				apiKey: "test-key",
+				model: "glm-5.3",
+				reasoning: { effort: "low" },
+			} as any
+		})
+
+		const config = await buildSessionConfig({ cwd: "/tmp/workspace" })
+
+		expect(config.reasoningEffort).toBe("low")
+		expect(config.thinking).toBeUndefined()
+	})
+
+	it("does not apply the fork default to other providers", async () => {
+		mocks.stateManager.getApiConfiguration.mockReturnValue({
+			actModeApiProvider: "deepseek",
+			actModeApiModelId: "deepseek-v4-flash",
+			deepSeekApiKey: "test-key",
+		} as any)
+		mocks.providerSettingsManager.getProviderSettings.mockImplementation((providerId?: string) => {
+			if (providerId !== "deepseek") {
+				return undefined
+			}
+			return { provider: "deepseek", apiKey: "test-key", model: "deepseek-v4-flash" } as any
+		})
+
+		const config = await buildSessionConfig({ cwd: "/tmp/workspace" })
+
+		expect(config.thinking).toBeUndefined()
+		expect(config.reasoningEffort).toBeUndefined()
+	})
+})
+
+// ---------------------------------------------------------------------------
 // buildSessionConfig
 // ---------------------------------------------------------------------------
 

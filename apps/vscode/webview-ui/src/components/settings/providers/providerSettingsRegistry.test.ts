@@ -1,4 +1,5 @@
 import type { ProviderListing } from "@shared/proto/cline/models"
+import { fromProtobufModelOverrides, toProtobufModelOverrides } from "@shared/proto-conversions/models/modelOverrides"
 import { describe, expect, it } from "vitest"
 import {
 	getFallbackGenericProviderSettings,
@@ -6,6 +7,12 @@ import {
 	hasCustomProviderSettings,
 	isGenericProviderListing,
 } from "./providerSettingsRegistry"
+
+// Mirrors what GenericProviderSettings sends: overrides cross the gRPC
+// boundary as protobuf before the host converts them back.
+function protoRoundTripOverrides(overrides: Parameters<typeof toProtobufModelOverrides>[0]) {
+	return fromProtobufModelOverrides(toProtobufModelOverrides(overrides))
+}
 
 function listing(overrides: Partial<ProviderListing>): ProviderListing {
 	return {
@@ -140,6 +147,19 @@ describe("providerSettingsRegistry", () => {
 			providerId: "future-simple-provider",
 			providerName: "Future Simple Provider",
 		})
+	})
+
+	// Regression guard for the checkbox snap-back bug: what the settings UI
+	// sends through the proto bridge must preserve explicit boolean overrides.
+	// (Host-side round trip is covered in the vscode store test; this pins the
+	// webview half of the bridge.)
+	it("preserves boolean capability overrides across the proto round trip", () => {
+		expect(protoRoundTripOverrides({ supportsVision: false, supportsReasoning: true })).toEqual({
+			supportsVision: false,
+			supportsReasoning: true,
+		})
+		expect(protoRoundTripOverrides({ supportsReasoning: false })).toEqual({ supportsReasoning: false })
+		expect(protoRoundTripOverrides({})).toEqual({})
 	})
 
 	it("requires listing metadata that proves the provider has a supported simple protocol", () => {

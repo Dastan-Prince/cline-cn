@@ -51,6 +51,57 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 	// has since moved away from is not mistaken for a no-op (see below).
 	const lastEmittedRef = useRef<Partial<Record<NumericModelOverrideKey, number | undefined>>>({})
 
+	// Optimistic checkbox state. The committed override only arrives after a
+	// commit + read-back round trip, and VSCodeCheckbox's internal (uncontrolled)
+	// checked state resets to the prop value the moment React re-renders with
+	// the still-stale modelInfo — the checkbox visibly snaps back before the
+	// round trip lands, even though the commit itself is durable. Track the
+	// user's click locally and drop the optimistic value once the authoritative
+	// props agree with it (or when the model/mode changes via the parent's key
+	// remount, which recreates this state entirely).
+	const [optimisticCapabilities, setOptimisticCapabilities] = useState<{
+		supportsVision?: boolean
+		supportsReasoning?: boolean
+	}>({})
+
+	const isChecked = (key: "supportsVision" | "supportsReasoning", propValue: boolean | undefined): boolean => {
+		const optimistic = optimisticCapabilities[key]
+		return optimistic !== undefined ? optimistic : propValue === true
+	}
+
+	const handleCapabilityToggle = (key: "supportsVision" | "supportsReasoning", checked: boolean) => {
+		setOptimisticCapabilities((current) => ({ ...current, [key]: checked }))
+		onOverrideChange(key, checked)
+	}
+
+	// Resolve optimistic values that the authoritative props have caught up
+	// with; keep only those still in flight (props still disagree).
+	const pendingOptimistic = {
+		supportsVision:
+			optimisticCapabilities.supportsVision !== undefined &&
+			optimisticCapabilities.supportsVision !== (modelInfo.supportsImages === true)
+				? optimisticCapabilities.supportsVision
+				: undefined,
+		supportsReasoning:
+			optimisticCapabilities.supportsReasoning !== undefined &&
+			optimisticCapabilities.supportsReasoning !== (modelInfo.supportsReasoning === true)
+				? optimisticCapabilities.supportsReasoning
+				: undefined,
+	}
+	if (
+		pendingOptimistic.supportsVision !== optimisticCapabilities.supportsVision ||
+		pendingOptimistic.supportsReasoning !== optimisticCapabilities.supportsReasoning
+	) {
+		// Prune caught-up values during render (safe: derived state pruning,
+		// guarded by the comparison above so it settles immediately).
+		setOptimisticCapabilities({
+			...(pendingOptimistic.supportsVision !== undefined ? { supportsVision: pendingOptimistic.supportsVision } : {}),
+			...(pendingOptimistic.supportsReasoning !== undefined
+				? { supportsReasoning: pendingOptimistic.supportsReasoning }
+				: {}),
+		})
+	}
+
 	const handleNumericChange = (key: NumericModelOverrideKey, label: string, value: string) => {
 		const parsed = parseOptionalFiniteNumber(value)
 		if (!parsed.valid) {
@@ -100,16 +151,16 @@ export function ModelConfigurationEditor({ modelInfo, disabled, onOverrideChange
 				<>
 					<div style={{ display: "flex", gap: 10 }}>
 						<VSCodeCheckbox
-							checked={modelInfo.supportsImages === true}
+							checked={isChecked("supportsVision", modelInfo.supportsImages)}
 							disabled={disabled}
-							onChange={(e: any) => onOverrideChange("supportsVision", e.target.checked === true)}>
+							onChange={(e: any) => handleCapabilityToggle("supportsVision", e.target.checked === true)}>
 							Supports Images
 						</VSCodeCheckbox>
 
 						<VSCodeCheckbox
-							checked={modelInfo.supportsReasoning === true}
+							checked={isChecked("supportsReasoning", modelInfo.supportsReasoning)}
 							disabled={disabled}
-							onChange={(e: any) => onOverrideChange("supportsReasoning", e.target.checked === true)}>
+							onChange={(e: any) => handleCapabilityToggle("supportsReasoning", e.target.checked === true)}>
 							Supports Reasoning
 						</VSCodeCheckbox>
 					</div>

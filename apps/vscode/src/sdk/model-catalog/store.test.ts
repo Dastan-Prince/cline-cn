@@ -370,6 +370,47 @@ describe("createProviderConfigStore", () => {
 		expectResolvedSelection(store.readSelection(providerId, "act"), selection, modelInfoA)
 	})
 
+	// Regression: the Model Configuration editor commits boolean capability
+	// overrides (e.g. supportsReasoning) through the proto bridge
+	// (toProtobufModelOverrides → fromProtobufModelOverrides) before they reach
+	// this store, then reads the resolved selection back for display. A
+	// flipped checkbox that visually snaps back to its old value means the
+	// round trip lost the override. Mirror the on-disk shape this fork's
+	// anthropic-comp provider actually persists (verified against the real
+	// machine's models.json).
+	it("reflects committed anthropic-comp capability overrides on the subsequent read", async () => {
+		const { createProviderConfigStore } = await import("./store")
+		const store = createProviderConfigStore()
+		const providerId = parseProviderId("anthropic-comp")
+		const overrides = {
+			contextWindow: 1_000_000,
+			supportsVision: true,
+			supportsReasoning: false,
+			inputPrice: 1,
+			outputPrice: 4,
+			temperature: 0.95,
+		}
+
+		store.commitSelection(providerId, "act", { providerId, modelId: "glm-5.3", overrides })
+		// A later edit flips supportsReasoning; the editor replaces the whole
+		// override set (mirrors updateModelOverride semantics).
+		store.commitSelection(providerId, "act", {
+			providerId,
+			modelId: "glm-5.3",
+			overrides: { ...overrides, supportsReasoning: true },
+		})
+
+		const selection = store.readSelection(providerId, "act")
+		expect(selection?.modelInfo.supportsReasoning).toBe(true)
+		expect(selection?.modelInfo.supportsImages).toBe(true)
+		expect(selection?.modelInfo.contextWindow).toBe(1_000_000)
+		expect(mocks.getModelsFile().providers["anthropic-comp"]?.models?.["glm-5.3"]).toMatchObject({
+			contextWindow: 1_000_000,
+			supportsVision: true,
+			supportsReasoning: true,
+		})
+	})
+
 	it("hydrates a generic provider selection from providers.json after reload", async () => {
 		const { createProviderConfigStore } = await import("./store")
 		mocks.setProviderSettings({ zai: { provider: "zai", model: "manual-zai-model" } })

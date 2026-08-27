@@ -199,6 +199,15 @@ function resolveProviderReasoningConfig(providerId: string): SessionReasoningCon
 		const manager = getProviderSettingsManager(resolveDataDir())
 		const settings = manager.getProviderSettings(providerSettingsProviderId(providerId))
 		if (!settings) {
+			// anthropic-comp targets third-party Anthropic-compatible endpoints
+			// whose models the static catalog knows nothing about. Default to
+			// thinking-on/high when the user has not authored reasoning
+			// settings, matching this fork's product expectation; explicit
+			// `enabled: false` / `effort: "none"` (when settings exist) still
+			// disables it.
+			if (providerId === "anthropic-comp") {
+				return { thinking: true, reasoningEffort: "high" }
+			}
 			return {}
 		}
 
@@ -212,7 +221,15 @@ function resolveProviderReasoningConfig(providerId: string): SessionReasoningCon
 			return normalizeProviderReasoningSettings(sanitizedSettings.reasoning)
 		}
 
-		return normalizeProviderReasoningSettings(settings.reasoning)
+		const normalized = normalizeProviderReasoningSettings(settings.reasoning)
+		if (providerId === "anthropic-comp" && Object.keys(normalized).length === 0) {
+			// No user-authored reasoning settings at all — apply the fork's
+			// default instead of leaving it unset (unset would fall through to
+			// provider/model defaults, which for custom compatible endpoints
+			// means "no reasoning").
+			return { thinking: true, reasoningEffort: "high" }
+		}
+		return normalized
 	} catch (error) {
 		Logger.warn("[SessionFactory] Provider reasoning resolution failed:", error)
 		return {}

@@ -1,5 +1,7 @@
 import type { ProviderConfigResponse } from "@shared/proto/cline/models"
 import { ApiFormat } from "@shared/proto/cline/models"
+import { toProtobufModelOverrides } from "@shared/proto-conversions/models/modelOverrides"
+import { toProtobufModelInfo } from "@shared/proto-conversions/models/typeConversion"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import type { ChangeEventHandler, ReactNode } from "react"
 import { describe, expect, it, vi } from "vitest"
@@ -48,6 +50,33 @@ vi.mock("@vscode/webview-ui-toolkit/react", async (importOriginal) => {
 		),
 		VSCodeOption: ({ children, value }: { children?: ReactNode; value?: string }) => (
 			<option value={value}>{children}</option>
+		),
+		VSCodeCheckbox: ({
+			checked,
+			children,
+			disabled,
+			onChange,
+		}: {
+			checked?: boolean
+			children?: ReactNode
+			disabled?: boolean
+			onChange?: (event: { target: { checked: boolean } }) => void
+		}) => (
+			// Mirror the toolkit web component's *controlled* projection: the
+			// rendered checked state follows the prop, not the user's click —
+			// this is what made the pre-fix checkbox visually snap back while
+			// the commit round trip was in flight. The label text stays
+			// rendered (wrapped in a label) so getByText queries keep working.
+			<label>
+				<input
+					aria-label={typeof children === "string" ? children : undefined}
+					checked={checked === true}
+					disabled={disabled}
+					onChange={(event) => onChange?.({ target: { checked: event.currentTarget.checked } })}
+					type="checkbox"
+				/>
+				{children}
+			</label>
 		),
 	}
 })
@@ -574,5 +603,97 @@ describe("GenericProviderSettings", () => {
 				overrides: { supportsReasoning: true },
 			}),
 		)
+	})
+
+	// Regression: the Model Configuration capability checkboxes must stay
+	// flipped after a click even while the commit + read-back round trip is
+	// still in flight. Before the optimistic-state fix, the controlled
+	// `checked` prop re-rendered from the stale modelInfo (the committed
+	// selection only arrives after commitSelection resolves and the provider
+	// config re-reads), so the checkbox visibly snapped back.
+	it("keeps capability checkboxes flipped while the commit round trip is in flight", async () => {
+		let resolveCommit: (() => void) | undefined
+		const commitSelection = vi.fn(
+			() =>
+				new Promise<void>((resolve) => {
+					resolveCommit = resolve
+				}),
+		)
+		vi.mocked(useProviderModels).mockReturnValue({
+			models: {},
+			defaultModelId: "",
+			isLoading: false,
+			isStale: false,
+			error: undefined,
+			refresh: vi.fn(),
+			fingerprint: "fingerprint",
+		})
+		vi.mocked(useProviderConfig).mockReturnValue({
+			// The committed selection hydrates immediately with the pre-click
+			// snapshot (supportsReasoning unset) so a model id exists to commit
+			// against; only the commit + read-back round trip is delayed.
+			config: providerConfig({
+				actSelection: {
+					providerId: "anthropic-comp",
+					modelId: "glm-5.3",
+					modelInfo: toProtobufModelInfo({ name: "glm-5.3", supportsPromptCache: false }),
+				} as ProviderConfigResponse["actSelection"],
+			}),
+			write: vi.fn(async () => undefined),
+			commitSelection,
+		})
+
+		const { rerender } = render(
+			<GenericProviderSettings
+				allowsCustomIds={true}
+				allowsModelOverrides={true}
+				currentMode="act"
+				providerId="anthropic-comp"
+				providerName="Anthropic Compatible"
+				showModelOptions={true}
+				skipModelListFetch={true}
+			/>,
+		)
+
+		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByLabelText("Supports Reasoning"))
+
+		await waitFor(() => expect(commitSelection).toHaveBeenCalledTimes(1))
+		// The commit promise is still pending here, so committedSelection still
+		// hydrates from the pre-click snapshot: the checkbox must stay checked.
+		expect(screen.getByLabelText("Supports Reasoning")).toBeChecked()
+
+		// Simulate the provider config re-read landing with the override
+		// applied, then let the commit promise resolve.
+		resolveCommit?.()
+		vi.mocked(useProviderConfig).mockReturnValue({
+			config: providerConfig({
+				actSelection: {
+					providerId: "anthropic-comp",
+					modelId: "glm-5.3",
+					modelInfo: toProtobufModelInfo({
+						name: "glm-5.3",
+						supportsPromptCache: false,
+						supportsReasoning: true,
+					}),
+					overrides: toProtobufModelOverrides({ supportsReasoning: true }),
+				} as ProviderConfigResponse["actSelection"],
+			}),
+			write: vi.fn(async () => undefined),
+			commitSelection,
+		})
+		rerender(
+			<GenericProviderSettings
+				allowsCustomIds={true}
+				allowsModelOverrides={true}
+				currentMode="act"
+				providerId="anthropic-comp"
+				providerName="Anthropic Compatible"
+				showModelOptions={true}
+				skipModelListFetch={true}
+			/>,
+		)
+
+		expect(screen.getByLabelText("Supports Reasoning")).toBeChecked()
 	})
 })
