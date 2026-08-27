@@ -43,6 +43,7 @@ function getActiveProviderAndModelId(apiConfiguration: ReturnType<typeof useExte
 	const providerSpecificModelIds: Partial<Record<string, string | undefined>> = {
 		cline: modeFields.clineModelId,
 		"cline-pass": modeFields.clinePassModelId,
+		"anthropic-comp": modeFields.anthropicCompModelId,
 		deepseek: modeFields.apiModelId,
 		openai: modeFields.openAiModelId,
 		openrouter: modeFields.openRouterModelId,

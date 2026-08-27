@@ -98,7 +98,7 @@ describe("GenericProviderSettings", () => {
 			providerId: "deepseek",
 			modelId: "deepseek-reasoner",
 		})
-		expect(useProviderModels).toHaveBeenCalledWith("deepseek")
+		expect(useProviderModels).toHaveBeenCalledWith("deepseek", { autoFetch: true })
 		expect(useProviderConfig).toHaveBeenCalledWith("deepseek")
 	})
 
@@ -461,5 +461,118 @@ describe("GenericProviderSettings", () => {
 		fireEvent.click(screen.getByText("Use custom base URL"))
 
 		expect(write).toHaveBeenCalledWith({ baseUrl: "" })
+	})
+
+	it("renders an always-visible base URL field without the opt-in checkbox", async () => {
+		const write = vi.fn(async () => undefined)
+		vi.mocked(useProviderModels).mockReturnValue({
+			models: {},
+			defaultModelId: "",
+			isLoading: false,
+			isStale: false,
+			error: undefined,
+			refresh: vi.fn(),
+			fingerprint: "fingerprint",
+		})
+		vi.mocked(useProviderConfig).mockReturnValue({
+			config: providerConfig({ apiKeyLength: 0 }),
+			write,
+			commitSelection: vi.fn(),
+		})
+
+		render(
+			<GenericProviderSettings
+				allowsCustomIds={true}
+				baseUrlField={{
+					label: "Base URL",
+					placeholder: "https://api.example.com/anthropic",
+					alwaysVisible: true,
+				}}
+				currentMode="act"
+				providerId="anthropic-comp"
+				providerName="Anthropic Compatible"
+				showModelOptions={false}
+			/>,
+		)
+
+		const baseUrlInput = screen.getByPlaceholderText("https://api.example.com/anthropic")
+		expect(baseUrlInput).toBeInTheDocument()
+		expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
+
+		fireEvent.input(baseUrlInput, { target: { value: "https://proxy.example.com/anthropic" } })
+
+		await waitFor(() => expect(write).toHaveBeenCalledWith({ baseUrl: "https://proxy.example.com/anthropic" }))
+	})
+
+	it("skips the automatic model list fetch when requested", () => {
+		vi.mocked(useProviderModels).mockReturnValue({
+			models: {},
+			defaultModelId: "",
+			isLoading: false,
+			isStale: false,
+			error: undefined,
+			refresh: vi.fn(),
+			fingerprint: "fingerprint",
+		})
+		vi.mocked(useProviderConfig).mockReturnValue({
+			config: undefined,
+			write: vi.fn(),
+			commitSelection: vi.fn(),
+		})
+
+		render(
+			<GenericProviderSettings
+				allowsCustomIds={true}
+				currentMode="act"
+				providerId="anthropic-comp"
+				providerName="Anthropic Compatible"
+				showModelOptions={false}
+				skipModelListFetch={true}
+			/>,
+		)
+
+		expect(useProviderModels).toHaveBeenCalledWith("anthropic-comp", { autoFetch: false })
+	})
+
+	it("commits model configuration overrides for the selected model", async () => {
+		const commitSelection = vi.fn(async () => undefined)
+		vi.mocked(useProviderModels).mockReturnValue({
+			models: {
+				"deepseek-chat": { name: "DeepSeek Chat", supportsPromptCache: true, contextWindow: 128_000 },
+			},
+			defaultModelId: "deepseek-chat",
+			isLoading: false,
+			isStale: false,
+			error: undefined,
+			refresh: vi.fn(),
+			fingerprint: "fingerprint",
+		})
+		vi.mocked(useProviderConfig).mockReturnValue({
+			config: undefined,
+			write: vi.fn(async () => undefined),
+			commitSelection,
+		})
+
+		render(
+			<GenericProviderSettings
+				allowsCustomIds={false}
+				allowsModelOverrides={true}
+				currentMode="act"
+				providerId="deepseek"
+				providerName="DeepSeek"
+				showModelOptions={true}
+			/>,
+		)
+
+		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText("Supports Reasoning"))
+
+		await waitFor(() =>
+			expect(commitSelection).toHaveBeenCalledWith("act", {
+				providerId: "deepseek",
+				modelId: "deepseek-chat",
+				overrides: { supportsReasoning: true },
+			}),
+		)
 	})
 })

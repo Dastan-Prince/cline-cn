@@ -3,7 +3,7 @@ import type {
 	GatewayResolvedProviderConfig,
 } from "@cline/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createAnthropicProviderModule } from "./anthropic";
+import { createAnthropicProviderModule, normalizeAnthropicBaseUrl } from "./anthropic";
 
 const createAnthropicMock = vi.hoisted(() => vi.fn());
 const anthropicModelMock = vi.hoisted(() =>
@@ -14,6 +14,43 @@ vi.mock("@ai-sdk/anthropic", () => ({
 	createAnthropic: createAnthropicMock,
 }));
 
+describe("normalizeAnthropicBaseUrl", () => {
+	it("returns undefined when no base URL is configured", () => {
+		expect(normalizeAnthropicBaseUrl(undefined)).toBeUndefined();
+		expect(normalizeAnthropicBaseUrl("")).toBeUndefined();
+		expect(normalizeAnthropicBaseUrl("   ")).toBeUndefined();
+	});
+
+	it("appends /v1 to custom base URLs (legacy /v1/messages semantics)", () => {
+		expect(normalizeAnthropicBaseUrl("https://gateway.example.com/anthropic")).toBe(
+			"https://gateway.example.com/anthropic/v1",
+		);
+		expect(normalizeAnthropicBaseUrl("https://api.deepseek.com/anthropic")).toBe(
+			"https://api.deepseek.com/anthropic/v1",
+		);
+	});
+
+	it("strips trailing slashes before appending the version segment", () => {
+		expect(normalizeAnthropicBaseUrl("https://gateway.example.com/anthropic///")).toBe(
+			"https://gateway.example.com/anthropic/v1",
+		);
+	});
+
+	it("keeps base URLs that already end with an API version segment", () => {
+		expect(normalizeAnthropicBaseUrl("https://gateway.example.com/anthropic/v1")).toBe(
+			"https://gateway.example.com/anthropic/v1",
+		);
+		expect(normalizeAnthropicBaseUrl("https://gateway.example.com/v1beta/")).toBe(
+			"https://gateway.example.com/v1beta",
+		);
+	});
+
+	it("leaves the official Anthropic API root untouched for @ai-sdk/anthropic to version", () => {
+		expect(normalizeAnthropicBaseUrl("https://api.anthropic.com")).toBe("https://api.anthropic.com");
+		expect(normalizeAnthropicBaseUrl("https://api.anthropic.com/")).toBe("https://api.anthropic.com");
+	});
+});
+
 describe("createAnthropicProviderModule", () => {
 	beforeEach(() => {
 		createAnthropicMock.mockReset();
@@ -21,7 +58,7 @@ describe("createAnthropicProviderModule", () => {
 		anthropicModelMock.mockClear();
 	});
 
-	it("passes custom base URLs to Anthropic-compatible providers", async () => {
+	it("appends /v1 to custom base URLs passed to Anthropic-compatible providers", async () => {
 		const provider = await createAnthropicProviderModule(
 			config({
 				apiKey: "minimax-api-key",
@@ -32,10 +69,12 @@ describe("createAnthropicProviderModule", () => {
 
 		provider.operations.language("MiniMax-M2.5");
 
+		// `@ai-sdk/anthropic` only appends `/messages` to custom base URLs,
+		// so the `/v1` version segment must come from us (3.x semantics).
 		expect(createAnthropicMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				apiKey: "minimax-api-key",
-				baseURL: "https://api.minimax.io/anthropic",
+				baseURL: "https://api.minimax.io/anthropic/v1",
 				name: "minimax",
 			}),
 		);

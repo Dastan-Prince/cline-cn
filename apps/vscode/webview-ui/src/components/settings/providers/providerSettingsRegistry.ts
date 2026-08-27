@@ -4,7 +4,7 @@ import type { GenericProviderSettingsProps } from "./GenericProviderSettings"
 type GenericProviderSettingsConfig = Omit<GenericProviderSettingsProps, "currentMode" | "isPopup" | "showModelOptions">
 
 type GenericProviderPresentationOverride = Pick<GenericProviderSettingsConfig, "signupUrl" | "baseUrlField"> &
-	Partial<Pick<GenericProviderSettingsConfig, "allowsCustomIds">>
+	Partial<Pick<GenericProviderSettingsConfig, "allowsCustomIds" | "allowsModelOverrides" | "skipModelListFetch">>
 
 const CUSTOM_PROVIDER_SETTINGS_IDS = new Set([
 	"aihubmix",
@@ -112,9 +112,12 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 	},
 	"anthropic-comp": {
 		allowsCustomIds: true,
+		allowsModelOverrides: true,
+		skipModelListFetch: true,
 		baseUrlField: {
 			label: "Base URL",
-			placeholder: "https://api.anthropic.com",
+			placeholder: "https://api.example.com/anthropic",
+			alwaysVisible: true,
 		},
 	},
 	"tencent-tokenhub": {

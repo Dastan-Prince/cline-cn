@@ -10,14 +10,25 @@ function createRequestId(): string {
 	return `provider-models-${providerModelRequestCounter}`
 }
 
+export interface UseProviderModelsOptions {
+	/**
+	 * Fetch the provider model list on mount. Defaults to true. Providers
+	 * without a dynamic model catalog (e.g. generic compatible endpoints where
+	 * users type a custom model id) pass false to skip the pointless request
+	 * and the "Loading models…" placeholder it drives.
+	 */
+	readonly autoFetch?: boolean
+}
+
 /**
  * Read-only provider model-list hook backed by the unified provider catalog RPC.
  *
  * This hook never writes model selection state; selection commits are owned by
  * useProviderConfig/commitModelSelection.
  */
-export function useProviderModels(providerId: ProviderId) {
+export function useProviderModels(providerId: ProviderId, options?: UseProviderModelsOptions) {
 	const { providerModelsByProvider, startProviderModelsRequest, applyProviderModelsResponse } = useExtensionState()
+	const autoFetch = options?.autoFetch ?? true
 	const state = providerModelsByProvider?.[providerId]
 
 	const refresh = useCallback(async () => {
@@ -45,8 +56,11 @@ export function useProviderModels(providerId: ProviderId) {
 	}, [applyProviderModelsResponse, providerId, startProviderModelsRequest])
 
 	useEffect(() => {
+		if (!autoFetch) {
+			return
+		}
 		void refresh()
-	}, [refresh])
+	}, [autoFetch, refresh])
 
 	return {
 		models: state?.models ?? {},

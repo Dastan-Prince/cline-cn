@@ -164,6 +164,20 @@ describe("useNormalizedApiConfiguration", () => {
 		expect(mockResolveModelInfo).toHaveBeenCalledWith({ providerId: "ollama", modelId: "llama3.1:8b" })
 	})
 
+	it("reads the anthropic-comp dedicated model slot instead of a stale generic id", async () => {
+		setApiConfiguration({
+			actModeApiProvider: "anthropic-comp",
+			actModeApiModelId: "stale-generic-model",
+			actModeAnthropicCompModelId: "mimo-v2.5",
+		})
+		mockResolveModelInfo.mockResolvedValue(modelInfoResponse("anthropic-comp", "mimo-v2.5", 200_000))
+
+		const { result } = renderHook(() => useNormalizedApiConfiguration("act"))
+
+		await waitFor(() => expect(result.current.selectedModelId).toBe("mimo-v2.5"))
+		expect(mockResolveModelInfo).toHaveBeenCalledWith({ providerId: "anthropic-comp", modelId: "mimo-v2.5" })
+	})
+
 	it("uses VS Code LM selector as the active model id", async () => {
 		setApiConfiguration({
 			actModeApiProvider: "vscode-lm",

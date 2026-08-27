@@ -118,6 +118,10 @@ const modelInfoKeysByProvider: Partial<Record<string, ModelInfoKeys>> = {
 	aihubmix: { plan: "planModeAihubmixModelInfo", act: "actModeAihubmixModelInfo" },
 	hicap: { plan: "planModeHicapModelInfo", act: "actModeHicapModelInfo" },
 	"vercel-ai-gateway": { plan: "planModeVercelAiGatewayModelInfo", act: "actModeVercelAiGatewayModelInfo" },
+	// anthropic-comp has durable *AnthropicCompModelInfo state keys (see
+	// state-keys.ts); without this entry the committed model-info snapshot is
+	// only kept in the in-memory selection envelope and lost on restart.
+	"anthropic-comp": { plan: "planModeAnthropicCompModelInfo", act: "actModeAnthropicCompModelInfo" },
 }
 
 // In-memory selection envelope for providers that have a mode-specific model

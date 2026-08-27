@@ -206,6 +206,18 @@ describe("providerSettingsRegistry", () => {
 			providerId: "zai-coding-plan",
 			providerName: "Z.AI Coding Plan",
 		})
+		expect(getFallbackGenericProviderSettings("anthropic-comp")).toEqual({
+			allowsCustomIds: true,
+			allowsModelOverrides: true,
+			skipModelListFetch: true,
+			baseUrlField: {
+				label: "Base URL",
+				placeholder: "https://api.example.com/anthropic",
+				alwaysVisible: true,
+			},
+			providerId: "anthropic-comp",
+			providerName: "Anthropic Compatible",
+		})
 		expect(getFallbackGenericProviderSettings("openai")).toBeUndefined()
 	})
 })

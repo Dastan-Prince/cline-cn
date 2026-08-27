@@ -403,6 +403,11 @@ const PROVIDER_MODEL_ID_MAP: Record<string, { plan: keyof ApiConfiguration; act:
 	deepseek: { plan: "planModeApiModelId", act: "actModeApiModelId" },
 	cline: { plan: "planModeClineModelId", act: "actModeClineModelId" },
 	"cline-pass": { plan: "planModeClinePassModelId", act: "actModeClinePassModelId" },
+	// anthropic-comp commits its model selection to dedicated per-mode fields
+	// (see ProviderKeyMap in shared/storage/provider-keys.ts). Without this
+	// entry resolveModelId falls back to the generic *ModeApiModelId slot,
+	// which can hold a stale model from a previously-selected provider.
+	"anthropic-comp": { plan: "planModeAnthropicCompModelId", act: "actModeAnthropicCompModelId" },
 	litellm: { plan: "planModeLiteLlmModelId", act: "actModeLiteLlmModelId" },
 	requesty: { plan: "planModeRequestyModelId", act: "actModeRequestyModelId" },
 	together: { plan: "planModeTogetherModelId", act: "actModeTogetherModelId" },

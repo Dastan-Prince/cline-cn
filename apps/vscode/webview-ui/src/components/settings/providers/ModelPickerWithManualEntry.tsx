@@ -135,7 +135,10 @@ export function ModelPickerWithManualEntry({
 						value={customModelId}>
 						<span className="font-medium">Custom model ID</span>
 					</VSCodeTextField>
-					<VSCodeButton appearance="secondary" onClick={() => commitCustomModel(customModelId)}>
+					<VSCodeButton
+						appearance="secondary"
+						disabled={!customModelId.trim()}
+						onClick={() => commitCustomModel(customModelId)}>
 						Use custom model
 					</VSCodeButton>
 				</div>

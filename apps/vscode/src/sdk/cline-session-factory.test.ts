@@ -3,6 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import type { CoreSessionConfig } from "@cline/core"
 import * as LlmsModels from "@cline/llms"
+import type { ApiConfiguration } from "@shared/api"
 import { ApiFormat } from "@shared/proto/cline/models"
 import { Logger } from "@shared/services/Logger"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -16,6 +17,7 @@ import {
 	normalizeProviderReasoningSettings,
 	normalizeSdkBaseUrl,
 	resolveApiKey,
+	resolveModelId,
 	updateHistoryItem,
 } from "./cline-session-factory"
 import { parseProviderId } from "./model-catalog/provider-id"
@@ -246,6 +248,29 @@ describe("buildResumeSessionInput", () => {
 // ---------------------------------------------------------------------------
 // normalizeSdkBaseUrl
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// resolveModelId
+// ---------------------------------------------------------------------------
+
+describe("resolveModelId", () => {
+	it("reads the anthropic-comp dedicated model slots instead of the generic one", () => {
+		// anthropic-comp commits its model selection to the dedicated
+		// *ModeAnthropicCompModelId fields (see ProviderKeyMap in
+		// shared/storage/provider-keys.ts). The generic *ModeApiModelId slot can
+		// still hold a stale model from a previously-selected provider and must
+		// not win.
+		const config = {
+			actModeApiModelId: "glm-5.3",
+			planModeApiModelId: "glm-5.3",
+			actModeAnthropicCompModelId: "mimo-v2.5",
+			planModeAnthropicCompModelId: "mimo-plan-v2.5",
+		} as ApiConfiguration
+
+		expect(resolveModelId("anthropic-comp", "act", config)).toBe("mimo-v2.5")
+		expect(resolveModelId("anthropic-comp", "plan", config)).toBe("mimo-plan-v2.5")
+	})
+})
 
 describe("normalizeSdkBaseUrl", () => {
 	it("treats blank base URLs as unset so SDK provider defaults can apply", () => {

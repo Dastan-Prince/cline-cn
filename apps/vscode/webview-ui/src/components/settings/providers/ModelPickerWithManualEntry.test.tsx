@@ -44,8 +44,8 @@ vi.mock("@vscode/webview-ui-toolkit/react", () => ({
 			<input id={id} onChange={onInput} onKeyDown={onKeyDown} placeholder={placeholder} value={value} />
 		</div>
 	),
-	VSCodeButton: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) => (
-		<button onClick={onClick} type="button">
+	VSCodeButton: ({ children, disabled, onClick }: { children?: ReactNode; disabled?: boolean; onClick?: () => void }) => (
+		<button disabled={disabled} onClick={onClick} type="button">
 			{children}
 		</button>
 	),
@@ -158,6 +158,51 @@ describe("ModelPickerWithManualEntry", () => {
 		expect(screen.queryByLabelText("Custom model ID")).not.toBeInTheDocument()
 		fireEvent.change(screen.getByLabelText("Model"), { target: { value: "__custom__" } })
 		expect(screen.getByLabelText("Custom model ID")).toBeInTheDocument()
+	})
+
+	it("disables the custom model button while the custom id is blank", () => {
+		const onSelect = vi.fn()
+		render(
+			<ModelPickerWithManualEntry
+				allowsCustomIds={true}
+				error={undefined}
+				isLoading={false}
+				isStale={false}
+				models={{}}
+				onSelect={onSelect}
+				selectedModel={{ ...selectedModel, modelId: "" }}
+			/>,
+		)
+
+		expect(screen.getByText("Use custom model")).toBeDisabled()
+		fireEvent.click(screen.getByText("Use custom model"))
+		expect(onSelect).not.toHaveBeenCalled()
+
+		// Whitespace-only ids must not enable the button either.
+		fireEvent.change(screen.getByLabelText("Custom model ID"), { target: { value: "   " } })
+		expect(screen.getByText("Use custom model")).toBeDisabled()
+		fireEvent.click(screen.getByText("Use custom model"))
+		expect(onSelect).not.toHaveBeenCalled()
+	})
+
+	it("enables the custom model button once a non-blank id is entered", () => {
+		render(
+			<ModelPickerWithManualEntry
+				allowsCustomIds={true}
+				error={undefined}
+				isLoading={false}
+				isStale={false}
+				models={{}}
+				onSelect={vi.fn()}
+				selectedModel={{ ...selectedModel, modelId: "" }}
+			/>,
+		)
+
+		expect(screen.getByText("Use custom model")).toBeDisabled()
+
+		fireEvent.change(screen.getByLabelText("Custom model ID"), { target: { value: "my-custom:latest" } })
+
+		expect(screen.getByText("Use custom model")).toBeEnabled()
 	})
 
 	it("shows stale and not-in-current-list indicators without replacing selection", () => {

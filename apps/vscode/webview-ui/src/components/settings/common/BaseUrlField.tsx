@@ -15,6 +15,12 @@ interface BaseUrlFieldProps {
 	placeholder?: string
 	disabled?: boolean
 	showLockIcon?: boolean
+	/**
+	 * Render the input unconditionally, without the enabling checkbox. Use for
+	 * providers where a custom base URL is always required (e.g. generic
+	 * compatible endpoints) so users never have to opt in.
+	 */
+	alwaysVisible?: boolean
 }
 
 /**
@@ -28,6 +34,7 @@ export const BaseUrlField = ({
 	placeholder = "Default: https://api.example.com",
 	disabled = false,
 	showLockIcon = false,
+	alwaysVisible = false,
 }: BaseUrlFieldProps) => {
 	const [isEnabled, setIsEnabled] = useState(!!initialValue)
 	const [isClearing, setIsClearing] = useState(false)
@@ -80,14 +87,20 @@ export const BaseUrlField = ({
 
 	return (
 		<div>
-			<div className="flex items-center gap-2">
-				<VSCodeCheckbox checked={isEnabled} disabled={disabled || isClearing} onChange={handleToggle}>
-					{label}
-				</VSCodeCheckbox>
-				{showLockIcon && <i className="codicon codicon-lock text-(--vscode-descriptionForeground) text-sm" />}
-			</div>
+			{alwaysVisible ? (
+				<div style={{ marginBottom: 3 }}>
+					<span className="font-medium">{label}</span>
+				</div>
+			) : (
+				<div className="flex items-center gap-2">
+					<VSCodeCheckbox checked={isEnabled} disabled={disabled || isClearing} onChange={handleToggle}>
+						{label}
+					</VSCodeCheckbox>
+					{showLockIcon && <i className="codicon codicon-lock text-(--vscode-descriptionForeground) text-sm" />}
+				</div>
+			)}
 
-			{isEnabled && (
+			{(alwaysVisible || isEnabled) && (
 				<VSCodeTextField
 					disabled={disabled}
 					onInput={(e: any) => setLocalValue(e.target.value)}
