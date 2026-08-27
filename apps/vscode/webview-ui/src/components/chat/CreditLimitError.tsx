@@ -1,7 +1,6 @@
 import { AskResponseRequest } from "@shared/proto/cline/task"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import React, { useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 import VSCodeButtonLink from "@/components/common/VSCodeButtonLink"
 import { useClineAuth } from "@/context/ClineAuthContext"
 import { AccountServiceClient, TaskServiceClient } from "@/services/grpc-client"
@@ -20,13 +19,12 @@ const DEFAULT_BUY_CREDITS_URL = {
 }
 
 const CreditLimitError: React.FC<CreditLimitErrorProps> = ({
-	message = "You have run out of credits.",
+	message = "你的积分已用完。",
 	buyCreditsUrl,
 	currentBalance,
 	totalPromotions,
 	totalSpent,
 }) => {
-	const { t } = useTranslation()
 	const { activeOrganization } = useClineAuth()
 	const [fullBuyCreditsUrl, setFullBuyCreditsUrl] = useState<string>("")
 
@@ -58,19 +56,17 @@ const CreditLimitError: React.FC<CreditLimitErrorProps> = ({
 				<div className="mb-3">
 					{currentBalance ? (
 						<div className="text-foreground">
-							{t("creditLimit.currentBalance")} <span className="font-bold">{currentBalance.toFixed(2)}</span>
+							当前余额：<span className="font-bold">{currentBalance.toFixed(2)}</span>
 						</div>
 					) : null}
-					{totalSpent ? <div className="text-foreground">{t("creditLimit.totalSpent")} {totalSpent.toFixed(2)}</div> : null}
-					{totalPromotions ? (
-						<div className="text-foreground">{t("creditLimit.totalPromotions")} {totalPromotions.toFixed(2)}</div>
-					) : null}
+					{totalSpent ? <div className="text-foreground">总花费：{totalSpent.toFixed(2)}</div> : null}
+					{totalPromotions ? <div className="text-foreground">总优惠：{totalPromotions.toFixed(2)}</div> : null}
 				</div>
 			</div>
 
 			<VSCodeButtonLink className="w-full mb-2" href={fullBuyCreditsUrl}>
 				<span className="codicon codicon-credit-card mr-[6px] text-[14px]" />
-				{t("creditLimit.buyCredits")}
+				购买积分
 			</VSCodeButtonLink>
 
 			<VSCodeButton
@@ -88,7 +84,7 @@ const CreditLimitError: React.FC<CreditLimitErrorProps> = ({
 					}
 				}}>
 				<span className="codicon codicon-refresh mr-1.5" />
-				{t("creditLimit.retryRequest")}
+				重试请求
 			</VSCodeButton>
 		</div>
 	)

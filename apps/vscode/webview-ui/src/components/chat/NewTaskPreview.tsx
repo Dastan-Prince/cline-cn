@@ -1,5 +1,4 @@
 import React from "react"
-import { useTranslation } from "react-i18next"
 import MarkdownBlock from "../common/MarkdownBlock"
 
 interface NewTaskPreviewProps {
@@ -7,10 +6,9 @@ interface NewTaskPreviewProps {
 }
 
 const NewTaskPreview: React.FC<NewTaskPreviewProps> = ({ context }) => {
-	const { t } = useTranslation()
 	return (
 		<div className="bg-(--vscode-badge-background) text-(--vscode-badge-foreground) rounded-[3px] p-[14px] pb-[6px]">
-			<span style={{ fontWeight: "bold" }}>{t("newTask.task")}</span>
+			<span style={{ fontWeight: "bold" }}>任务</span>
 			<MarkdownBlock markdown={context} />
 		</div>
 	)

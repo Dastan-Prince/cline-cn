@@ -32,8 +32,8 @@ interface FeatureToggle {
 const agentFeatures: FeatureToggle[] = [
 	{
 		id: "auto-compact",
-		label: "Auto Compact",
-		description: "Automatically compress conversation history.",
+		label: "自动压缩",
+		description: "自动压缩对话历史记录。",
 		stateKey: "useAutoCondense",
 		settingKey: "useAutoCondense",
 	},
@@ -42,29 +42,29 @@ const agentFeatures: FeatureToggle[] = [
 const editorFeatures: FeatureToggle[] = [
 	{
 		id: "show-feature-tips",
-		label: "Feature Tips",
-		description: "Show rotating tips during the thinking phase to help you discover Cline features.",
+		label: "功能提示",
+		description: "在思考阶段展示轮换提示，帮助你发现 Cline 的功能。",
 		stateKey: "showFeatureTips",
 		settingKey: "showFeatureTips",
 	},
 	{
 		id: "background-edit",
-		label: "Background Edit",
-		description: "Allow edits without stealing editor focus",
+		label: "后台编辑",
+		description: "允许在不抢占编辑器焦点的情况下进行编辑",
 		stateKey: "backgroundEditEnabled",
 		settingKey: "backgroundEditEnabled",
 	},
 	{
 		id: "checkpoints",
-		label: "Checkpoints",
-		description: "Save progress at key points for easy rollback",
+		label: "检查点",
+		description: "在关键点保存进度，便于回滚",
 		stateKey: "enableCheckpointsSetting",
 		settingKey: "enableCheckpointsSetting",
 	},
 	{
 		id: "worktrees",
-		label: "Worktrees",
-		description: "Enables git worktree management for running parallel Cline tasks.",
+		label: "工作树",
+		description: "启用 git 工作树管理，以便并行运行多个 Cline 任务。",
 		stateKey: "worktreesEnabled",
 		settingKey: "worktreesEnabled",
 	},
@@ -73,8 +73,8 @@ const editorFeatures: FeatureToggle[] = [
 const advancedFeatures: FeatureToggle[] = [
 	{
 		id: "hooks",
-		label: "Hooks",
-		description: "Enable lifecycle and tool hooks during task execution.",
+		label: "钩子",
+		description: "在任务执行期间启用生命周期和工具钩子。",
 		stateKey: "hooksEnabled",
 		settingKey: "hooksEnabled",
 	},
@@ -173,7 +173,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 				<div className="mb-5 flex flex-col gap-3">
 					{/* Core features */}
 					<div>
-						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Agent</div>
+						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">智能体</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50"
 							id="agent-features">
@@ -188,8 +188,8 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								/>
 							))}
 							<div className="space-y-2 py-3">
-								<Label className="text-sm font-medium text-foreground">Auto Compact Strategy</Label>
-								<p className="text-xs text-muted-foreground">Controls how auto compaction rewrites context.</p>
+								<Label className="text-sm font-medium text-foreground">自动压缩策略</Label>
+								<p className="text-xs text-muted-foreground">控制自动压缩如何重写上下文。</p>
 								<Select
 									disabled={!useAutoCondense}
 									onValueChange={(value) => updateSetting("compactionStrategy", value)}
@@ -198,15 +198,15 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="basic">Basic</SelectItem>
-										<SelectItem value="agentic">Agentic</SelectItem>
+										<SelectItem value="basic">基础</SelectItem>
+										<SelectItem value="agentic">智能</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>
 							<FeatureRow
 								checked={webSearchEnabled}
-								description="Let the model search the web when the selected provider and model support it. Applies to new tasks."
-								label="Web Search"
+								description="在选择的服务商和模型支持时，让模型搜索网页。适用于新任务。"
+								label="网页搜索"
 								onChange={(checked) => updateSetting("webSearchEnabled", checked)}
 							/>
 						</div>
@@ -214,7 +214,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 					{/* Editor features */}
 					<div>
-						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Editor</div>
+						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">编辑器</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50"
 							id="optional-features">
@@ -234,7 +234,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 				{/* Advanced */}
 				<div>
-					<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Advanced</div>
+					<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">高级</div>
 					<div className="relative p-3 my-3 rounded-md border border-editor-widget-border/50" id="advanced-features">
 						<div className="space-y-3">
 							{advancedFeatures.map((feature) => (
@@ -250,15 +250,15 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 							{/* MCP Display Mode */}
 							<div className="space-y-2">
-								<Label className="text-sm font-medium text-foreground">MCP Display Mode</Label>
-								<p className="text-xs text-muted-foreground">Controls how MCP responses are displayed</p>
+								<Label className="text-sm font-medium text-foreground">MCP 显示模式</Label>
+								<p className="text-xs text-muted-foreground">控制 MCP 响应的显示方式</p>
 								<Select onValueChange={(v) => updateSetting("mcpDisplayMode", v)} value={mcpDisplayMode}>
 									<SelectTrigger className="w-full">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="plain">Plain Text</SelectItem>
-										<SelectItem value="rich">Rich Display</SelectItem>
+										<SelectItem value="plain">纯文本</SelectItem>
+										<SelectItem value="rich">富文本显示</SelectItem>
 										<SelectItem value="markdown">Markdown</SelectItem>
 									</SelectContent>
 								</Select>

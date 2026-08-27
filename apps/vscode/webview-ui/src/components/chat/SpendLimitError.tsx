@@ -1,6 +1,5 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import React, { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
 import { AccountServiceClient } from "@/services/grpc-client"
 
 const COOLDOWN_MS = 5 * 60 * 1000 // 5 minutes
@@ -38,7 +37,6 @@ interface SpendLimitErrorProps {
 }
 
 const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod, limitUsd, spentUsd, resetsAt }) => {
-	const { t } = useTranslation()
 	const displayMessage =
 		limitUsd != null && budgetPeriod ? `$${limitUsd.toFixed(2)} ${budgetPeriod} limit has been reached.` : message
 
@@ -98,7 +96,7 @@ const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod
 				<div className="mb-3">
 					{spentUsd != null && limitUsd != null && (
 						<div className="text-foreground" style={{ fontSize: "var(--vscode-font-size)", lineHeight: 1.3 }}>
-							{periodLabel ? `${periodLabel} ${t("spendLimit.usage")}` : t("spendLimit.usage")}:{" "}
+							{periodLabel ? `${periodLabel} 用量` : "用量"}：{" "}
 							<span className="font-bold">
 								${spentUsd.toFixed(2)} / ${limitUsd.toFixed(2)}
 							</span>
@@ -107,13 +105,13 @@ const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod
 
 					{resetsAtFormatted && (
 						<div className="text-foreground" style={{ fontSize: "var(--vscode-font-size)", lineHeight: 1.3 }}>
-							{t("spendLimit.resets")} <span className="font-bold">{resetsAtFormatted}</span>
+							重置时间：<span className="font-bold">{resetsAtFormatted}</span>
 						</div>
 					)}
 
 					<div className="text-(--vscode-descriptionForeground) mt-2 text-xs inline-flex items-center">
 						<span className="codicon codicon-organization mr-1" />
-						{t("spendLimit.orgLimits")}
+						限额由你的组织设置。
 					</div>
 				</div>
 			</div>
@@ -126,17 +124,17 @@ const SpendLimitError: React.FC<SpendLimitErrorProps> = ({ message, budgetPeriod
 				{buttonState === "sending" ? (
 					<>
 						<span className="codicon codicon-loading codicon-modifier-spin mr-1.5" />
-						{t("spendLimit.sending")}
+						发送中…
 					</>
 				) : buttonState === "sent" ? (
 					<>
 						<span className="codicon codicon-check mr-1.5" />
-						{t("spendLimit.requestSent")}
+						请求已发送
 					</>
 				) : (
 					<>
 						<span className="codicon codicon-arrow-up mr-1.5" />
-						{t("spendLimit.requestIncrease")}
+						申请提高限额
 					</>
 				)}
 			</VSCodeButton>

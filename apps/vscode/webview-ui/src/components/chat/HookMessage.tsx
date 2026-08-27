@@ -1,7 +1,6 @@
 import { ClineMessage } from "@shared/ExtensionMessage"
 import { EmptyRequest } from "@shared/proto/cline/common"
 import { memo, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 import { TaskServiceClient } from "@/services/grpc-client"
 import { CHAT_ROW_EXPANDED_BG_COLOR } from "../common/CodeBlock"
 import { HOOK_OUTPUT_STRING } from "./constants"
@@ -82,7 +81,6 @@ interface HookMetadata {
  * - Running hooks: Always shows pending tool info
  */
 const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
-	const { t } = useTranslation()
 	// Parse hook metadata and output
 	const { metadata, output } = useMemo(() => {
 		const splitMessage = (text: string) => {
@@ -120,7 +118,7 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
 		try {
 			hookMetadata = JSON.parse(metadataStr)
 		} catch {
-			hookMetadata = { hookName: "Unknown", status: "unknown" }
+			hookMetadata = { hookName: "未知", status: "unknown" }
 		}
 
 		return { metadata: hookMetadata, output }
@@ -149,8 +147,9 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
 					style={{
 						color: normalColor,
 						marginBottom: "-1.5px",
-					}}></span>
-				<span style={{ color: normalColor, fontWeight: "bold" }}>{t("hookMessage.hook")}:</span>
+					}}
+				/>
+				<span style={{ color: normalColor, fontWeight: "bold" }}>钩子：</span>
 				<span style={{ color: normalColor }}>{metadata.hookName}</span>
 				{metadata.toolName && (
 					<span style={{ color: "var(--vscode-descriptionForeground)", fontSize: "0.9em" }}>({metadata.toolName})</span>
@@ -201,15 +200,7 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
 								fontSize: "13px",
 								flexShrink: 0,
 							}}>
-							{isRunning
-								? t("hookMessage.running")
-								: isFailed
-									? t("hookMessage.failed")
-									: isCancelled
-										? t("hookMessage.aborted")
-										: isCompleted
-											? t("hookMessage.completed")
-											: t("hookMessage.unknown")}
+							{isRunning ? "运行中" : isFailed ? "失败" : isCancelled ? "已中止" : isCompleted ? "已完成" : "未知"}
 						</span>
 						{metadata.exitCode !== undefined && metadata.exitCode !== 0 && (
 							<span
@@ -246,7 +237,7 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
 								cursor: "pointer",
 								fontFamily: "inherit",
 							}}>
-							{t("hookMessage.abort")}
+							Abort
 						</button>
 					)}
 				</div>
@@ -260,7 +251,7 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
 							fontSize: "13px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						{t("hookMessage.timeoutError")}
+						耗时超过 30 秒。请检查是否存在死循环，或为网络请求添加超时设置。
 					</div>
 				)}
 
@@ -272,7 +263,7 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
 							fontSize: "13px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						{t("hookMessage.validationError")}
+						Hook 返回了无效的 JSON。请查看下方错误详情以获取更多信息。
 					</div>
 				)}
 

@@ -1,6 +1,5 @@
 import type { ClineMessage } from "@shared/ExtensionMessage"
 import { memo } from "react"
-import { useTranslation } from "react-i18next"
 import { ClineAuthStatus } from "@/components/account/ClineAuthStatus"
 import ClineFreeModelLimitError from "@/components/chat/ClineFreeModelLimitError"
 import ClineFreePromotionEndedError from "@/components/chat/ClineFreePromotionEndedError"
@@ -23,7 +22,6 @@ interface ErrorRowProps {
 }
 
 const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStreamingFailedMessage }: ErrorRowProps) => {
-	const { t } = useTranslation()
 	const { clineUser } = useClineAuth()
 	const rawApiError = apiRequestFailedMessage || apiReqStreamingFailedMessage
 
@@ -104,7 +102,7 @@ const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStre
 						return (
 							<p className="m-0 whitespace-pre-wrap text-error wrap-anywhere">
 								{errorMessage}
-								{requestId && <div>Request ID: {requestId}</div>}
+								{requestId && <div>请求 ID：{requestId}</div>}
 							</p>
 						)
 					}
@@ -119,10 +117,10 @@ const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStre
 							// User is using Cline provider and is not logged in
 							<div className="flex flex-col gap-3">
 								<div className="flex items-center justify-center rounded border border-neutral-500/30 bg-vscode-editor-background p-6 text-center text-vscode-foreground">
-									{t("errorRow.loggedOut")}
+									糟糕，你似乎已退出登录——点击下方登录
 								</div>
 								<Button className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
-									{t("errorRow.signInToCline")}
+									登录 Cline
 									{isLoginLoading && (
 										<span className="ml-1 animate-spin">
 											<span className="codicon codicon-refresh" />
@@ -134,7 +132,7 @@ const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStre
 						) : (
 							// Don't show sign in button after the user has logged in, just ask them to retry
 							<div className="mt-4">
-								<span className="text-description">{t("errorRow.clickRetry")}</span>
+								<span className="text-description">（点击下方“重试”）</span>
 							</div>
 						)
 					}
@@ -147,19 +145,19 @@ const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStre
 								{providerId && <span className="uppercase">[{providerId}] </span>}
 								{errorCode && <span>{errorCode}</span>}
 								{errorMessage}
-								{requestId && <div>Request ID: {requestId}</div>}
+								{requestId && <div>请求 ID：{requestId}</div>}
 							</header>
 
 							{/* Windows Powershell Issue */}
 							{errorMessage?.toLowerCase()?.includes("powershell") && (
 								<div>
-									{t("errorRow.powershellIssues")}{" "}
+									你似乎遇到了 Windows PowerShell 问题，请参阅此{" "}
 									<a
 										className="underline text-inherit"
 										href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22">
-										{t("errorRow.troubleshootingGuide")}
+										故障排查指南
 									</a>
-									.
+									。
 								</div>
 							)}
 
@@ -175,7 +173,7 @@ const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStre
 			case "diff_error":
 				return (
 					<div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
-						<div>{t("errorRow.diffError")}</div>
+						<div>模型使用的搜索模式与文件中的任何内容都不匹配。正在重试...</div>
 					</div>
 				)
 
@@ -183,7 +181,7 @@ const ErrorRow = memo(({ message, errorType, apiRequestFailedMessage, apiReqStre
 				return (
 					<div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
 						<div>
-							{t("errorRow.clineignoreError", { text: message.text })}
+							Cline 尝试访问 <code>{message.text}</code>，但该路径被 <code>.clineignore</code> 文件阻止。
 						</div>
 					</div>
 				)

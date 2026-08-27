@@ -1,7 +1,6 @@
 import { StringRequest } from "@shared/proto/cline/common"
 import { FilePlus, FileText, FileX, SquareArrowOutUpRightIcon } from "lucide-react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
-import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { FileServiceClient } from "@/services/grpc-client"
 
@@ -66,7 +65,6 @@ export const DiffEditRow = memo<DiffEditRowProps>(({ patch, path, isLoading, sta
 
 const FileBlock = memo<{ file: Patch; isStreaming: boolean; startLineNumber?: number }>(
 	({ file, isStreaming, startLineNumber }) => {
-		const { t } = useTranslation()
 		const [isExpanded, setIsExpanded] = useState(true)
 		const scrollContainerRef = useRef<HTMLDivElement>(null)
 		const shouldFollowRef = useRef(true)
@@ -150,7 +148,7 @@ const FileBlock = memo<{ file: Patch; isStreaming: boolean; startLineNumber?: nu
 							<span
 								className="font-medium truncate hover:underline hover:text-link"
 								onClick={handleOpenFile}
-								title={t("diffEdit.openFile")}>
+								title="在编辑器中打开文件">
 								{file.path}
 							</span>
 						</div>
@@ -160,7 +158,7 @@ const FileBlock = memo<{ file: Patch; isStreaming: boolean; startLineNumber?: nu
 						<span
 							className="p-1 hover:bg-description/20 rounded-xs transition-colors"
 							onClick={handleOpenFile}
-							title={t("diffEdit.openFile")}>
+							title="在编辑器中打开文件">
 							<SquareArrowOutUpRightIcon className="size-2 text-description hover:text-foreground" />
 						</span>
 					</div>

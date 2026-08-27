@@ -8,7 +8,6 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { AtSignIcon, PlusIcon } from "lucide-react"
 import type React from "react"
 import { forwardRef, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { useTranslation } from "react-i18next"
 import DynamicTextArea from "react-textarea-autosize"
 import styled from "styled-components"
 import ContextMenu from "@/components/chat/ContextMenu"
@@ -215,7 +214,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		},
 		ref,
 	) => {
-		const { t } = useTranslation()
 		const {
 			mode,
 			apiConfiguration,
@@ -1418,12 +1416,12 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					onDrop={onDrop}>
 					{showDimensionError && (
 						<div className="absolute inset-2.5 bg-[rgba(var(--vscode-errorForeground-rgb),0.1)] border-2 border-error rounded-xs flex items-center justify-center z-10 pointer-events-none">
-							<span className="text-error font-bold text-xs text-center">{t("chat.errorImageSize")}</span>
+							<span className="text-error font-bold text-xs text-center">图片尺寸超过 7500px</span>
 						</div>
 					)}
 					{showUnsupportedFileError && (
 						<div className="absolute inset-2.5 bg-[rgba(var(--vscode-errorForeground-rgb),0.1)] border-2 border-error rounded-xs flex items-center justify-center z-10 pointer-events-none">
-							<span className="text-error font-bold text-xs">{t("chat.errorUnsupportedFile")}</span>
+							<span className="text-error font-bold text-xs">当前禁用了除图片以外的文件</span>
 						</div>
 					)}
 					{showSlashCommandsMenu && (
@@ -1558,7 +1556,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					/>
 					{!inputValue && selectedImages.length === 0 && selectedFiles.length === 0 && (
 						<div className="text-xs absolute bottom-5 left-6.5 right-16 text-(--vscode-input-placeholderForeground)/50 whitespace-nowrap overflow-hidden text-ellipsis pointer-events-none z-1">
-							{t("chat.inputHint")}
+							输入 @ 添加上下文，/ 使用斜杠命令和工作流，按住 shift 可拖入文件/图片
 						</div>
 					)}
 					{(selectedImages.length > 0 || selectedFiles.length > 0) && (
@@ -1600,11 +1598,11 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						{/* ButtonGroup - always in DOM but visibility controlled */}
 						<ButtonGroup className="absolute top-0 left-0 right-0 ease-in-out w-full h-5 z-10 flex items-center">
 							<Tooltip>
-								<TooltipContent>{t("chat.addContext")}</TooltipContent>
+								<TooltipContent>添加上下文</TooltipContent>
 								<TooltipTrigger>
 									<VSCodeButton
 										appearance="icon"
-										aria-label={t("chat.addContext")}
+										aria-label="添加上下文"
 										className="p-0 m-0 flex items-center"
 										data-testid="context-button"
 										onClick={handleContextButtonClick}>
@@ -1616,11 +1614,11 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							</Tooltip>
 
 							<Tooltip>
-								<TooltipContent>{t("chat.addFilesImages")}</TooltipContent>
+								<TooltipContent>添加文件与图片</TooltipContent>
 								<TooltipTrigger>
 									<VSCodeButton
 										appearance="icon"
-										aria-label={t("chat.addFilesImages")}
+										aria-label="添加文件与图片"
 										className="p-0 m-0 flex items-center"
 										data-testid="files-button"
 										disabled={shouldDisableFilesAndImages}
@@ -1647,7 +1645,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 										onClick={handleModelButtonClick}
 										role="button"
 										tabIndex={0}
-										title={t("chat.selectModel")}>
+										title="打开 API 设置">
 										<ModelButtonContent className="text-xs">{modelDisplayName}</ModelButtonContent>
 									</ModelDisplayButton>
 								</ModelButtonWrapper>
@@ -1660,32 +1658,26 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							className="text-xs px-2 flex flex-col gap-1"
 							hidden={shownTooltipMode === null}
 							side="top">
-							{t("chat.modeTooltip", {
-								mode: shownTooltipMode === "act" ? t("chat.act") : t("chat.plan"),
-								action: shownTooltipMode === "act" ? t("chat.modeActionAct") : t("chat.modeActionPlan"),
-							})}
+							{`在${shownTooltipMode === "act" ? "执行" : "计划"}模式下，Cline 将${shownTooltipMode === "act" ? "立即完成任务" : "收集信息以制定计划"}`}
 							<p className="text-description/80 text-xs mb-0">
-								{t("chat.toggleWith")} <kbd className="text-muted-foreground mx-1">{togglePlanActKeys}</kbd>
+								使用 <kbd className="text-muted-foreground mx-1">{togglePlanActKeys}</kbd> 切换
 							</p>
 						</TooltipContent>
 						<TooltipTrigger>
 							<SwitchContainer data-testid="mode-switch" disabled={false} onClick={onModeToggle}>
 								<Slider isAct={mode === "act"} isPlan={mode === "plan"} />
-								{[
-									{ key: "plan", label: t("chat.plan") },
-									{ key: "act", label: t("chat.act") },
-								].map((m) => (
+								{["Plan", "Act"].map((m) => (
 									<div
-										aria-checked={mode === m.key}
+										aria-checked={mode === m.toLowerCase()}
 										className={cn(
 											"pt-0.5 pb-px px-2 z-10 text-xs w-1/2 text-center bg-transparent",
-											mode === m.key ? "text-white" : "text-input-foreground",
+											mode === m.toLowerCase() ? "text-white" : "text-input-foreground",
 										)}
-										key={m.key}
+										key={m}
 										onMouseLeave={() => setShownTooltipMode(null)}
-										onMouseOver={() => setShownTooltipMode(m.key as Mode)}
+										onMouseOver={() => setShownTooltipMode(m.toLowerCase() === "plan" ? "plan" : "act")}
 										role="switch">
-										{m.label}
+										{m}
 									</div>
 								))}
 							</SwitchContainer>
