@@ -105,7 +105,6 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		signupUrl: "https://wandb.ai",
 	},
 	xiaomi: {},
-	"mimo-tp": {},
 	"xiaomi-athrapi": {},
 	"mimo-tp-athrapi": {},
 	"zhipu-athrapi": {
@@ -200,7 +199,6 @@ const FALLBACK_GENERIC_PROVIDER_NAMES = {
 	v0: "Vercel v0",
 	wandb: "W&B",
 	xiaomi: "Xiaomi",
-	"mimo-tp": "MiMo Token Plan",
 	"xiaomi-athrapi": "Xiaomi MiMo (Anthropic)",
 	"mimo-tp-athrapi": "MiMo Token Plan (Anthropic)",
 	"zhipu-athrapi": "Zhipu GLM (Anthropic)",

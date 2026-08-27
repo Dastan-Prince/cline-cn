@@ -57,7 +57,6 @@ const KNOWN_API_PROVIDERS = {
 	nousResearch: true,
 	wandb: true,
 	xiaomi: true,
-	"mimo-tp": true,
 	"xiaomi-athrapi": true,
 	"mimo-tp-athrapi": true,
 	"zhipu-athrapi": true,

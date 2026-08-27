@@ -50,7 +50,6 @@ export type ApiProvider =
 	| "nousResearch"
 	| "wandb"
 	| "xiaomi"
-	| "mimo-tp"
 	| "xiaomi-athrapi"
 	| "mimo-tp-athrapi"
 	| "zhipu-athrapi"

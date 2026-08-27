@@ -51,7 +51,6 @@ export enum BUILT_IN_PROVIDER {
 	WANDB = "wandb",
 	XIAOMI = "xiaomi",
 	// Cline CN fork providers (private endpoints absent from models.dev)
-	MIMO_TP = "mimo-tp",
 	XIAOMI_ATHRAPI = "xiaomi-athrapi",
 	MIMO_TP_ATHRAPI = "mimo-tp-athrapi",
 	ZHIPU_ATHRAPI = "zhipu-athrapi",

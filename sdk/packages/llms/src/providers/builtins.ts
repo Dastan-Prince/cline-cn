@@ -1043,17 +1043,6 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		defaults: { baseUrl: "https://api.xiaomimimo.com/v1" },
 	},
 	{
-		id: "mimo-tp",
-		name: "MiMo Token Plan",
-		description: "Xiaomi MiMo Token Plan (OpenAI-compatible endpoint)",
-		family: "openai-compatible",
-		capabilities: ["prompt-cache", "tools", "reasoning"],
-		defaultModelId: "mimo-v2.5",
-		apiKeyEnv: ["MIMO_TOKEN_PLAN_API_KEY"],
-		modelsProviderId: "xiaomi",
-		defaults: { baseUrl: "https://token-plan-cn.xiaomimimo.com/v1" },
-	},
-	{
 		id: "xiaomi-athrapi",
 		name: "Xiaomi Mimo AthrAPI",
 		description: "Xiaomi MiMo via Anthropic-compatible endpoint",
