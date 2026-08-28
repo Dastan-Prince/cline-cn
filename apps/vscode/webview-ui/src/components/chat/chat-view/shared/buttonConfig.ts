@@ -1,5 +1,6 @@
 import type { ClineMessage, ClineSayTool, TurnState } from "@shared/ExtensionMessage"
 import type { Mode } from "@shared/storage/types"
+import { ClineError, ClineErrorType } from "../../../../../../src/services/error/ClineError"
 
 /**
  * Button action types that determine the behavior
@@ -44,6 +45,17 @@ export const BUTTON_CONFIGS: Record<string, ButtonConfig> = {
 		sendingDisabled: false,
 		enableButtons: true,
 		primaryTextKey: "chatRow.proceedAnyways",
+		secondaryTextKey: "chatRow.startNewTask",
+		primaryAction: "proceed",
+		secondaryAction: "new_task",
+	},
+	// Resumable failure (v3 parity): the conversation is intact and the run can be continued in
+	// place — a dropped stream, provider 5xx, a misconfigured/retired model, a rate limit… Offer
+	// Resume Task with Start New Task as the escape hatch.
+	resume_after_error: {
+		sendingDisabled: false,
+		enableButtons: true,
+		primaryTextKey: "chatRow.resumeTask",
 		secondaryTextKey: "chatRow.startNewTask",
 		primaryAction: "proceed",
 		secondaryAction: "new_task",
@@ -222,6 +234,45 @@ export const BUTTON_CONFIGS: Record<string, ButtonConfig> = {
 const errorTypes = ["api_req_failed", "mistake_limit_reached"]
 
 /**
+ * Error types that resuming cannot fix — the account itself has to change first (top up credits,
+ * sign in, raise a spend/quota limit). For these the footer keeps Retry + Start New Task so
+ * ErrorRow's Sign In / Add Credits / quota affordances stay reachable; swapping in "Resume Task"
+ * there would bury the very UI the user needs.
+ *
+ * RateLimit is deliberately absent: it is transient, and ErrorRow renders it as plain text with
+ * no account UI, so resuming loses nothing.
+ */
+const ACCOUNT_BLOCKED_ERROR_TYPES: ClineErrorType[] = [
+	ClineErrorType.Auth,
+	ClineErrorType.Balance,
+	ClineErrorType.SpendLimit,
+	ClineErrorType.QuotaExceeded,
+	ClineErrorType.Entitlement,
+	ClineErrorType.OrgClinePassRestriction,
+	ClineErrorType.ClinePassLimit,
+	ClineErrorType.ClineFreeModelLimit,
+	ClineErrorType.ClineFreePromotionEnded,
+]
+
+/**
+ * True when the anchored error must be resolved in ErrorRow before the run can continue.
+ *
+ * Error text that is absent or not serialized ClineError JSON yields no known type and is
+ * therefore resumable — the safe default that keeps the transcript reachable instead of
+ * stranding the user behind a Retry button that cannot help.
+ */
+function isAccountBlockedError(anchoredMessage: ClineMessage | undefined): boolean {
+	if (anchoredMessage?.type !== "ask" || anchoredMessage.ask !== "api_req_failed") {
+		return false
+	}
+	const clineError = ClineError.parse(anchoredMessage.text)
+	if (!clineError) {
+		return false
+	}
+	return ACCOUNT_BLOCKED_ERROR_TYPES.some((type) => clineError.isErrorType(type))
+}
+
+/**
  * Determines button configuration based on message type and state
  * This is the single source of truth used by both ActionButtons and useMessageHandlers
  */
@@ -384,13 +435,25 @@ export function buttonsForPhase(
 			return BUTTON_CONFIGS.completion_result
 		case "resumable":
 			return BUTTON_CONFIGS.resume_task
-		case "error":
-			// The anchored message distinguishes mistake_limit (Proceed/New Task) from a failed
-			// API request (Retry/New Task). Default to the retry config.
+		case "error": {
+			// Split the error phase by what the user can actually do next.
+			// - mistake_limit_reached: Proceed / Start New Task (unchanged).
+			// - Account-blocked failure (auth, balance, spend/quota limit, entitlement, Cline
+			//   Pass restrictions): the account must be fixed in ErrorRow's Sign In / Add
+			//   Credits UI first, so keep Retry + Start New Task.
+			// - Everything else (dropped stream, provider 5xx, bad model, rate limit, or no
+			//   anchored ask at all): the transcript is intact and resumable, so offer Resume
+			//   Task — the v3 behaviour — with Start New Task as the escape hatch. Turns that
+			//   error without emitting an ask row (send error, auto-continue failure, resume
+			//   failure) carry no anchor and land here.
 			if (anchoredMessage?.type === "ask" && anchoredMessage.ask === "mistake_limit_reached") {
 				return BUTTON_CONFIGS.mistake_limit_reached
 			}
-			return BUTTON_CONFIGS.api_req_failed
+			if (isAccountBlockedError(anchoredMessage)) {
+				return BUTTON_CONFIGS.api_req_failed
+			}
+			return BUTTON_CONFIGS.resume_after_error
+		}
 		case "awaiting_followup":
 			// followup / plan_mode_respond — input enabled, no approve/reject buttons. (If the
 			// anchored message is a recognized ask, defer to its config for correct labels.)

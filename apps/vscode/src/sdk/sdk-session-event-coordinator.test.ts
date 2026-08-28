@@ -122,8 +122,27 @@ describe("SdkSessionEventCoordinator", () => {
 
 		await coordinator.handleSessionEvent(event)
 
-		expect(options.setTurnPhase).toHaveBeenCalledWith("error")
+		expect(options.setTurnPhase).toHaveBeenCalledWith("error", undefined)
 		expect(options.setTurnPhase).not.toHaveBeenCalledWith("awaiting_followup")
+	})
+
+	it("anchors the error phase on its api_req_failed row so the webview can pick Resume vs Retry", async () => {
+		// message-translator stamps the ts of the ask:"api_req_failed" row it emits and the
+		// turn-state carries it, so the webview can inspect the error text. Without the anchor
+		// the webview cannot distinguish mistake_limit from a failed request, nor an
+		// account-blocked failure (Retry) from a resumable one (Resume Task).
+		const { coordinator, options, event } = makeCoordinator({
+			translation: {
+				messages: [],
+				sessionEnded: false,
+				turnComplete: true,
+			},
+		})
+		options.messageTranslatorState.setErrorSeen(4242)
+
+		await coordinator.handleSessionEvent(event)
+
+		expect(options.setTurnPhase).toHaveBeenCalledWith("error", 4242)
 	})
 
 	it("marks a submitted queued prompt as a new streaming turn", async () => {

@@ -362,15 +362,32 @@ export class MessageTranslatorState {
 
 	/** Whether a provider/agent error surfaced in this turn (ask:"api_req_failed" emitted) */
 	private errorSeen = false
+	/** ts of the ask:"api_req_failed" row carrying this turn's error. */
+	private errorAnchorTsValue: number | undefined
 
-	/** Mark that this turn surfaced an error */
-	setErrorSeen(): void {
+	/**
+	 * Mark that this turn surfaced an error.
+	 *
+	 * `anchorTs` is the ts of the emitted ask:"api_req_failed" row. The turn-state carries it as
+	 * its anchor so the webview can inspect the error and choose the right recovery buttons
+	 * (Retry vs. Resume Task). Turns that error without emitting such a row — done(reason:"error"),
+	 * send errors, auto-continue failures — leave it undefined.
+	 */
+	setErrorSeen(anchorTs?: number): void {
 		this.errorSeen = true
+		if (anchorTs !== undefined) {
+			this.errorAnchorTsValue = anchorTs
+		}
 	}
 
-	/** Check if this turn surfaced an error — drives the "error" turn phase (Retry / New Task) */
+	/** Check if this turn surfaced an error — drives the "error" turn phase (Retry / Resume Task) */
 	wasErrorSeen(): boolean {
 		return this.errorSeen
+	}
+
+	/** ts of this turn's error ask row, for use as the authoritative TurnState anchor. */
+	errorAnchorTs(): number | undefined {
+		return this.errorAnchorTsValue
 	}
 
 	// -----------------------------------------------------------------------
@@ -529,14 +546,15 @@ export class MessageTranslatorState {
 	}
 
 	/**
-	 * Clear turn-outcome signals (`attemptCompletionSeen`, the turn-final text candidate).
-	 * Called at a new user turn / task boundary so each turn's phase is computed fresh; it is
-	 * intentionally separate from the per-iteration `reset()` so the completion signal persists
-	 * across the iterations of one turn.
+	 * Clear turn-outcome signals (`attemptCompletionSeen`, `errorSeen` + its anchor, the
+	 * turn-final text candidate). Called at a new user turn / task boundary so each turn's phase
+	 * is computed fresh; it is intentionally separate from the per-iteration `reset()` so the
+	 * completion signal persists across the iterations of one turn.
 	 */
 	clearTurnOutcome(): void {
 		this.attemptCompletionSeen = false
 		this.errorSeen = false
+		this.errorAnchorTsValue = undefined
 		this.clearTurnFinalText()
 	}
 }
@@ -1934,10 +1952,6 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 				break
 			}
 
-			// Record the error outcome so turn end resolves to the "error" phase
-			// (footer shows Retry / Start New Task) instead of awaiting_followup.
-			state.setErrorSeen()
-
 			// Serialize the error message for the webview's ErrorRow to parse.
 			// The webview uses ClineError.parse() on the `api_req_failed` text to
 			// detect special error types (insufficient credits, spend limit, auth,
@@ -1966,13 +1980,20 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 			// Emit ask:"api_req_failed" as the LAST message so the webview
 			// shows error recovery UI (Retry button, Add Credits button,
 			// Sign In button, etc.) instead of a stuck "Thinking..." spinner.
+			//
+			// Record the error outcome so turn end resolves to the "error" phase
+			// instead of awaiting_followup, anchored on this row: the webview reads
+			// the anchored text to pick Resume Task (the run is resumable) over Retry
+			// (the account itself needs attention first).
+			const failedAskTs = state.nextTs()
 			messages.push({
-				ts: state.nextTs(),
+				ts: failedAskTs,
 				type: "ask",
 				ask: "api_req_failed",
 				text: errorPayload,
 				partial: false,
 			})
+			state.setErrorSeen(failedAskTs)
 			break
 		}
 

@@ -117,8 +117,12 @@ export class SdkSessionEventCoordinator {
 					Logger.debug("[SdkController] turn-complete straggler after cancel; preserving resumable phase")
 				} else if (this.options.messageTranslatorState.wasErrorSeen()) {
 					// The turn surfaced a provider error (ask:"api_req_failed" was emitted) —
-					// offer error recovery (Retry / Start New Task), not the followup state.
-					this.options.setTurnPhase?.("error")
+					// offer error recovery (Retry or Resume Task), not the followup state.
+					// Anchor on that ask row so the webview can tell a resumable failure
+					// (Resume Task) from an account-blocked one (Retry + ErrorRow's Sign In /
+					// Add Credits), and mistake_limit from a failed API request. Without the
+					// anchor the webview's mistake_limit branch is unreachable.
+					this.options.setTurnPhase?.("error", this.options.messageTranslatorState.errorAnchorTs())
 				} else if (this.options.messageTranslatorState.wasAttemptCompletionSeen()) {
 					this.options.setTurnPhase?.("completed")
 				} else {

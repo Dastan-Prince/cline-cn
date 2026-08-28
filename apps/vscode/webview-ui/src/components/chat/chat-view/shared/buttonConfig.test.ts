@@ -202,7 +202,9 @@ describe("buttonsForPhase (TurnState-driven)", () => {
 		expect(buttonsForPhase(ts("streaming"), undefined)).toEqual(BUTTON_CONFIGS.partial)
 		expect(buttonsForPhase(ts("completed"), undefined)).toEqual(BUTTON_CONFIGS.completion_result)
 		expect(buttonsForPhase(ts("resumable"), undefined)).toEqual(BUTTON_CONFIGS.resume_task)
-		expect(buttonsForPhase(ts("error"), undefined)).toEqual(BUTTON_CONFIGS.api_req_failed)
+		// An error phase with no anchored ask (send error / auto-continue failure / resume
+		// failure) cannot be proven account-blocked, so it defaults to Resume Task.
+		expect(buttonsForPhase(ts("error"), undefined)).toEqual(BUTTON_CONFIGS.resume_after_error)
 		expect(buttonsForPhase(ts("awaiting_followup"), undefined)).toEqual(BUTTON_CONFIGS.followup)
 		expect(buttonsForPhase(ts("awaiting_approval"), undefined)).toEqual(BUTTON_CONFIGS.tool_approve)
 	})
@@ -221,6 +223,39 @@ describe("buttonsForPhase (TurnState-driven)", () => {
 	it("distinguishes mistake_limit from api_req_failed in the error phase via the anchor", () => {
 		const mistake: ClineMessage = { ts: 8, type: "ask", ask: "mistake_limit_reached", text: "" }
 		expect(buttonsForPhase(ts("error", 8), mistake)).toEqual(BUTTON_CONFIGS.mistake_limit_reached)
+	})
+
+	const failedAsk = (ts: number, text: string): ClineMessage => ({ ts, type: "ask", ask: "api_req_failed", text })
+
+	it("keeps Retry for account-blocked errors so ErrorRow's Sign In / Add Credits stay reachable", () => {
+		// Insufficient credits — resuming cannot fix a zero balance.
+		const balance = failedAsk(10, JSON.stringify({ code: "insufficient_credits", details: { current_balance: 0 } }))
+		expect(buttonsForPhase(ts("error", 10), balance)).toEqual(BUTTON_CONFIGS.api_req_failed)
+
+		// Org-enforced spend limit.
+		const spendLimit = failedAsk(11, JSON.stringify({ code: "SPEND_LIMIT_EXCEEDED" }))
+		expect(buttonsForPhase(ts("error", 11), spendLimit)).toEqual(BUTTON_CONFIGS.api_req_failed)
+
+		// Auth — the user must sign in before anything can run.
+		const auth = failedAsk(12, JSON.stringify({ status: 401, message: "Unauthorized" }))
+		expect(buttonsForPhase(ts("error", 12), auth)).toEqual(BUTTON_CONFIGS.api_req_failed)
+	})
+
+	it("offers Resume Task for resumable failures (v3 parity)", () => {
+		// A dropped stream / provider 5xx: the transcript is intact, so resume it.
+		const serverError = failedAsk(20, JSON.stringify({ status: 500, message: "Internal server error" }))
+		expect(buttonsForPhase(ts("error", 20), serverError)).toEqual(BUTTON_CONFIGS.resume_after_error)
+
+		// Plain (non-JSON) error text parses to no known type → resumable.
+		const plainText = failedAsk(21, "socket hang up")
+		expect(buttonsForPhase(ts("error", 21), plainText)).toEqual(BUTTON_CONFIGS.resume_after_error)
+
+		// Rate limit is transient and renders no account UI in ErrorRow → resumable.
+		const rateLimit = failedAsk(22, JSON.stringify({ status: 429, message: "Rate limit exceeded" }))
+		expect(buttonsForPhase(ts("error", 22), rateLimit)).toEqual(BUTTON_CONFIGS.resume_after_error)
+
+		// No anchored ask at all (send error / auto-continue failure / resume failure).
+		expect(buttonsForPhase(ts("error"), undefined)).toEqual(BUTTON_CONFIGS.resume_after_error)
 	})
 })
 

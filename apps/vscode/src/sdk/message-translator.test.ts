@@ -124,6 +124,15 @@ describe("MessageTranslatorState", () => {
 		state.clearTurnOutcome()
 		expect(state.wasAttemptCompletionSeen()).toBe(false)
 	})
+
+	it("clearTurnOutcome() drops the previous turn's error anchor", () => {
+		// A stale anchor would let a healthy new turn inherit the last turn's error button set.
+		const state = new MessageTranslatorState()
+		state.setErrorSeen(99)
+		state.clearTurnOutcome()
+		expect(state.wasErrorSeen()).toBe(false)
+		expect(state.errorAnchorTs()).toBeUndefined()
+	})
 })
 
 // ---------------------------------------------------------------------------
@@ -1558,6 +1567,30 @@ describe("translateSessionEvent — agent_event error", () => {
 		expect(parsed.providerId).toBe("cline")
 		expect(parsed.details.current_balance).toBe(-0.14)
 		expect(parsed.details.message).toBe("Not enough credits available")
+	})
+
+	it("anchors the error outcome on the api_req_failed row it emits", () => {
+		const state = new MessageTranslatorState()
+		const event: CoreSessionEvent = {
+			type: "agent_event",
+			payload: {
+				sessionId: "session-1",
+				event: {
+					type: "error",
+					error: { message: "socket hang up" },
+				} as AgentEvent,
+			},
+		}
+
+		const result = translateSessionEvent(event, state)
+
+		expect(state.wasErrorSeen()).toBe(true)
+		// The anchor must point at the ask:"api_req_failed" row — not the preceding
+		// api_req_started usage row — because the webview looks it up by ts to decide
+		// between Retry and Resume Task.
+		const failedAsk = result.messages.find((m) => m.type === "ask" && m.ask === "api_req_failed")
+		expect(failedAsk).toBeDefined()
+		expect(state.errorAnchorTs()).toBe(failedAsk!.ts)
 	})
 
 	it("preserves the active provider when reshaping insufficient_credits errors", () => {
