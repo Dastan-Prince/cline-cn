@@ -818,8 +818,8 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	clinePass,
 	{
 		id: "deepseek",
-		name: "深度求索（DeepSeek）",
-		description: "具备推理能力的高级 AI 模型",
+		name: "DeepSeek",
+		description: "Advanced AI models with reasoning capabilities",
 		family: "openai-compatible",
 		popular: 10,
 		capabilities: ["reasoning", "prompt-cache"],
@@ -1019,8 +1019,8 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	},
 	{
 		id: "zai-coding-plan",
-		name: "智谱 AI 编程套餐（Z.AI Coding Plan）",
-		description: "智谱（Z.AI）面向编程的模型",
+		name: "Z.AI Coding Plan",
+		description: "Z.AI's coding-focused models",
 		family: "openai-compatible",
 		capabilities: ["reasoning", "tools"],
 		defaultModelId: "glm-5.2",
@@ -1046,8 +1046,8 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	},
 	{
 		id: "xiaomi-athrapi",
-		name: "小米 MiMo（Anthropic 兼容）",
-		description: "通过 Anthropic 兼容端点访问的小米 MiMo 模型",
+		name: "Xiaomi Mimo AthrAPI",
+		description: "Xiaomi MiMo via Anthropic-compatible endpoint",
 		family: "anthropic",
 		protocol: "anthropic",
 		capabilities: ["prompt-cache", "tools", "reasoning"],
@@ -1058,8 +1058,8 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	},
 	{
 		id: "xiaomi-tp-athrapi",
-		name: "小米 Token 套餐（Anthropic 兼容）",
-		description: "通过 Anthropic 兼容端点访问的小米 MiMo Token 套餐",
+		name: "Xiaomi TP AthrAPI",
+		description: "Xiaomi MiMo Token Plan via Anthropic-compatible endpoint",
 		family: "anthropic",
 		protocol: "anthropic",
 		capabilities: ["prompt-cache", "tools", "reasoning"],
@@ -1070,20 +1070,24 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	},
 	{
 		id: "zhipu-athrapi",
-		name: "智谱 GLM（Anthropic 兼容）",
-		description: "通过 Anthropic 兼容端点访问的智谱 GLM 编程套餐",
+		name: "Zhipu AthrAPI",
+		description: "GLM Coding Plan via Anthropic-compatible endpoint",
 		family: "anthropic",
 		protocol: "anthropic",
 		capabilities: ["prompt-cache", "tools", "reasoning"],
 		defaultModelId: "glm-5.2",
 		apiKeyEnv: ["ZHIPU_ATHRAPI_API_KEY"],
-		modelsProviderId: "zhipuai-coding-plan",
+		// Point at the Coding Plan catalog, not the pay-as-you-go `zai` catalog:
+		// this provider talks to the GLM Coding Plan Anthropic endpoint, which
+		// serves only the subscription models (glm-5.3, glm-5.2-highspeed, ...)
+		// and bills at 0 rather than the per-token `zai` prices.
+		modelsProviderId: "zai-coding-plan",
 		defaults: { baseUrl: "https://open.bigmodel.cn/api/anthropic" },
 	},
 	{
 		id: "dots-studio-athrapi",
-		name: "Dots Studio（Anthropic 兼容）",
-		description: "通过 Anthropic 兼容端点访问的 Dots Studio 模型",
+		name: "Dots Studio AthrAPI",
+		description: "Dots Studio models via Anthropic-compatible endpoint",
 		family: "anthropic",
 		protocol: "anthropic",
 		capabilities: ["prompt-cache", "tools", "reasoning"],
@@ -1114,8 +1118,8 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	},
 	{
 		id: "anthropic-comp",
-		name: "Anthropic 兼容端点",
-		description: "自定义 Anthropic 兼容端点",
+		name: "Anthropic Compatible",
+		description: "Custom Anthropic-compatible endpoint",
 		family: "anthropic",
 		protocol: "anthropic",
 		capabilities: ["prompt-cache", "tools", "reasoning"],

@@ -26,7 +26,8 @@ bun install --frozen-lockfile
 
 ```powershell
 bun -F @cline/llms build
-# 或全量：bun run build:sdk
+# 或全量：
+bun run build:sdk
 ```
 
 ### 3. 完整构建 + 打包 .vsix（一步到位）

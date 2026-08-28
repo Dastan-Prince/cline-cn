@@ -279,6 +279,35 @@ describe("translateSessionEvent — pending prompts", () => {
 			}),
 		])
 	})
+
+	it("re-injects a checkpoint_created row before a real user prompt (4.x SDK mode)", () => {
+		// 3.x emitted a checkpoint_created row per run that the webview's
+		// compare/restore divider relies on. The 4.x SDK no longer does, so the
+		// translator must re-inject one before each visible user run.
+		const state = new MessageTranslatorState()
+		const event: CoreSessionEvent = {
+			type: "pending_prompt_submitted",
+			payload: {
+				sessionId: "session-1",
+				id: "pending-1",
+				prompt: "build the login page",
+				delivery: "queue",
+				attachmentCount: 0,
+			},
+		}
+
+		const result = translateSessionEvent(event, state)
+
+		expect(result.messages).toEqual([
+			expect.objectContaining({ say: "checkpoint_created", partial: false }),
+			expect.objectContaining({
+				say: "user_feedback",
+				text: "build the login page",
+			}),
+		])
+		// The run counter advances with the visible user run.
+		expect(result.messages[0].conversationHistoryIndex).toBe(1)
+	})
 })
 
 // ---------------------------------------------------------------------------
@@ -4187,5 +4216,59 @@ describe("tool display paths are relativized to the cwd", () => {
 				text: "Bun 1.3.14 is current.",
 			}),
 		)
+	})
+})
+
+// ---------------------------------------------------------------------------
+// sdkMessagesToClineMessages — checkpoint_created re-injection (4.x SDK mode)
+// ---------------------------------------------------------------------------
+
+describe("sdkMessagesToClineMessages — checkpoint_created re-injection", () => {
+	it("re-injects a checkpoint_created row before each visible user run", () => {
+		// In 3.x every run pushed a checkpoint_created row that the webview's
+		// compare/restore divider depends on. The 4.x SDK stops emitting it, so
+		// history replay must synthesize one per visible user turn.
+		const messages: SdkMessage[] = [
+			{ role: "user", content: "build the login page" } as SdkMessage,
+			{ role: "assistant", content: "done" } as SdkMessage,
+			{ role: "user", content: "now add tests" } as SdkMessage,
+			{ role: "assistant", content: "done" } as SdkMessage,
+		]
+
+		const clineMessages = sdkMessagesToClineMessages(messages)
+		const checkpointRows = clineMessages.filter((m) => m.say === "checkpoint_created")
+
+		expect(checkpointRows).toHaveLength(2)
+		expect(checkpointRows.map((m) => m.conversationHistoryIndex)).toEqual([1, 2])
+		// Each checkpoint_created sits immediately before its user run bubble.
+		expect(clineMessages[0].say).toBe("checkpoint_created")
+		expect(clineMessages[1].say).toBe("task")
+		expect(clineMessages[2].say).toBe("text")
+		expect(clineMessages[3].say).toBe("checkpoint_created")
+		expect(clineMessages[4].say).toBe("user_feedback")
+	})
+
+	it("does not re-inject a checkpoint_created row for a recovery_notice run", () => {
+		// Recovery notices are not user-initiated runs; the core run counter
+		// excludes them, so the webview divider must too.
+		const messages: SdkMessage[] = [
+			{ role: "user", content: "first task" } as SdkMessage,
+			{
+				role: "user",
+				content: '<user_input mode="act">[RECOVERY] Session restored.</user_input>',
+				metadata: { kind: "recovery_notice" },
+			} as SdkMessage,
+			{ role: "assistant", content: "done" } as SdkMessage,
+		]
+
+		const clineMessages = sdkMessagesToClineMessages(messages)
+
+		expect(clineMessages.filter((m) => m.say === "checkpoint_created")).toHaveLength(1)
+		// The recovery notice still renders as a visible user bubble...
+		const recoveryBubble = clineMessages.find((m) => m.say === "user_feedback" && m.text?.includes("[RECOVERY]"))
+		expect(recoveryBubble).toBeDefined()
+		// ...but no checkpoint_created precedes it.
+		const recoveryIndex = clineMessages.indexOf(recoveryBubble!)
+		expect(clineMessages[recoveryIndex - 1].say).not.toBe("checkpoint_created")
 	})
 })

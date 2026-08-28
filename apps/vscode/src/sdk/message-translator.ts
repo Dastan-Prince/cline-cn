@@ -143,6 +143,13 @@ export class MessageTranslatorState {
 	/** Tool calls rejected by the user; they should not render as red tool failures. */
 	private deniedToolApprovalsByCallId = new Map<string, { toolName: string; reason: string }>()
 	/**
+	 * Monotonic counter for the `checkpoint_created` rows re-injected before each
+	 * visible user run (see buildCheckpointCreatedMessage). The 4.x SDK no longer
+	 * emits those rows, but the webview still derives its compare/restore divider
+	 * from them, so we count runs here as the live transcript streams in.
+	 */
+	private checkpointRunCount = 0
+	/**
 	 * Process-wide id/seq/epoch authority. Shared with the interaction coordinator and history
 	 * rendering so that message ids never collide across generators. See message-id-minter.ts.
 	 */
@@ -194,6 +201,16 @@ export class MessageTranslatorState {
 	/** Generate a unique message id (identity). Pure monotonic counter; never reads the clock. */
 	nextTs(): number {
 		return this.minter.nextId()
+	}
+
+	/**
+	 * Advance and return the run index for the next `checkpoint_created` row.
+	 * Used by both the live and history-replay translators so the re-injected
+	 * rows stay 1:1 with visible user runs.
+	 */
+	nextCheckpointRunCount(): number {
+		this.checkpointRunCount += 1
+		return this.checkpointRunCount
 	}
 
 	/** Mint and remember the ts of an in-flight compaction divider. */
@@ -2126,6 +2143,13 @@ export function translateSessionEvent(event: CoreSessionEvent, state: MessageTra
 			const hasImages = (userImages?.length ?? 0) > 0
 			const hasFiles = (userFiles?.length ?? 0) > 0
 			if (hasPrompt || hasImages || hasFiles) {
+				// Re-inject a checkpoint_created row before a real user prompt so the
+				// webview's compare/restore divider keeps working in 4.x SDK mode.
+				// Synthetic resumption prompts are echoed (with attachments) but do not
+				// advance the run counter, matching the history-replay path.
+				if (hasPrompt) {
+					result.messages.push(buildCheckpointCreatedMessage(state))
+				}
 				result.messages.push({
 					ts: state.nextTs(),
 					type: "say",
@@ -2290,6 +2314,32 @@ export interface SdkMessagesToClineMessagesOptions {
 	 * display, matching the live streaming path.
 	 */
 	cwd?: string
+}
+
+/**
+ * Checkpoints migrated to the `@cline/core` SDK layer in 4.x no longer emit a
+ * `checkpoint_created` ClineMessage per run the way the 3.x extension did. The
+ * webview still derives its "compare / restore" divider and per-message restore
+ * affordance from the presence of those messages in the transcript (see
+ * `canRestoreWorkspaceFromMessage` / `isCheckpointAnswerMessage`). This helper
+ * re-injects one `checkpoint_created` row before each visible user run so the
+ * existing webview logic keeps working without a rewrite.
+ */
+function isRecoveryNoticeSdkMessage(message: { metadata?: unknown }): boolean {
+	if (!message.metadata || typeof message.metadata !== "object" || Array.isArray(message.metadata)) {
+		return false
+	}
+	return (message.metadata as Record<string, unknown>).kind === "recovery_notice"
+}
+
+function buildCheckpointCreatedMessage(state: MessageTranslatorState): ClineMessage {
+	return {
+		ts: state.nextTs(),
+		type: "say",
+		say: "checkpoint_created",
+		partial: false,
+		conversationHistoryIndex: state.nextCheckpointRunCount(),
+	}
 }
 
 /**
@@ -2469,6 +2519,11 @@ export function sdkMessagesToClineMessages(
 				state.clearTurnOutcome()
 				currentMode = sourceMessage.uiMode ?? currentMode
 				if (!isSyntheticSdkUserMessage(message)) {
+					// Re-inject a checkpoint_created row before each visible user run so the
+					// webview's compare/restore divider keeps working in 4.x SDK mode.
+					if (!isRecoveryNoticeSdkMessage(sourceMessage)) {
+						clineMessages.push(buildCheckpointCreatedMessage(state))
+					}
 					clineMessages.push({
 						ts: state.nextTs(),
 						type: "say",
@@ -2486,6 +2541,11 @@ export function sdkMessagesToClineMessages(
 			state.clearTurnOutcome()
 			currentMode = sourceMessage.uiMode ?? currentMode
 			if (!isSyntheticSdkUserMessage(message)) {
+				// Re-inject a checkpoint_created row before each visible user run so the
+				// webview's compare/restore divider keeps working in 4.x SDK mode.
+				if (!isRecoveryNoticeSdkMessage(sourceMessage)) {
+					clineMessages.push(buildCheckpointCreatedMessage(state))
+				}
 				clineMessages.push({
 					ts: state.nextTs(),
 					type: "say",

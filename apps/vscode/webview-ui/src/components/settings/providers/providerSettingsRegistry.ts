@@ -105,14 +105,16 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		signupUrl: "https://wandb.ai",
 	},
 	xiaomi: {
+		signupUrl: "https://platform.xiaomimimo.com/console",
 		allowsCustomIds: true,
 	},
 	"xiaomi-athrapi": {
+		signupUrl: "https://platform.xiaomimimo.com/console",
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
 		defaultModelInfo: {
-			contextWindow: 256_000,
-			maxTokens: 8_192,
+			contextWindow: 1_000_000,
+			maxTokens: 131_072,
 			supportsImages: false,
 			supportsPromptCache: true,
 			supportsReasoning: true,
@@ -122,11 +124,12 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		},
 	},
 	"xiaomi-tp-athrapi": {
+		signupUrl: "https://platform.xiaomimimo.com/console",
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
 		defaultModelInfo: {
-			contextWindow: 256_000,
-			maxTokens: 8_192,
+			contextWindow: 1_000_000,
+			maxTokens: 131_072,
 			supportsImages: false,
 			supportsPromptCache: true,
 			supportsReasoning: true,
@@ -140,8 +143,8 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
 		defaultModelInfo: {
-			contextWindow: 131_072,
-			maxTokens: 8_192,
+			contextWindow: 256_000,
+			maxTokens: 131_072,
 			supportsImages: false,
 			supportsPromptCache: true,
 			supportsReasoning: true,
@@ -151,11 +154,12 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		},
 	},
 	"dots-studio-athrapi": {
+		signupUrl: "https://dots.ai/platform",
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
 		defaultModelInfo: {
-			contextWindow: 393_216,
-			maxTokens: 131_072,
+			contextWindow: 350_000,
+			maxTokens: 128_000,
 			supportsImages: true,
 			supportsPromptCache: false,
 			supportsReasoning: true,
@@ -165,15 +169,16 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		},
 	},
 	"dots-studio": {
+		signupUrl: "https://dots.ai/platform",
 		allowsCustomIds: true,
 		allowsModelOverrides: true,
 		baseUrlField: {
-			label: "基础 URL",
+			label: "Base URL",
 			placeholder: "https://note3-prev-api.askdiandian.com/v1",
 		},
 		defaultModelInfo: {
-			contextWindow: 393_216,
-			maxTokens: 131_072,
+			contextWindow: 350_000,
+			maxTokens: 128_000,
 			supportsImages: true,
 			supportsPromptCache: false,
 			supportsReasoning: true,
@@ -187,7 +192,7 @@ const GENERIC_PROVIDER_PRESENTATION_OVERRIDES: Record<string, GenericProviderPre
 		allowsModelOverrides: true,
 		skipModelListFetch: true,
 		baseUrlField: {
-			label: "基础 URL",
+			label: "Base URL",
 			placeholder: "https://api.example.com/anthropic",
 			alwaysVisible: true,
 		},
@@ -256,7 +261,7 @@ export function getGenericProviderSettings(
 }
 
 const FALLBACK_GENERIC_PROVIDER_NAMES = {
-	deepseek: "深度求索（DeepSeek）",
+	deepseek: "DeepSeek",
 	doubao: "Doubao",
 	gemini: "Gemini",
 	"huawei-cloud-maas": "Huawei Cloud MaaS",
@@ -268,15 +273,15 @@ const FALLBACK_GENERIC_PROVIDER_NAMES = {
 	v0: "Vercel v0",
 	wandb: "W&B",
 	xiaomi: "Xiaomi",
-	"xiaomi-athrapi": "小米 MiMo（Anthropic 兼容）",
-	"xiaomi-tp-athrapi": "小米 Token 套餐（Anthropic 兼容）",
-	"zhipu-athrapi": "智谱 GLM（Anthropic 兼容）",
-	"dots-studio-athrapi": "Dots Studio（Anthropic 兼容）",
+	"xiaomi-athrapi": "Xiaomi MiMo (Anthropic)",
+	"xiaomi-tp-athrapi": "Xiaomi Token Plan (Anthropic)",
+	"zhipu-athrapi": "Zhipu GLM (Anthropic)",
+	"dots-studio-athrapi": "Dots Studio (Anthropic)",
 	"dots-studio": "Dots Studio",
-	"anthropic-comp": "Anthropic 兼容端点",
-	"tencent-tokenhub": "腾讯 TokenHub",
+	"anthropic-comp": "Anthropic Compatible",
+	"tencent-tokenhub": "Tencent TokenHub",
 	chutes: "Chutes",
-	"zai-coding-plan": "智谱 AI 编程套餐（Z.AI Coding Plan）",
+	"zai-coding-plan": "Z.AI Coding Plan",
 } as const
 
 export function getFallbackGenericProviderSettings(providerId: string): GenericProviderSettingsConfig | undefined {

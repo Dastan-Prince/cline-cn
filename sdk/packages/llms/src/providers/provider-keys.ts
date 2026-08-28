@@ -130,6 +130,17 @@ const PROVIDER_IDS_MAP: ReadonlyArray<{
 		runtimeProviderId: "baseten",
 	},
 	{ modelsDevKey: "zai-coding-plan", generatedProviderId: "zai-coding-plan" },
+	{
+		// The Cline CN fork's Anthropic-compatible GLM Coding Plan endpoint is a
+		// second transport over the same catalog. Registering it as a runtime
+		// consumer (mirroring how openai-native/openai-codex share the `openai`
+		// catalog) lets it resolve both the bundled and the live models.dev
+		// `zai-coding-plan` models; without this row it only ever sees the
+		// static snapshot carried by its builtin spec.
+		modelsDevKey: "zai-coding-plan",
+		generatedProviderId: "zai-coding-plan",
+		runtimeProviderId: "zhipu-athrapi",
+	},
 	{ modelsDevKey: "google-vertex", generatedProviderId: "vertex" },
 	{ modelsDevKey: "lmstudio", generatedProviderId: "lmstudio" },
 	{ modelsDevKey: "zai", generatedProviderId: "zai" },
@@ -142,6 +153,21 @@ const PROVIDER_IDS_MAP: ReadonlyArray<{
 	{ modelsDevKey: "wandb", generatedProviderId: "wandb" },
 	{ modelsDevKey: "kilo", generatedProviderId: "kilo" },
 	{ modelsDevKey: "xiaomi", generatedProviderId: "xiaomi" },
+	{
+		// Same runtime-catalog sharing as zhipu-athrapi above: both Xiaomi
+		// Anthropic-compatible endpoints (standard and Token Plan) are distinct
+		// transports over the single `xiaomi` catalog, so they must be
+		// registered as runtime consumers to pick up the live models.dev list
+		// instead of only the static snapshot in their builtin specs.
+		modelsDevKey: "xiaomi",
+		generatedProviderId: "xiaomi",
+		runtimeProviderId: "xiaomi-athrapi",
+	},
+	{
+		modelsDevKey: "xiaomi",
+		generatedProviderId: "xiaomi",
+		runtimeProviderId: "xiaomi-tp-athrapi",
+	},
 	{
 		modelsDevKey: "tencent-tokenhub",
 		generatedProviderId: "tencent-tokenhub",
