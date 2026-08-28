@@ -23,7 +23,7 @@ import type {
 	TerminalCompletionDetails,
 	TerminalProcessEvents,
 } from "@/integrations/terminal/types";
-import { Logger } from "@/shared/services/Logger"
+import { Logger } from "@/shared/services/Logger";
 import { classifyShellPrompt, getLastLine } from "./shellPromptHeuristics";
 
 /**
@@ -80,7 +80,12 @@ export class VscodeTerminalProcess
 			// Fail fast if terminal is already dead
 			if (terminal.exitStatus !== undefined) {
 				this.exitCode = terminal.exitStatus.code;
-				this.emit("error", new Error("The terminal's shell process has exited; the command was not run."));
+				this.emit(
+					"error",
+					new Error(
+						"The terminal's shell process has exited; the command was not run.",
+					),
+				);
 				return;
 			}
 
@@ -98,9 +103,18 @@ export class VscodeTerminalProcess
 				resolveExecutionEnd = resolve;
 			});
 			let endEventDisposable: vscode.Disposable | undefined;
-			if (typeof (vscode.window as any).onDidEndTerminalShellExecution === "function") {
-				endEventDisposable = (vscode.window as any).onDidEndTerminalShellExecution(
-					(e: { terminal: vscode.Terminal; execution: any; exitCode: number | undefined }) => {
+			if (
+				typeof (vscode.window as any).onDidEndTerminalShellExecution ===
+				"function"
+			) {
+				endEventDisposable = (
+					vscode.window as any
+				).onDidEndTerminalShellExecution(
+					(e: {
+						terminal: vscode.Terminal;
+						execution: any;
+						exitCode: number | undefined;
+					}) => {
 						if (e.terminal === terminal && e.execution === execution) {
 							resolveExecutionEnd(e.exitCode);
 						}
@@ -115,12 +129,14 @@ export class VscodeTerminalProcess
 			const terminalClosedPromise = new Promise<void>((resolve) => {
 				resolveTerminalClosed = resolve;
 			});
-			const closeDisposable = vscode.window.onDidCloseTerminal((closedTerminal) => {
-				if (closedTerminal === terminal) {
-					terminalClosed = true;
-					resolveTerminalClosed();
-				}
-			});
+			const closeDisposable = vscode.window.onDidCloseTerminal(
+				(closedTerminal) => {
+					if (closedTerminal === terminal) {
+						terminalClosed = true;
+						resolveTerminalClosed();
+					}
+				},
+			);
 			this.activeCloseDisposable = closeDisposable;
 
 			// Use manual iterator + Promise.race so each read can be raced against
@@ -136,21 +152,32 @@ export class VscodeTerminalProcess
 			const iterator = stream[Symbol.asyncIterator]();
 			this.activeIterator = iterator;
 			let pendingRead: Promise<IteratorResult<string>> | undefined;
-			const readNext = async (idleTimeoutMs: number | undefined): Promise<StreamReadOutcome> => {
+			const readNext = async (
+				idleTimeoutMs: number | undefined,
+			): Promise<StreamReadOutcome> => {
 				pendingRead ??= iterator.next();
 				let idleTimer: NodeJS.Timeout | undefined;
 				const racers: Promise<StreamReadOutcome>[] = [
 					pendingRead.then(
 						(result): StreamReadOutcome =>
-							result.done ? { kind: "streamEnd" } : { kind: "data", data: result.value },
+							result.done
+								? { kind: "streamEnd" }
+								: { kind: "data", data: result.value },
 					),
-					executionEndPromise.then((): StreamReadOutcome => ({ kind: "executionEnd" })),
-					terminalClosedPromise.then((): StreamReadOutcome => ({ kind: "terminalClosed" })),
+					executionEndPromise.then(
+						(): StreamReadOutcome => ({ kind: "executionEnd" }),
+					),
+					terminalClosedPromise.then(
+						(): StreamReadOutcome => ({ kind: "terminalClosed" }),
+					),
 				];
 				if (idleTimeoutMs !== undefined) {
 					racers.push(
 						new Promise<StreamReadOutcome>((resolve) => {
-							idleTimer = setTimeout(() => resolve({ kind: "idle" }), idleTimeoutMs);
+							idleTimer = setTimeout(
+								() => resolve({ kind: "idle" }),
+								idleTimeoutMs,
+							);
 						}),
 					);
 				}
@@ -193,16 +220,21 @@ export class VscodeTerminalProcess
 					break;
 				}
 				if (outcome.kind === "terminalClosed") {
-					Logger.warn("[TerminalProcess] Terminal closed while a command was running");
+					Logger.warn(
+						"[TerminalProcess] Terminal closed while a command was running",
+					);
 					this.terminalClosedMidCommand = true;
 					break;
 				}
 				if (outcome.kind === "idle") {
 					markerlessQuietMs += idleTimeoutMs ?? 0;
 					// Check if the last line looks like a shell prompt
-					const promptCandidate = getLastLine(stripAnsi(this.fullOutput || this.buffer || ""));
+					const promptCandidate = getLastLine(
+						stripAnsi(this.fullOutput || this.buffer || ""),
+					);
 					const promptStrength = classifyShellPrompt(promptCandidate);
-					const quietTimeoutReached = markerlessQuietMs >= MARKERLESS_MAX_QUIET_TIME;
+					const quietTimeoutReached =
+						markerlessQuietMs >= MARKERLESS_MAX_QUIET_TIME;
 					if (promptStrength === "strong" || quietTimeoutReached) {
 						completedWithoutMarkers = true;
 						break;
@@ -404,7 +436,10 @@ export class VscodeTerminalProcess
 
 			// Emit informational messages for non-standard completion paths
 			if (this.terminalClosedMidCommand) {
-				this.emit("line", "[The terminal closed while the command was running; output may be incomplete.]");
+				this.emit(
+					"line",
+					"[The terminal closed while the command was running; output may be incomplete.]",
+				);
 			} else if (completedWithoutMarkers) {
 				this.emit(
 					"line",
@@ -442,7 +477,9 @@ export class VscodeTerminalProcess
 				telemetryService.captureTerminalExecution(
 					!this.terminalClosedMidCommand,
 					"vscode",
-					completedWithoutMarkers ? "markerless_heuristic" : "shell_integration",
+					completedWithoutMarkers
+						? "markerless_heuristic"
+						: "shell_integration",
 				);
 			}
 
