@@ -51,6 +51,7 @@ import { XiaomiAthrapiHandler } from "./providers/xiaomi-athrapi"
 import { MimoTpAthrapiHandler } from "./providers/mimo-tp-athrapi"
 import { ZhipuAthrapiHandler } from "./providers/zhipu-athrapi"
 import { DotsStudioAthrapiHandler } from "./providers/dots-studio-athrapi"
+import { DotsStudioHandler } from "./providers/dots-studio"
 import { AnthropicCompHandler } from "./providers/anthropic-comp"
 import { ApiStream, ApiStreamUsageChunk } from "./transform/stream"
 
@@ -512,6 +513,12 @@ function createHandlerForProvider(
 				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
 				thinkingBudgetTokens:
 					mode === "plan" ? options.planModeThinkingBudgetTokens : options.actModeThinkingBudgetTokens,
+			})
+		case "dots-studio":
+			return new DotsStudioHandler({
+				onRetryAttempt: options.onRetryAttempt,
+				dotsStudioApiKey: options.dotsStudioApiKey,
+				apiModelId: mode === "plan" ? options.planModeApiModelId : options.actModeApiModelId,
 			})
 		case "anthropic-comp":
 			return new AnthropicCompHandler({

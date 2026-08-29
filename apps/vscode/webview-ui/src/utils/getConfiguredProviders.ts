@@ -243,6 +243,11 @@ export function getConfiguredProviders(
 		configured.push("mimo-tp")
 	}
 
+	// Dots Studio - requires API key
+	if (apiConfiguration.dotsStudioApiKey) {
+		configured.push("dots-studio")
+	}
+
 	return configured
 }
 

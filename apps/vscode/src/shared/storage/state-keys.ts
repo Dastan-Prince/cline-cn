@@ -362,6 +362,7 @@ const SECRETS_KEYS = [
 	"zhipuAthrapiKey",
 	"dotsStudioAthrapiKey",
 	"anthropicCompApiKey",
+	"dotsStudioApiKey",
 ] as const
 
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker

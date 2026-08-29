@@ -79,6 +79,8 @@ import {
 	mimoTpAthrapiModels,
 	dotsStudioAthrapiDefaultModelId,
 	dotsStudioAthrapiModels,
+	dotsStudioDefaultModelId,
+	dotsStudioModels,
 	zhipuAthrapiDefaultModelId,
 	zhipuAthrapiModels,
 } from "@shared/api";
@@ -162,6 +164,8 @@ export function getModelsForProvider(
 			return mimoTpAthrapiModels
 		case "dots-studio-athrapi":
 			return dotsStudioAthrapiModels
+		case "dots-studio":
+			return dotsStudioModels
 		case "anthropic-comp":
 			return undefined
 		case "zhipu-athrapi":
@@ -527,6 +531,8 @@ export function normalizeApiConfiguration(
 			return getProviderData(mimoTpAthrapiModels, mimoTpAthrapiDefaultModelId)
 		case "dots-studio-athrapi":
 			return getProviderData(dotsStudioAthrapiModels, dotsStudioAthrapiDefaultModelId)
+		case "dots-studio":
+			return getProviderData(dotsStudioModels, dotsStudioDefaultModelId)
 		case "anthropic-comp": {
 			const anthropicCompModelId =
 				currentMode === "plan" ? apiConfiguration?.planModeAnthropicCompModelId : apiConfiguration?.actModeAnthropicCompModelId
@@ -895,7 +901,9 @@ export async function syncModeConfigurations(
 		case "minimax":
 		case "xiaomi-athrapi":
 		case "mimo-tp-athrapi":
+		case "dots-studio-athrapi":
 		case "zhipu-athrapi":
+		case "dots-studio":
 		default:
 			updates.planModeApiModelId = sourceFields.apiModelId
 			updates.actModeApiModelId = sourceFields.apiModelId

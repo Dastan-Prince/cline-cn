@@ -51,6 +51,7 @@ export type ApiProvider =
 	| "zhipu-athrapi"
 	| "dots-studio-athrapi"
 	| "anthropic-comp"
+	| "dots-studio"
 
 export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider
 
@@ -5669,8 +5670,8 @@ export type DotsStudioAthrapiModelId = keyof typeof dotsStudioAthrapiModels
 export const dotsStudioAthrapiDefaultModelId: DotsStudioAthrapiModelId = "dots3-note-prev"
 export const dotsStudioAthrapiModels = {
 	"dots3-note-prev": {
-		maxTokens: 131072,
-		contextWindow: 393216,
+		maxTokens: 128000,
+		contextWindow: 350000,
 		supportsImages: true,
 		supportsPromptCache: true,
 		supportsReasoning: true,
@@ -5681,8 +5682,8 @@ export const dotsStudioAthrapiModels = {
 		description: "dots studio Dots3 Note Prev - Anthropic compatible API with 512K context window.",
 	},
 		"dots3-note": {
-		maxTokens: 131072,
-		contextWindow: 393216,
+		maxTokens: 128000,
+		contextWindow: 350000,
 		supportsImages: true,
 		supportsPromptCache: true,
 		supportsReasoning: true,
@@ -5690,7 +5691,38 @@ export const dotsStudioAthrapiModels = {
 		outputPrice: 0.87,
 		cacheWritesPrice: 0.435,
 		cacheReadsPrice: 0.0036,
-		description: "dots studio Dots3 Note - Anthropic compatible API with 512K context window.",
+	 description: "dots studio Dots3 Note - Anthropic compatible API with 512K context window.",
+	},
+} as const satisfies Record<string, ModelInfo>
+
+// Dots Studio (OpenAI-compatible)
+// https://note3-prev-api.askdiandian.com/v1
+export type DotsStudioModelId = keyof typeof dotsStudioModels
+export const dotsStudioDefaultModelId: DotsStudioModelId = "dots3-note-prev"
+export const dotsStudioModels = {
+	"dots3-note-prev": {
+		maxTokens: 128000,
+		contextWindow: 350000,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "dots studio Dots3 Note Prev - OpenAI compatible API with 512K context window.",
+	},
+	"dots3-note": {
+		maxTokens: 128000,
+		contextWindow: 350000,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "dots studio Dots3 Note - OpenAI compatible API with 512K context window.",
 	},
 } as const satisfies Record<string, ModelInfo>
 

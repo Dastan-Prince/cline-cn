@@ -21,6 +21,10 @@
 			"label": "Dots Studio AthrAPI"
 		},
 		{
+			"value": "dots-studio",
+			"label": "Dots Studio"
+		},
+		{
 			"value": "zhipu-athrapi",
 			"label": "Zhipu AthrAPI"
 		},

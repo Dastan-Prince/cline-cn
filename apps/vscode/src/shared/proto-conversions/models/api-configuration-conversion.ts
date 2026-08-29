@@ -342,6 +342,8 @@ function convertApiProviderToProto(provider: string | undefined): ProtoApiProvid
 			return ProtoApiProvider.DOTS_STUDIO_ATHRAPI
 		case "anthropic-comp":
 			return ProtoApiProvider.ANTHROPIC_COMP
+		case "dots-studio":
+			return ProtoApiProvider.DOTS_STUDIO
 		default:
 			return ProtoApiProvider.ANTHROPIC
 	}
@@ -448,6 +450,8 @@ export function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvid
 			return "dots-studio-athrapi"
 		case ProtoApiProvider.ANTHROPIC_COMP:
 			return "anthropic-comp"
+		case ProtoApiProvider.DOTS_STUDIO:
+			return "dots-studio"
 		default:
 			return "anthropic"
 	}
@@ -537,6 +541,7 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		dotsStudioAthrapiKey: config.dotsStudioAthrapiKey,
 		anthropicCompApiKey: config.anthropicCompApiKey,
 		anthropicCompBaseUrl: config.anthropicCompBaseUrl,
+		dotsStudioApiKey: config.dotsStudioApiKey,
 		difyApiKey: config.difyApiKey,
 		difyBaseUrl: config.difyBaseUrl,
 		ocaBaseUrl: config.ocaBaseUrl,
@@ -729,6 +734,7 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		dotsStudioAthrapiKey: protoConfig.dotsStudioAthrapiKey,
 		anthropicCompApiKey: protoConfig.anthropicCompApiKey,
 		anthropicCompBaseUrl: protoConfig.anthropicCompBaseUrl,
+		dotsStudioApiKey: protoConfig.dotsStudioApiKey,
 		difyApiKey: protoConfig.difyApiKey,
 		difyBaseUrl: protoConfig.difyBaseUrl,
 		ocaBaseUrl: protoConfig.ocaBaseUrl,

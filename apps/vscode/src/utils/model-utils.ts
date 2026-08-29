@@ -32,7 +32,7 @@ export function isAnthropicCompatibleProvider(providerInfo: ApiProviderInfo): bo
  * providers, provider membership -- not the model-family heuristic -- is the
  * meaningful signal for whether native tool calling works.
  */
-export const NATIVE_OPENAI_COMPATIBLE_PROVIDERS = ["xiaomi", "mimo-tp", "zai", "deepseek"] as const
+export const NATIVE_OPENAI_COMPATIBLE_PROVIDERS = ["xiaomi", "mimo-tp", "zai", "deepseek", "dots-studio"] as const
 
 export function isNativeOpenAiCompatibleProvider(providerInfo: ApiProviderInfo): boolean {
 	return NATIVE_OPENAI_COMPATIBLE_PROVIDERS.includes(

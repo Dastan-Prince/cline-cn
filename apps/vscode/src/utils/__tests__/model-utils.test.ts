@@ -175,11 +175,13 @@ describe("isNativeOpenAiCompatibleProvider", () => {
 		isNativeOpenAiCompatibleProvider(providerInfo("mimo-tp", "mimo-v2.5")).should.equal(true)
 		isNativeOpenAiCompatibleProvider(providerInfo("zai", "glm-5.2")).should.equal(true)
 		isNativeOpenAiCompatibleProvider(providerInfo("deepseek", "deepseek-chat")).should.equal(true)
+		isNativeOpenAiCompatibleProvider(providerInfo("dots-studio", "dots3-note-prev")).should.equal(true)
 	})
 
 	it("should be case insensitive", () => {
 		isNativeOpenAiCompatibleProvider(providerInfo("XIAOMI", "mimo-v2.5-pro")).should.equal(true)
 		isNativeOpenAiCompatibleProvider(providerInfo("DeepSeek", "deepseek-chat")).should.equal(true)
+		isNativeOpenAiCompatibleProvider(providerInfo("Dots-Studio", "dots3-note-prev")).should.equal(true)
 	})
 
 	it("should return false for other providers", () => {
@@ -210,6 +212,7 @@ describe("isNativeToolCallingConfig", () => {
 		isNativeToolCallingConfig(providerInfo("mimo-tp", "mimo-v2.5"), true).should.equal(true)
 		isNativeToolCallingConfig(providerInfo("zai", "glm-5.2"), true).should.equal(true)
 		isNativeToolCallingConfig(providerInfo("deepseek", "deepseek-v4-flash"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("dots-studio", "dots3-note-prev"), true).should.equal(true)
 	})
 
 	it("should return true for next-gen models on non-Anthropic-compatible providers", () => {

@@ -213,6 +213,7 @@ const modelTestCases = [
 	{ family: ModelFamily.NATIVE_NEXT_GEN, modelId: "mimo-v2.5", providerId: "mimo-tp" },
 	{ family: ModelFamily.NATIVE_NEXT_GEN, modelId: "glm-5.2", providerId: "zai" },
 	{ family: ModelFamily.NATIVE_NEXT_GEN, modelId: "deepseek-v4-flash", providerId: "deepseek" },
+	{ family: ModelFamily.NATIVE_NEXT_GEN, modelId: "dots3-note-prev", providerId: "dots-studio" },
 ]
 const gemini3ModelTestCases = modelTestCases.filter(({ family }) => family === ModelFamily.GEMINI_3)
 

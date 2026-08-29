@@ -206,6 +206,7 @@ message ModelsApiSecrets {
   optional string zhipu_athrapi_key = 44;
   optional string dots_studio_athrapi_key = 45;
   optional string anthropic_comp_api_key = 46;
+  optional string dots_studio_api_key = 47;
 }
 
 // API configuration options (non-secret settings)
@@ -480,6 +481,7 @@ enum ApiProvider {
   ZHIPU_ATHRAPI = 46;
   DOTS_STUDIO_ATHRAPI = 47;
   ANTHROPIC_COMP = 48;
+  DOTS_STUDIO = 49;
 }
 
 enum ApiFormat {
@@ -627,6 +629,7 @@ message ModelsApiConfiguration {
   optional string dots_studio_athrapi_key = 93;
   optional string anthropic_comp_api_key = 94;
   optional string anthropic_comp_base_url = 95;
+  optional string dots_studio_api_key = 96;
 
   // Plan mode configurations
   optional ApiProvider plan_mode_api_provider = 100;
