@@ -37,6 +37,10 @@ function makeConfig(callbacks: Record<string, sinon.SinonStub>) {
 		autoApprover: { shouldAutoApproveTool: () => [false, false] },
 		autoApprovalSettings: { enableNotifications: false },
 		services: {
+			stateManager: {
+				getApiConfiguration: () => ({ planModeApiProvider: "dots-studio", actModeApiProvider: "dots-studio" }),
+				getGlobalSettingsKey: (key: string) => (key === "mode" ? "act" : undefined),
+			},
 			commandPermissionController: { validateCommand: () => ({ allowed: true }) },
 			clineIgnoreController: { validateCommand: () => undefined },
 		},
