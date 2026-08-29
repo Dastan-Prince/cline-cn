@@ -2,6 +2,7 @@ import { arePathsEqual } from "@utils/path";
 import { getShellForProfile } from "@utils/shell";
 import pWaitFor from "p-wait-for";
 import * as vscode from "vscode";
+import { FRESH_TERMINAL_GRACE_DELAY_MS } from "@/integrations/terminal/constants";
 import {
 	TerminalInfo as ITerminalInfo,
 	ITerminalManager,
@@ -218,10 +219,70 @@ export class VscodeTerminalManager implements ITerminalManager {
 			});
 		});
 
+		// Helper to run the command with error containment: if run() rejects
+		// (e.g. executeCommand throws because the terminal isn't ready yet),
+		// emit an "error" event so the merged promise rejects instead of
+		// deadlocking every caller awaiting this process.
+		const runProcessSafely = (
+			proc: VscodeTerminalProcess,
+			terminal: vscode.Terminal,
+		) => {
+			// The terminal is no longer fresh once a command actually starts
+			vscodeTerminalInfo.fresh = false;
+			try {
+				proc.run(terminal, command).catch((error: unknown) => {
+					Logger.error(
+						`[TerminalManager] run() rejected for terminal ${vscodeTerminalInfo.id}:`,
+						error,
+					);
+					proc.emit(
+						"error",
+						error instanceof Error ? error : new Error(String(error)),
+					);
+				});
+			} catch (error) {
+				// run() itself threw synchronously (e.g. shell integration API misuse)
+				Logger.error(
+					`[TerminalManager] run() threw synchronously for terminal ${vscodeTerminalInfo.id}:`,
+					error,
+				);
+				proc.emit(
+					"error",
+					error instanceof Error ? error : new Error(String(error)),
+				);
+			}
+		};
+
+		// Grace delay for fresh terminals: the shellIntegration API property
+		// can be exposed before the shell profile has fully loaded
+		// (createTerminal returns immediately; on Windows/PowerShell the
+		// integration script runs early while conda/nvm/starship init output
+		// follows). Running the first command in that window can interleave
+		// OSC 633 markers with profile output and lose the completion marker,
+		// hanging the read stream. Only the first command on a fresh terminal
+		// is delayed; reused warm terminals are unaffected.
+		const applyFreshTerminalGrace = async (): Promise<void> => {
+			if (!vscodeTerminalInfo.fresh) {
+				return;
+			}
+			Logger.log(
+				`[TerminalManager] Grace delay of ${FRESH_TERMINAL_GRACE_DELAY_MS}ms before first command on fresh terminal ${vscodeTerminalInfo.id}`,
+			);
+			await new Promise((resolve) =>
+				setTimeout(resolve, FRESH_TERMINAL_GRACE_DELAY_MS),
+			);
+		};
+
 		// if shell integration is already active, run the command immediately
 		if (vscodeTerminalInfo.terminal.shellIntegration) {
 			process.waitForShellIntegration = false;
-			process.run(vscodeTerminalInfo.terminal, command);
+			void applyFreshTerminalGrace().then(() => {
+				// Only start if this process is still the current one for the terminal
+				const currentProcess = this.processes.get(vscodeTerminalInfo.id);
+				if (currentProcess === process) {
+					runProcessSafely(process, vscodeTerminalInfo.terminal);
+				}
+			});
 		} else {
 			// docs recommend waiting 3s for shell integration to activate
 			Logger.log(
@@ -250,7 +311,12 @@ export class VscodeTerminalManager implements ITerminalManager {
 					const existingProcess = this.processes.get(vscodeTerminalInfo.id);
 					if (existingProcess && existingProcess.waitForShellIntegration) {
 						existingProcess.waitForShellIntegration = false;
-						existingProcess.run(vscodeTerminalInfo.terminal, command);
+						void applyFreshTerminalGrace().then(() => {
+							const currentProcess = this.processes.get(vscodeTerminalInfo.id);
+							if (currentProcess === existingProcess) {
+								runProcessSafely(existingProcess, vscodeTerminalInfo.terminal);
+							}
+						});
 					}
 				});
 		}

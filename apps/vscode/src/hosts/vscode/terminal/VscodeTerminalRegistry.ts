@@ -7,6 +7,13 @@ export interface TerminalInfo {
 	id: number;
 	shellPath?: string;
 	lastActive: number;
+	/**
+	 * True until the first command has been executed on this terminal.
+	 * Fresh terminals get a short grace delay before their first command so
+	 * the shell profile can finish loading and the prompt stabilizes (see
+	 * FRESH_TERMINAL_GRACE_DELAY_MS).
+	 */
+	fresh?: boolean;
 	pendingCwdChange?: string;
 	cwdResolved?: {
 		resolve: () => void;
@@ -47,6 +54,7 @@ export class TerminalRegistry {
 			id: TerminalRegistry.nextTerminalId,
 			shellPath,
 			lastActive: Date.now(),
+			fresh: true,
 		};
 		TerminalRegistry.terminals.push(newInfo);
 		return newInfo;

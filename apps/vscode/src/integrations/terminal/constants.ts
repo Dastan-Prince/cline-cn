@@ -95,6 +95,39 @@ export const MARKERLESS_IDLE_TIMEOUT = 3_000
 export const MARKERLESS_MAX_QUIET_TIME = 30_000
 
 // =============================================================================
+// Marker-Seen Idle Detection (post ]633;C)
+// =============================================================================
+// Once the C marker is seen, shell integration is normally trusted to delimit
+// the command end via the D marker or stream end. However, when shell
+// integration is half-broken (API exposed but script not fully ready, or the
+// D marker is lost), the read() stream can hang forever. These bounds ensure
+// we eventually complete: a strong shell prompt during quiet time means the
+// command almost certainly finished, and a hard quiet cap forces completion
+// with an informational note so the task loop never deadlocks.
+
+/** Idle gap between data chunks after the C marker was seen that triggers a prompt check (10 seconds) */
+export const MARKER_EXECUTION_IDLE_TIMEOUT = 10_000
+
+/** Quiet time after the C marker was seen after which the command is force-completed (120 seconds) */
+export const MARKER_EXECUTION_MAX_QUIET_TIME = 120_000
+
+// =============================================================================
+// Fresh Terminal Grace Delay
+// =============================================================================
+// vscode.window.createTerminal() returns immediately while the pty/shell may
+// still be starting, and the shellIntegration API property can be exposed
+// before the shell profile has fully loaded (notably on Windows/PowerShell,
+// where the integration script runs early but conda/nvm/starship init output
+// follows). Executing a command in that window can interleave OSC 633 markers
+// with profile output and lose the D (completion) marker, hanging the read
+// stream. A short grace delay after the API appears lets the profile finish
+// and the prompt stabilize. Only applies to the first command on a freshly
+// created terminal; reused warm terminals are unaffected.
+
+/** Grace delay before the first command runs on a fresh terminal (500ms) */
+export const FRESH_TERMINAL_GRACE_DELAY_MS = 500
+
+// =============================================================================
 // Exit Code Event Race
 // =============================================================================
 // onDidEndTerminalShellExecution fires asynchronously after the read() stream

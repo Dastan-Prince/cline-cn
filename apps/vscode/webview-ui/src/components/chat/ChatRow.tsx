@@ -224,6 +224,11 @@ export const ChatRowContent = memo(
 		// A command is pending if it hasn't started (no output) and hasn't completed
 		const isCommandPending = isCommandMessage && isLast && !message.commandCompleted && !commandHasOutput
 		const isCommandCompleted = isCommandMessage && message.commandCompleted === true
+		// A command with no output that is no longer the last message and was never
+		// marked completed was most likely interrupted (task cancelled, terminal
+		// deadlock, or completion event lost) rather than deliberately skipped.
+		const isCommandInterrupted =
+			isCommandMessage && !message.commandCompleted && !commandHasOutput && !isLast
 
 		const isMcpServerResponding = isLast && lastModifiedMessage?.say === "mcp_server_request_started"
 
@@ -763,6 +768,7 @@ export const ChatRowContent = memo(
 					isBackgroundExec={vscodeTerminalExecutionMode === "backgroundExec"}
 					isCommandCompleted={isCommandCompleted}
 					isCommandExecuting={isCommandExecuting}
+					isCommandInterrupted={isCommandInterrupted}
 					isCommandPending={isCommandPending}
 					isOutputFullyExpanded={isOutputFullyExpanded}
 					message={message}

@@ -9,6 +9,8 @@ import { getLatestTerminalOutput } from "@/hosts/vscode/terminal/get-latest-outp
 import {
 	EXIT_CODE_EVENT_TIMEOUT_MS,
 	isCompilingOutput,
+	MARKER_EXECUTION_IDLE_TIMEOUT,
+	MARKER_EXECUTION_MAX_QUIET_TIME,
 	MARKERLESS_FIRST_DATA_TIMEOUT,
 	MARKERLESS_IDLE_TIMEOUT,
 	MARKERLESS_MAX_QUIET_TIME,
@@ -58,8 +60,62 @@ export class VscodeTerminalProcess
 	private activeCloseDisposable: vscode.Disposable | undefined;
 	private activeEndEventDisposable: vscode.Disposable | undefined;
 	private activeIterator: AsyncIterator<string> | undefined;
+	private terminated = false;
+
+	/**
+	 * Terminate the active execution without waiting for shell integration.
+	 * Releases listeners/iterator and force-emits completed so any awaiting
+	 * orchestration (e.g. CommandOrchestrator's `await process`) is unblocked.
+	 * Safe to call multiple times; no-ops when nothing is active.
+	 */
+	terminate(): void {
+		if (this.terminated) {
+			return;
+		}
+		this.terminated = true;
+		this.releaseActiveExecutionResources();
+		if (this.hotTimer) {
+			clearTimeout(this.hotTimer);
+			this.hotTimer = null;
+		}
+		this.isHot = false;
+		this.emit(
+			"line",
+			"[The command execution was terminated; output may be incomplete.]",
+		);
+		this.emit("completed", this.getCompletionDetails());
+		this.emit("continue");
+	}
 
 	async run(terminal: vscode.Terminal, command: string) {
+		try {
+			await this.runInternal(terminal, command);
+		} catch (error) {
+			// Defensive guard: any unexpected exception in the execution loop
+			// must still emit completed/continue, otherwise every caller that
+			// awaits this process (mergePromise) deadlocks forever.
+			Logger.error(
+				"[TerminalProcess] Unexpected error during command execution:",
+				error,
+			);
+			this.releaseActiveExecutionResources();
+			if (this.hotTimer) {
+				clearTimeout(this.hotTimer);
+				this.hotTimer = null;
+			}
+			this.isHot = false;
+			this.emit(
+				"line",
+				`[Command execution failed: ${
+					error instanceof Error ? error.message : String(error)
+				}]`,
+			);
+			this.emit("completed", this.getCompletionDetails());
+			this.emit("continue");
+		}
+	}
+
+	private async runInternal(terminal: vscode.Terminal, command: string) {
 		this.exitCode = undefined;
 		this.signal = null;
 
@@ -199,21 +255,26 @@ export class VscodeTerminalProcess
 			// never ends. These variables track idle time and prompt heuristics to
 			// detect command completion without markers.
 			let completedWithoutMarkers = false;
+			let forcedCompletion = false;
 			let markerlessQuietMs = 0;
 			let receivedAnyData = false;
 			let didSeeCommandExecuted = false;
 
-			while (true) {
+			while (!this.terminated) {
 				// Until the C marker arrives, shell integration may not actually
 				// be working, so bound each read with an idle timeout. Once C is
-				// seen the markers are trusted to delimit the command — however
-				// long and quiet it runs — and only terminal closure can
-				// interrupt the read.
+				// seen the markers are trusted to delimit the command, but a
+				// half-broken integration (API exposed, script not ready) can
+				// still lose the D marker and hang the stream forever — so keep
+				// a slower idle timeout and a hard quiet cap after C as well.
 				const idleTimeoutMs = didSeeCommandExecuted
-					? undefined
+					? MARKER_EXECUTION_IDLE_TIMEOUT
 					: receivedAnyData
 						? MARKERLESS_IDLE_TIMEOUT
 						: MARKERLESS_FIRST_DATA_TIMEOUT;
+				const maxQuietMs = didSeeCommandExecuted
+					? MARKER_EXECUTION_MAX_QUIET_TIME
+					: MARKERLESS_MAX_QUIET_TIME;
 				const outcome = await readNext(idleTimeoutMs);
 
 				if (outcome.kind === "streamEnd" || outcome.kind === "executionEnd") {
@@ -233,9 +294,12 @@ export class VscodeTerminalProcess
 						stripAnsi(this.fullOutput || this.buffer || ""),
 					);
 					const promptStrength = classifyShellPrompt(promptCandidate);
-					const quietTimeoutReached =
-						markerlessQuietMs >= MARKERLESS_MAX_QUIET_TIME;
-					if (promptStrength === "strong" || quietTimeoutReached) {
+					const quietTimeoutReached = markerlessQuietMs >= maxQuietMs;
+					if (quietTimeoutReached) {
+						forcedCompletion = true;
+						break;
+					}
+					if (promptStrength === "strong") {
 						completedWithoutMarkers = true;
 						break;
 					}
@@ -245,6 +309,9 @@ export class VscodeTerminalProcess
 				// Got data — reset idle tracking
 				receivedAnyData = true;
 				markerlessQuietMs = 0;
+				if (this.terminated) {
+					break;
+				}
 				let data = outcome.data;
 
 				// Check for ]633;C marker (command executed / start of output)
@@ -435,10 +502,17 @@ export class VscodeTerminalProcess
 			}
 
 			// Emit informational messages for non-standard completion paths
-			if (this.terminalClosedMidCommand) {
+			if (this.terminated) {
+				// terminate() already emitted its own informational line
+			} else if (this.terminalClosedMidCommand) {
 				this.emit(
 					"line",
 					"[The terminal closed while the command was running; output may be incomplete.]",
+				);
+			} else if (forcedCompletion) {
+				this.emit(
+					"line",
+					"[Shell integration did not report command completion within the quiet-time limit; the command was force-completed. It may still be running and the output may be incomplete.]",
 				);
 			} else if (completedWithoutMarkers) {
 				this.emit(
@@ -477,9 +551,11 @@ export class VscodeTerminalProcess
 				telemetryService.captureTerminalExecution(
 					!this.terminalClosedMidCommand,
 					"vscode",
-					completedWithoutMarkers
-						? "markerless_heuristic"
-						: "shell_integration",
+					forcedCompletion
+						? "forced_quiet_timeout"
+						: completedWithoutMarkers
+							? "markerless_heuristic"
+							: "shell_integration",
 				);
 			}
 

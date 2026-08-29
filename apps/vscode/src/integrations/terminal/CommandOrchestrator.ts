@@ -27,6 +27,7 @@ import {
 	CHUNK_DEBOUNCE_MS,
 	CHUNK_LINE_COUNT,
 	COMPLETION_TIMEOUT_MS,
+	MARKER_EXECUTION_MAX_QUIET_TIME,
 	MAX_BYTES_BEFORE_FILE,
 	MAX_LINES_BEFORE_FILE,
 	SUMMARY_LINES_TO_KEEP,
@@ -486,6 +487,56 @@ export async function orchestrateCommandExecution(
 		}
 	})
 
+	// Deadlock breaker: a process whose stream hangs before emitting any
+	// output (broken/half-initialized shell integration) never completes and
+	// would leave `await process` below blocked forever, freezing the whole
+	// task loop. If after the guard period not a single output line arrived,
+	// force the process to terminate and release the await. Commands that
+	// have produced output are NOT interrupted — long-running commands (dev
+	// servers etc.) legitimately stay pending and are handled by the
+	// "Proceed While Running" flow or the process-level idle heuristics.
+	// The timeout is set above MARKER_EXECUTION_MAX_QUIET_TIME so the
+	// process-level idle heuristics (including prompt detection) always get
+	// a chance to complete first; this is purely a last-resort backstop.
+	let releaseGuardForce: (() => void) | undefined
+	const guardForcePromise = new Promise<void>((resolve) => {
+		releaseGuardForce = resolve
+	})
+	const deadlockGuardTimer = setTimeout(() => {
+		if (completed || didContinue || didCancelViaUi || backgroundTrackingResult) {
+			return
+		}
+		if (outputLines.length === 0) {
+			Logger.warn(
+				"[CommandOrchestrator] Process produced no output and did not complete within the guard timeout - force-unblocking orchestration",
+			)
+			telemetryService.captureTerminalHang(TerminalHangStage.WAITING_FOR_COMPLETION, terminalType)
+			// Switch to non-blocking output mode BEFORE terminating so the
+			// informational line emitted by terminate() flows through say()
+			// instead of creating a dangling command_output ask() after this
+			// orchestration has already returned.
+			didContinue = true
+			if (chunkTimer) {
+				clearTimeout(chunkTimer)
+				chunkTimer = null
+			}
+			if (completionTimer) {
+				clearTimeout(completionTimer)
+				completionTimer = null
+			}
+			try {
+				process.terminate?.()
+			} catch (error) {
+				Logger.error("[CommandOrchestrator] Failed to terminate process:", error)
+			}
+			releaseGuardForce?.()
+		}
+	}, MARKER_EXECUTION_MAX_QUIET_TIME + 15_000)
+
+	process.once("completed", () => clearTimeout(deadlockGuardTimer))
+	process.once("error", () => clearTimeout(deadlockGuardTimer))
+	process.once("continue", () => clearTimeout(deadlockGuardTimer))
+
 	// Handle timeout if specified, or wait for process to complete
 	if (!didCancelViaUi) {
 		if (timeoutSeconds) {
@@ -567,8 +618,10 @@ export async function orchestrateCommandExecution(
 				throw error
 			}
 		} else {
-			// No timeout - wait for process to complete
-			await process
+			// No timeout - wait for process to complete, racing against the
+			// deadlock breaker above so a hung no-output process can't block
+			// the task loop forever
+			await Promise.race([process, guardForcePromise])
 		}
 	}
 

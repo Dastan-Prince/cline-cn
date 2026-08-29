@@ -75,7 +75,7 @@ export const CommandOutputContent = memo(
 							)
 						}}
 						title={`Click to open: ${logFilePath}`}>
-						<span className="shrink-0">📋 Output is being logged to:</span>
+						<span className="shrink-0">📋 输出正被记录到：</span>
 						<span className="text-vscode-textLink-foreground underline break-all">{fileName}</span>
 					</div>
 					{afterLogPath && <CodeBlock forceWrap={true} source={`${"```"}shell\n${afterLogPath}\n${"```"}`} />}
@@ -112,6 +112,7 @@ export const CommandOutputRow = memo(
 		isCommandExecuting = false,
 		isCommandPending = false,
 		isCommandCompleted = false,
+		isCommandInterrupted = false,
 		isBackgroundExec = false, // vscodeTerminalExecutionMode === "backgroundExec"
 		onCancelCommand,
 		icon,
@@ -123,6 +124,7 @@ export const CommandOutputRow = memo(
 		isCommandExecuting?: boolean
 		isCommandPending?: boolean
 		isCommandCompleted?: boolean
+		isCommandInterrupted?: boolean
 		isBackgroundExec?: boolean
 		onCancelCommand?: () => void
 		icon?: JSX.Element | null
@@ -165,6 +167,9 @@ export const CommandOutputRow = memo(
 		const command = requestsApproval ? rawCommand.slice(0, -COMMAND_REQ_APP_STRING.length) : rawCommand
 		const showCancelButton =
 			(isCommandExecuting || isCommandPending) && typeof onCancelCommand === "function" && isBackgroundExec
+		const commandStatus = isCommandInterrupted
+			? "interrupted"
+			: getCommandStatus(isCommandExecuting, isCommandPending, isCommandCompleted)
 
 		const commandHeader = (
 			<div className="flex items-center gap-2.5 mb-3">
@@ -188,14 +193,16 @@ export const CommandOutputRow = memo(
 									className={cn("bg-description rounded-full w-2 h-2 shrink-0", {
 										"bg-success animate-pulse": isCommandExecuting,
 										"bg-editor-warning-foreground": isCommandPending,
+										"bg-error": commandStatus === "interrupted",
 									})}
 								/>
 								<span
 									className={cn("text-description font-medium text-base shrink-0", {
 										"text-success": isCommandExecuting,
 										"text-editor-warning-foreground": isCommandPending,
+										"text-error": commandStatus === "interrupted",
 									})}>
-									{getCommandStatusText(isCommandExecuting, isCommandPending, isCommandCompleted)}
+									{CommandStatusMap[commandStatus]}
 								</span>
 							</div>
 							<div className="flex items-center gap-2 shrink-0">
@@ -208,13 +215,13 @@ export const CommandOutputRow = memo(
 											} else {
 												// For regular terminal mode, show a message
 												alert(
-													"This command is running in the VSCode terminal. You can manually stop it using Ctrl+C in the terminal, or switch to Background Execution mode in settings for cancellable commands.",
+													"此命令正在 VSCode 终端中运行。你可以在终端中按 Ctrl+C 手动停止它，或在设置中切换到后台执行模式以支持取消命令。",
 												)
 											}
 										}}
 										size="sm"
 										variant="secondary">
-										{isBackgroundExec ? "cancel" : "stop"}
+										{isBackgroundExec ? "取消" : "停止"}
 									</Button>
 								)}
 							</div>
@@ -237,7 +244,7 @@ export const CommandOutputRow = memo(
 				{requestsApproval && (
 					<div className="flex items-center gap-2.5 p-2 text-[12px] text-editor-warning-foreground">
 						<i className="codicon codicon-warning" />
-						<span>The model has determined this command requires explicit approval.</span>
+						<span>模型已判定此命令需要明确批准。</span>
 					</div>
 				)}
 			</>
@@ -248,21 +255,28 @@ export const CommandOutputRow = memo(
 CommandOutputRow.displayName = "CommandOutputRow"
 
 const CommandStatusMap = {
-	executing: "Running",
-	pending: "Pending",
-	completed: "Completed",
-	skipped: "Skipped",
-}
+	executing: "执行中",
+	pending: "等待中",
+	completed: "已完成",
+	interrupted: "已中断",
+	skipped: "已跳过",
+} as const
 
-function getCommandStatusText(isExecuting: boolean, isPending: boolean, isCompleted: boolean): string {
+type CommandStatus = keyof typeof CommandStatusMap
+
+function getCommandStatus(isExecuting: boolean, isPending: boolean, isCompleted: boolean): CommandStatus {
 	if (isExecuting) {
-		return CommandStatusMap.executing
+		return "executing"
 	}
 	if (isPending) {
-		return CommandStatusMap.pending
+		return "pending"
 	}
 	if (isCompleted) {
-		return CommandStatusMap.completed
+		return "completed"
 	}
-	return CommandStatusMap.skipped
+	// No output, not the last message anymore, and never marked completed:
+	// the command was most likely interrupted (task cancelled, terminal
+	// execution deadlocked or ended without a completion event) rather than
+	// deliberately skipped.
+	return "interrupted"
 }
