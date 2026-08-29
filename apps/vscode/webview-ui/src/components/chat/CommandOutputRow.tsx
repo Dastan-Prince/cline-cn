@@ -193,14 +193,12 @@ export const CommandOutputRow = memo(
 									className={cn("bg-description rounded-full w-2 h-2 shrink-0", {
 										"bg-success animate-pulse": isCommandExecuting,
 										"bg-editor-warning-foreground": isCommandPending,
-										"bg-error": commandStatus === "interrupted",
 									})}
 								/>
 								<span
 									className={cn("text-description font-medium text-base shrink-0", {
 										"text-success": isCommandExecuting,
 										"text-editor-warning-foreground": isCommandPending,
-										"text-error": commandStatus === "interrupted",
 									})}>
 									{CommandStatusMap[commandStatus]}
 								</span>
@@ -258,7 +256,7 @@ const CommandStatusMap = {
 	executing: "执行中",
 	pending: "等待中",
 	completed: "已完成",
-	interrupted: "已中断",
+	interrupted: "状态未知",
 	skipped: "已跳过",
 } as const
 
@@ -275,8 +273,8 @@ function getCommandStatus(isExecuting: boolean, isPending: boolean, isCompleted:
 		return "completed"
 	}
 	// No output, not the last message anymore, and never marked completed:
-	// the command was most likely interrupted (task cancelled, terminal
-	// execution deadlocked or ended without a completion event) rather than
-	// deliberately skipped.
+	// the true outcome is unconfirmed — the completion event may simply be
+	// delayed. Show a neutral "unknown" status instead of claiming the
+	// command was interrupted or deliberately skipped.
 	return "interrupted"
 }
