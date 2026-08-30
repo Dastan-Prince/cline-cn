@@ -262,8 +262,13 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Spy on emit to verify behavior
 			const emitSpy = sandbox.spy(process, "emit");
 
-			// Run the command
-			await process.run(terminal, "echo test");
+			// Run the command. run() ends with a bounded 3s race on
+			// onDidEndTerminalShellExecution, which never fires for a mocked
+			// execution � the fake 3s timer must be ticked through for the
+			// promise to settle.
+			const runPromise = process.run(terminal, "echo test");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise;
 
 			// Verify the executeCommand was called with the right command
 			mockExecuteCommand.calledWith("echo test").should.be.true();
@@ -294,7 +299,9 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			const emitSpy = sandbox.spy(process, "emit");
 
-			await process.run(terminal, "test-command");
+			const runPromise = process.run(terminal, "test-command");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise;
 
 			// Check that line events were emitted for each line
 			(emitSpy as sinon.SinonSpy).calledWith("line", "line1").should.be.true();
@@ -320,7 +327,9 @@ describe("TerminalProcess (Integration Tests)", () => {
 			// Spy on global setTimeout
 			const setTimeoutSpy = sandbox.spy(global, "setTimeout");
 
-			await process.run(terminal, "build command");
+			const runPromise = process.run(terminal, "build command");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise;
 
 			// Move time forward enough to schedule
 			sandbox.clock.tick(100);
@@ -349,7 +358,9 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			const setTimeoutSpy = sandbox.spy(global, "setTimeout");
 
-			await process.run(terminal, "standard command");
+			const runPromise = process.run(terminal, "standard command");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise;
 			sandbox.clock.tick(100);
 
 			// Expect a short hot timeout (<= 5000)
@@ -360,7 +371,9 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			// Also check that "completed" eventually emits
 			const emitSpy = sandbox.spy(process, "emit");
-			await process.run(terminal, "another command");
+			const runPromise2 = process.run(terminal, "another command");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise2;
 			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.true();
 		});
 
@@ -386,7 +399,9 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			const emitSpy = sandbox.spy(process, "emit");
 
-			await process.run(terminal, "test-command");
+			const runPromise = process.run(terminal, "test-command");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise;
 
 			// Check that "test-command" was filtered out but "test command" was not
 			(emitSpy as sinon.SinonSpy)
@@ -424,7 +439,9 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			const emitSpy = sandbox.spy(process, "emit");
 
-			await process.run(terminal, "npm run build");
+			const runPromise = process.run(terminal, "npm run build");
+			await sandbox.clock.tickAsync(3_000);
+			await runPromise;
 
 			// The "npm run build" line should be filtered, but the rest should be emitted
 			(emitSpy as sinon.SinonSpy)
@@ -434,6 +451,182 @@ describe("TerminalProcess (Integration Tests)", () => {
 			(emitSpy as sinon.SinonSpy)
 				.calledWith("line", "files built successfully")
 				.should.be.true();
+		});
+	});
+
+	// A push-based async stream mock: unlike createMockStream (pre-defined
+	// lines), chunks can be pushed at any time while the process is reading,
+	// which lets tests simulate long silence followed by late markers/prompts.
+	function createPushStream() {
+		const queue: string[] = [];
+		let ended = false;
+		let resolveWaiting: (() => void) | null = null;
+
+		const settle = () => {
+			const resolve = resolveWaiting;
+			resolveWaiting = null;
+			resolve?.();
+		};
+
+		return {
+			stream: {
+				[Symbol.asyncIterator]() {
+					return {
+						next: (): Promise<IteratorResult<string>> => {
+							if (queue.length > 0) {
+								return Promise.resolve({ value: queue.shift() as string, done: false });
+							}
+							if (ended) {
+								return Promise.resolve({ value: undefined as any, done: true });
+							}
+							return new Promise<IteratorResult<string>>((resolve) => {
+								resolveWaiting = () => {
+									if (queue.length > 0) {
+										resolve({ value: queue.shift() as string, done: false });
+									} else {
+										resolve({ value: undefined as any, done: true });
+									}
+								};
+							});
+						},
+					};
+				},
+			},
+			push(chunk: string) {
+				queue.push(chunk);
+				settle();
+			},
+			end() {
+				ended = true;
+				settle();
+			},
+		};
+	}
+
+	// Completion-detection tests: after the ]633;C marker is seen there is no
+	// time-based force-completion — a long-silent command is only finished
+	// once a real completion signal arrives (D marker, or the next prompt).
+	describe("Long-silent command completion tests", () => {
+		it("should keep waiting through long silence after the C marker and complete on the shell prompt", async () => {
+			// Create a terminal
+			const terminal = TerminalRegistry.createTerminal().terminal;
+			createdTerminals.push(terminal);
+
+			const pushStream = createPushStream();
+			sandbox.stub(terminal, "shellIntegration").get(() => ({
+				executeCommand: () => ({ read: () => pushStream.stream }),
+			}));
+
+			const emitSpy = sandbox.spy(process, "emit");
+
+			const runPromise = process.run(terminal, "npm install");
+
+			// C marker (command start) + initial output
+			pushStream.push("]633;CCollecting packages...\n");
+			await sandbox.clock.tickAsync(20);
+
+			// 200 seconds of silence — the old behavior force-completed at 120s
+			await sandbox.clock.tickAsync(200_000);
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.false();
+
+			// The shell prints its next prompt -> the command really finished
+			pushStream.push("PS E:\\repo> ");
+			await sandbox.clock.tickAsync(15_000);
+
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.true();
+			(emitSpy as sinon.SinonSpy).calledWith("continue").should.be.true();
+			await runPromise;
+		});
+
+		it("should complete with the parsed exit code when the D marker arrives after long silence", async () => {
+			// Create a terminal
+			const terminal = TerminalRegistry.createTerminal().terminal;
+			createdTerminals.push(terminal);
+
+			const pushStream = createPushStream();
+			sandbox.stub(terminal, "shellIntegration").get(() => ({
+				executeCommand: () => ({ read: () => pushStream.stream }),
+			}));
+
+			const emitSpy = sandbox.spy(process, "emit");
+			let completionDetails: { exitCode?: number | null } | undefined;
+			process.once("completed", (details?: { exitCode?: number | null }) => {
+				completionDetails = details;
+			});
+
+			const runPromise = process.run(terminal, "pip install -r requirements.txt");
+
+			// C marker + initial output, then silence beyond the old 120s cap
+			pushStream.push("]633;Cdownloading...\n");
+			await sandbox.clock.tickAsync(20);
+			await sandbox.clock.tickAsync(150_000);
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.false();
+
+			// The command truly finishes: D marker with exit code 0, stream ends
+			pushStream.push("installed 42 packages\n]633;D;0");
+			pushStream.end();
+			await sandbox.clock.tickAsync(4_000);
+
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.true();
+			completionDetails?.exitCode?.should.equal(0);
+			await runPromise;
+		});
+
+		it("should complete via the ]633;A next-prompt marker when the D marker is lost", async () => {
+			// Create a terminal
+			const terminal = TerminalRegistry.createTerminal().terminal;
+			createdTerminals.push(terminal);
+
+			const pushStream = createPushStream();
+			sandbox.stub(terminal, "shellIntegration").get(() => ({
+				executeCommand: () => ({ read: () => pushStream.stream }),
+			}));
+
+			const emitSpy = sandbox.spy(process, "emit");
+			const lines: string[] = [];
+			process.on("line", (line: string) => lines.push(line));
+
+			const runPromise = process.run(terminal, "cargo build --release");
+
+			pushStream.push("]633;Ccompiling crates...\n");
+			await sandbox.clock.tickAsync(20);
+			await sandbox.clock.tickAsync(60_000);
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.false();
+
+			// D marker lost; the shell prints the next prompt preceded by ]633;A
+			pushStream.push("]633;APS E:\\repo> ");
+			await sandbox.clock.tickAsync(4_000);
+
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.true();
+			lines.some((line) => line.includes("next shell prompt")).should.be.true();
+			await runPromise;
+		});
+
+		it("should still force-complete a markerless command after the quiet cap when no C marker is seen", async () => {
+			// Create a terminal
+			const terminal = TerminalRegistry.createTerminal().terminal;
+			createdTerminals.push(terminal);
+
+			const pushStream = createPushStream();
+			sandbox.stub(terminal, "shellIntegration").get(() => ({
+				executeCommand: () => ({ read: () => pushStream.stream }),
+			}));
+
+			const emitSpy = sandbox.spy(process, "emit");
+			const lines: string[] = [];
+			process.on("line", (line: string) => lines.push(line));
+
+			const runPromise = process.run(terminal, "some-remote-command");
+
+			// Output without any OSC 633 markers (e.g. command run over ssh)
+			pushStream.push("building artifacts\n");
+			await sandbox.clock.tickAsync(20);
+			await sandbox.clock.tickAsync(35_000);
+
+			// Markerless path is unchanged: quiet cap force-completes
+			(emitSpy as sinon.SinonSpy).calledWith("completed").should.be.true();
+			lines.some((line) => line.includes("force-completed")).should.be.true();
+			await runPromise;
 		});
 	});
 

@@ -29,11 +29,12 @@ export type TerminalType = "vscode" | "standalone"
  * VSCode-specific output capture methods
  */
 export type VscodeOutputMethod =
-	| "shell_integration"
-	| "clipboard"
-	| "none"
-	| "markerless_heuristic"
-	| "forced_quiet_timeout"
+| "shell_integration"
+| "clipboard"
+| "none"
+| "markerless_heuristic"
+| "forced_quiet_timeout"
+| "next_prompt_marker"
 
 /**
  * Standalone-specific output capture methods

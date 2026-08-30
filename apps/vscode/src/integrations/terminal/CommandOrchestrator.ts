@@ -22,12 +22,12 @@ import { COMMAND_CANCEL_TOKEN } from "@shared/ExtensionMessage"
 import * as fs from "fs"
 import { Logger } from "@/shared/services/Logger"
 import {
+	BACKGROUND_COMMAND_TIMEOUT_MS,
 	BUFFER_STUCK_TIMEOUT_MS,
 	CHUNK_BYTE_SIZE,
 	CHUNK_DEBOUNCE_MS,
 	CHUNK_LINE_COUNT,
 	COMPLETION_TIMEOUT_MS,
-	MARKER_EXECUTION_MAX_QUIET_TIME,
 	MAX_BYTES_BEFORE_FILE,
 	MAX_LINES_BEFORE_FILE,
 	SUMMARY_LINES_TO_KEEP,
@@ -492,12 +492,12 @@ export async function orchestrateCommandExecution(
 	// would leave `await process` below blocked forever, freezing the whole
 	// task loop. If after the guard period not a single output line arrived,
 	// force the process to terminate and release the await. Commands that
-	// have produced output are NOT interrupted — long-running commands (dev
-	// servers etc.) legitimately stay pending and are handled by the
-	// "Proceed While Running" flow or the process-level idle heuristics.
-	// The timeout is set above MARKER_EXECUTION_MAX_QUIET_TIME so the
-	// process-level idle heuristics (including prompt detection) always get
-	// a chance to complete first; this is purely a last-resort backstop.
+	// have produced output are NOT interrupted — they may legitimately run
+	// and stay silent for a long time (installs, builds, downloads) and are
+	// only considered finished by real completion signals (D marker, end
+	// event, or the next shell prompt). The guard period matches the
+	// background command hard timeout so even totally-silent commands get a
+	// bounded wait; this is purely a last-resort backstop.
 	let releaseGuardForce: (() => void) | undefined
 	const guardForcePromise = new Promise<void>((resolve) => {
 		releaseGuardForce = resolve
@@ -531,7 +531,7 @@ export async function orchestrateCommandExecution(
 			}
 			releaseGuardForce?.()
 		}
-	}, MARKER_EXECUTION_MAX_QUIET_TIME + 15_000)
+	}, BACKGROUND_COMMAND_TIMEOUT_MS + 15_000)
 
 	process.once("completed", () => clearTimeout(deadlockGuardTimer))
 	process.once("error", () => clearTimeout(deadlockGuardTimer))

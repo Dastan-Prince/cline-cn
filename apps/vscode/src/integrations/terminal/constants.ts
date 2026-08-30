@@ -97,19 +97,16 @@ export const MARKERLESS_MAX_QUIET_TIME = 30_000
 // =============================================================================
 // Marker-Seen Idle Detection (post ]633;C)
 // =============================================================================
-// Once the C marker is seen, shell integration is normally trusted to delimit
-// the command end via the D marker or stream end. However, when shell
-// integration is half-broken (API exposed but script not fully ready, or the
-// D marker is lost), the read() stream can hang forever. These bounds ensure
-// we eventually complete: a strong shell prompt during quiet time means the
-// command almost certainly finished, and a hard quiet cap forces completion
-// with an informational note so the task loop never deadlocks.
+// Once the C marker is seen, shell integration is working for this shell and
+// is trusted to delimit the command end via the D marker or stream end. There
+// is deliberately NO time-based force-completion after C: a command that stays
+// silent for a long time (installs, builds, downloads) is still running until
+// a real completion signal arrives — the D marker, the end event, or the next
+// shell prompt (either its text, e.g. "PS C:\path>", or the ]633;A marker).
+// The idle timeout below only controls how often we re-check for a prompt.
 
 /** Idle gap between data chunks after the C marker was seen that triggers a prompt check (10 seconds) */
 export const MARKER_EXECUTION_IDLE_TIMEOUT = 10_000
-
-/** Quiet time after the C marker was seen after which the command is force-completed (120 seconds) */
-export const MARKER_EXECUTION_MAX_QUIET_TIME = 120_000
 
 // =============================================================================
 // Fresh Terminal Grace Delay

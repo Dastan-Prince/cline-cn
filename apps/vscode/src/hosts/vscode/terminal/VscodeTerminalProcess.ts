@@ -10,7 +10,6 @@ import {
 	EXIT_CODE_EVENT_TIMEOUT_MS,
 	isCompilingOutput,
 	MARKER_EXECUTION_IDLE_TIMEOUT,
-	MARKER_EXECUTION_MAX_QUIET_TIME,
 	MARKERLESS_FIRST_DATA_TIMEOUT,
 	MARKERLESS_IDLE_TIMEOUT,
 	MARKERLESS_MAX_QUIET_TIME,
@@ -259,22 +258,26 @@ export class VscodeTerminalProcess
 			let markerlessQuietMs = 0;
 			let receivedAnyData = false;
 			let didSeeCommandExecuted = false;
+			// A ]633;A (next prompt start) marker observed after the C marker
+			// means the shell printed a fresh prompt — the command really
+			// finished even if the D (completion) marker was lost.
+			let sawNextPromptMarker = false;
 
 			while (!this.terminated) {
 				// Until the C marker arrives, shell integration may not actually
 				// be working, so bound each read with an idle timeout. Once C is
-				// seen the markers are trusted to delimit the command, but a
-				// half-broken integration (API exposed, script not ready) can
-				// still lose the D marker and hang the stream forever — so keep
-				// a slower idle timeout and a hard quiet cap after C as well.
+				// seen the markers are trusted to delimit the command; there is
+				// deliberately no time-based force-completion after C — a command
+				// that stays silent for a long time (installs, builds, downloads)
+				// is still running until a real completion signal arrives: the D
+				// marker, the end event, or the next shell prompt (its text or
+				// the ]633;A marker). The idle timeout below only controls how
+				// often we re-check for a prompt.
 				const idleTimeoutMs = didSeeCommandExecuted
 					? MARKER_EXECUTION_IDLE_TIMEOUT
 					: receivedAnyData
 						? MARKERLESS_IDLE_TIMEOUT
 						: MARKERLESS_FIRST_DATA_TIMEOUT;
-				const maxQuietMs = didSeeCommandExecuted
-					? MARKER_EXECUTION_MAX_QUIET_TIME
-					: MARKERLESS_MAX_QUIET_TIME;
 				const outcome = await readNext(idleTimeoutMs);
 
 				if (outcome.kind === "streamEnd" || outcome.kind === "executionEnd") {
@@ -294,13 +297,19 @@ export class VscodeTerminalProcess
 						stripAnsi(this.fullOutput || this.buffer || ""),
 					);
 					const promptStrength = classifyShellPrompt(promptCandidate);
-					const quietTimeoutReached = markerlessQuietMs >= maxQuietMs;
-					if (quietTimeoutReached) {
-						forcedCompletion = true;
-						break;
-					}
 					if (promptStrength === "strong") {
 						completedWithoutMarkers = true;
+						break;
+					}
+					// Once the C marker was seen, no prompt means the command is
+					// still running — keep waiting however long it stays silent.
+					// The quiet cap only applies before C, where there are no
+					// markers to trust at all (e.g. commands run over ssh).
+					if (
+						!didSeeCommandExecuted &&
+						markerlessQuietMs >= MARKERLESS_MAX_QUIET_TIME
+					) {
+						forcedCompletion = true;
 						break;
 					}
 					continue;
@@ -317,6 +326,18 @@ export class VscodeTerminalProcess
 				// Check for ]633;C marker (command executed / start of output)
 				if (data.includes("]633;C")) {
 					didSeeCommandExecuted = true;
+				}
+
+				// A ]633;A marker (next prompt start) appearing after the C marker
+				// means the shell has printed a fresh prompt — the command really
+				// finished even if the D (completion) marker was lost. The index
+				// guard keeps an A that precedes C (same chunk) from firing.
+				if (didSeeCommandExecuted && !sawNextPromptMarker) {
+					const cIdx = data.lastIndexOf("]633;C");
+					const aIdx = data.indexOf("]633;A", cIdx + 1);
+					if (aIdx !== -1) {
+						sawNextPromptMarker = true;
+					}
 				}
 
 				// Parse shell integration completion markers when present.
@@ -461,6 +482,12 @@ export class VscodeTerminalProcess
 					this.emitIfEol(data);
 					this.lastRetrievedIndex = this.fullOutput.length - this.buffer.length;
 				}
+
+				// ]633;A (next prompt) seen after C: the command has finished —
+				// stop reading and complete
+				if (sawNextPromptMarker) {
+					break;
+				}
 			}
 
 			// Cleanup: dispose listeners and release iterator
@@ -514,6 +541,11 @@ export class VscodeTerminalProcess
 					"line",
 					"[Shell integration did not report command completion within the quiet-time limit; the command was force-completed. It may still be running and the output may be incomplete.]",
 				);
+			} else if (sawNextPromptMarker) {
+				this.emit(
+					"line",
+					"[Shell integration lost the command completion marker; the next shell prompt was detected, so the command has finished. Output may include the prompt line.]",
+				);
 			} else if (completedWithoutMarkers) {
 				this.emit(
 					"line",
@@ -553,9 +585,11 @@ export class VscodeTerminalProcess
 					"vscode",
 					forcedCompletion
 						? "forced_quiet_timeout"
-						: completedWithoutMarkers
-							? "markerless_heuristic"
-							: "shell_integration",
+						: sawNextPromptMarker
+							? "next_prompt_marker"
+							: completedWithoutMarkers
+								? "markerless_heuristic"
+								: "shell_integration",
 				);
 			}
 
