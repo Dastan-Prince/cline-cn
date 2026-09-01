@@ -35,6 +35,9 @@ sdk/**
 README.marketplace.md
 .README.github.bak
 
+# Windows protoc fallback binary (build-time only, never ship in the VSIX)
+tmp-protoc/**
+
 # Custom
 **/demo.gif
 .nvmrc
