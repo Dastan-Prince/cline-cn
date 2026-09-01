@@ -107,6 +107,14 @@ export class ZAiHandler implements ApiHandler {
 
 		for await (const chunk of stream) {
 			const delta = chunk.choices?.[0]?.delta
+			// Handle reasoning content (thinking output) streamed by GLM models
+			if (delta && "reasoning_content" in delta && delta.reasoning_content) {
+				yield {
+					type: "reasoning",
+					reasoning: (delta.reasoning_content as string | undefined) || "",
+				}
+			}
+
 			if (delta?.content) {
 				yield {
 					type: "text",
