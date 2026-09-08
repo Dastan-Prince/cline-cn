@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import type { MessageHandlers } from "../../types/chatTypes"
 import { findReasoningForApiReq, isTextMessagePendingToolCall, isToolGroup } from "../../utils/messageUtils"
 import { ToolGroupRenderer } from "./ToolGroupRenderer"
+import { ChatRowErrorBoundary } from "./ChatRowErrorBoundary"
 
 interface MessageRendererProps {
 	index: number
@@ -78,22 +79,28 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
 	}, [messageOrGroup, groupedMessages, index])
 
 	if (isToolGroup(messageOrGroup)) {
-		return <ToolGroupRenderer allMessages={modifiedMessages} isLastGroup={isLastToolGroup} messages={messageOrGroup} />
+		return (
+			<ChatRowErrorBoundary>
+				<ToolGroupRenderer allMessages={modifiedMessages} isLastGroup={isLastToolGroup} messages={messageOrGroup} />
+			</ChatRowErrorBoundary>
+		)
 	}
 
 	// Browser session group
 	if (Array.isArray(messageOrGroup)) {
 		return (
-			<BrowserSessionRow
-				expandedRows={expandedRows}
-				isLast={isLastMessage}
-				key={messageOrGroup[0]?.ts}
-				lastModifiedMessage={modifiedMessages.at(-1)}
-				messages={messageOrGroup}
-				onHeightChange={onHeightChange}
-				onSetQuote={onSetQuote}
-				onToggleExpand={onToggleExpand}
-			/>
+			<ChatRowErrorBoundary>
+				<BrowserSessionRow
+					expandedRows={expandedRows}
+					isLast={isLastMessage}
+					key={messageOrGroup[0]?.ts}
+					lastModifiedMessage={modifiedMessages.at(-1)}
+					messages={messageOrGroup}
+					onHeightChange={onHeightChange}
+					onSetQuote={onSetQuote}
+					onToggleExpand={onToggleExpand}
+				/>
+			</ChatRowErrorBoundary>
 		)
 	}
 
@@ -104,23 +111,25 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
 				"pb-2.5": isLastMessage && !footerActive,
 			})}
 			data-message-ts={messageOrGroup.ts}>
-			<ChatRow
-				inputValue={inputValue}
-				isExpanded={expandedRows[messageOrGroup.ts] || false}
-				isLast={isLastMessage}
-				isRequestInProgress={isRequestInProgress}
-				key={messageOrGroup.ts}
-				lastModifiedMessage={modifiedMessages.at(-1)}
-				message={messageOrGroup}
-				mode={mode}
-				onCancelCommand={() => messageHandlers.executeButtonAction("cancel")}
-				onHeightChange={onHeightChange}
-				onSetQuote={onSetQuote}
-				onToggleExpand={onToggleExpand}
-				reasoningContent={reasoningData.reasoning}
-				responseStarted={reasoningData.responseStarted}
-				sendMessageFromChatRow={messageHandlers.handleSendMessage}
-			/>
+			<ChatRowErrorBoundary>
+				<ChatRow
+					inputValue={inputValue}
+					isExpanded={expandedRows[messageOrGroup.ts] || false}
+					isLast={isLastMessage}
+					isRequestInProgress={isRequestInProgress}
+					key={messageOrGroup.ts}
+					lastModifiedMessage={modifiedMessages.at(-1)}
+					message={messageOrGroup}
+					mode={mode}
+					onCancelCommand={() => messageHandlers.executeButtonAction("cancel")}
+					onHeightChange={onHeightChange}
+					onSetQuote={onSetQuote}
+					onToggleExpand={onToggleExpand}
+					reasoningContent={reasoningData.reasoning}
+					responseStarted={reasoningData.responseStarted}
+					sendMessageFromChatRow={messageHandlers.handleSendMessage}
+				/>
+			</ChatRowErrorBoundary>
 		</div>
 	)
 }

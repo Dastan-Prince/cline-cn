@@ -38,6 +38,23 @@ export const OptionsButtons = ({
 		return null
 	}
 
+	// Defensive: some models emit option objects ({label}/{value}) instead of strings.
+	// Rendering a raw object as a React child crashes the entire webview.
+	const toLabel = (option: unknown): string => {
+		if (typeof option === "string") {
+			return option
+		}
+		if (option != null && typeof option === "object") {
+			const obj = option as Record<string, unknown>
+			const preferred = obj.label ?? obj.value ?? obj.text
+			if (typeof preferred === "string" && preferred.trim()) {
+				return preferred
+			}
+			return JSON.stringify(option)
+		}
+		return String(option)
+	}
+
 	const hasSelected = selected !== undefined && options.includes(selected)
 
 	return (
@@ -50,32 +67,35 @@ export const OptionsButtons = ({
 			{/* <div style={{ color: "var(--vscode-descriptionForeground)", fontSize: "11px", textTransform: "uppercase" }}>
 				SELECT ONE:
 			</div> */}
-			{options.map((option, index) => (
-				<OptionButton
-					className="options-button"
-					id={`options-button-${index}`}
-					isNotSelectable={hasSelected || !isActive}
-					isSelected={option === selected}
-					key={index}
-					onClick={async () => {
-						if (hasSelected || !isActive) {
-							return
-						}
-						try {
-							await TaskServiceClient.askResponse(
-								AskResponseRequest.create({
-									responseType: "messageResponse",
-									text: option + (inputValue ? `: ${inputValue?.trim()}` : ""),
-									images: [],
-								}),
-							)
-						} catch (error) {
-							console.error("Error sending option response:", error)
-						}
-					}}>
-					<span className="ph-no-capture">{option}</span>
-				</OptionButton>
-			))}
+			{options.map((option, index) => {
+				const optionLabel = toLabel(option)
+				return (
+					<OptionButton
+						className="options-button"
+						id={`options-button-${index}`}
+						isNotSelectable={hasSelected || !isActive}
+						isSelected={option === selected}
+						key={index}
+						onClick={async () => {
+							if (hasSelected || !isActive) {
+								return
+							}
+							try {
+								await TaskServiceClient.askResponse(
+									AskResponseRequest.create({
+										responseType: "messageResponse",
+										text: optionLabel + (inputValue ? `: ${inputValue?.trim()}` : ""),
+										images: [],
+									}),
+								)
+							} catch (error) {
+								console.error("Error sending option response:", error)
+							}
+						}}>
+						<span className="ph-no-capture">{optionLabel}</span>
+					</OptionButton>
+				)
+			})}
 		</div>
 	)
 }

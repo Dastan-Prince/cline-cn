@@ -68,6 +68,31 @@ import UserMessage from "./UserMessage"
 
 const HEADER_CLASSNAMES = "flex items-center gap-2.5 mb-3"
 
+/**
+ * Normalizes ask/plan option lists to plain strings.
+ * Some models emit option objects (e.g. {"label": "..."}) instead of strings;
+ * rendering such objects as React children crashes the whole webview.
+ */
+const normalizeOptions = (options: unknown): string[] | undefined => {
+	if (!Array.isArray(options)) {
+		return undefined
+	}
+	return options.map((option) => {
+		if (typeof option === "string") {
+			return option
+		}
+		if (option != null && typeof option === "object") {
+			const obj = option as Record<string, unknown>
+			const preferred = obj.label ?? obj.value ?? obj.text
+			if (typeof preferred === "string" && preferred.trim()) {
+				return preferred
+			}
+			return JSON.stringify(option)
+		}
+		return String(option)
+	})
+}
+
 interface ChatRowProps {
 	message: ClineMessage
 	isExpanded: boolean
@@ -1199,7 +1224,7 @@ export const ChatRowContent = memo(
 						try {
 							const parsedMessage = JSON.parse(message.text || "{}") as ClineAskQuestion
 							question = parsedMessage.question
-							options = parsedMessage.options
+							options = normalizeOptions(parsedMessage.options)
 							selected = parsedMessage.selected
 						} catch (_e) {
 							// legacy messages would pass question directly
@@ -1281,7 +1306,7 @@ export const ChatRowContent = memo(
 						try {
 							const parsedMessage = JSON.parse(message.text || "{}") as ClinePlanModeResponse
 							response = parsedMessage.response
-							options = parsedMessage.options
+							options = normalizeOptions(parsedMessage.options)
 							selected = parsedMessage.selected
 						} catch (_e) {
 							// legacy messages would pass response directly

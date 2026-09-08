@@ -22,16 +22,47 @@ export function findLast<T>(array: Array<T>, predicate: (value: T, index: number
 }
 
 /**
+ * Coerces a parsed JSON array item into a string.
+ * Models occasionally emit structured objects (e.g. {"label": "..."} or {"value": "..."} instead of
+ * plain strings in ask_followup_question/plan_mode_respond option lists). Letting raw objects leak
+ * into ClineMessage options crashes the webview renderer ("Objects are not valid as a React child").
+ */
+function coerceArrayItemToString(item: unknown): string {
+	if (typeof item === "string") {
+		return item
+	}
+	if (item != null && typeof item === "object") {
+		const obj = item as Record<string, unknown>
+		const preferred = obj.label ?? obj.value ?? obj.text
+		if (typeof preferred === "string" && preferred.trim()) {
+			return preferred
+		}
+		try {
+			return JSON.stringify(item)
+		} catch {
+			return String(item)
+		}
+	}
+	return String(item)
+}
+
+/**
  * Converts a partial or complete stringified array into an actual array.
  * Handles both complete JSON strings and incomplete array strings.
  * Splits on the specific tokens: ["  ", "  "]
+ * Every parsed item is coerced to a string so malformed model output (object entries)
+ * can never propagate into message payloads.
  * @param arrayString A string representation of an array, which may be incomplete
  * @returns Array of strings parsed from the input
  */
 export function parsePartialArrayString(arrayString: string): string[] {
 	try {
 		// Try parsing as complete JSON first
-		return JSON.parse(arrayString)
+		const parsed: unknown = JSON.parse(arrayString)
+		if (!Array.isArray(parsed)) {
+			return []
+		}
+		return parsed.map(coerceArrayItemToString)
 	} catch {
 		// If JSON parsing fails, handle as partial string
 		const trimmed = arrayString.trim()
