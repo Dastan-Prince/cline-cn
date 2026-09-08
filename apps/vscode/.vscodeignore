@@ -38,6 +38,10 @@ README.marketplace.md
 # Windows protoc fallback binary (build-time only, never ship in the VSIX)
 tmp-protoc/**
 
+# Lockfiles (build-time only, never ship in the VSIX)
+bun.lock
+package-lock.json
+
 # Custom
 **/demo.gif
 .nvmrc

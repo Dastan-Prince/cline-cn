@@ -7,6 +7,9 @@ lint:
     use:
         - STANDARD
 
+    ignore: # Vendored well-known types (local copies of google/protobuf) — don't lint stock files
+        - proto/google/
+
     except: # Add exceptions for current patterns that contradict STANDARD settings
         - RPC_PASCAL_CASE # rpcs are camel case (start with lowercase)
         - RPC_REQUEST_RESPONSE_UNIQUE # request messages are not unique.

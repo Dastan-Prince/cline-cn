@@ -264,7 +264,7 @@ describe("TerminalProcess (Integration Tests)", () => {
 
 			// Run the command. run() ends with a bounded 3s race on
 			// onDidEndTerminalShellExecution, which never fires for a mocked
-			// execution — the fake 3s timer must be ticked through for the
+			// execution â€” the fake 3s timer must be ticked through for the
 			// promise to settle.
 			const runPromise = process.run(terminal, "echo test");
 			await sandbox.clock.tickAsync(3_000);
@@ -474,7 +474,10 @@ describe("TerminalProcess (Integration Tests)", () => {
 					return {
 						next: (): Promise<IteratorResult<string>> => {
 							if (queue.length > 0) {
-								return Promise.resolve({ value: queue.shift() as string, done: false });
+								return Promise.resolve({
+									value: queue.shift() as string,
+									done: false,
+								});
 							}
 							if (ended) {
 								return Promise.resolve({ value: undefined as any, done: true });
@@ -554,7 +557,10 @@ describe("TerminalProcess (Integration Tests)", () => {
 				completionDetails = details;
 			});
 
-			const runPromise = process.run(terminal, "pip install -r requirements.txt");
+			const runPromise = process.run(
+				terminal,
+				"pip install -r requirements.txt",
+			);
 
 			// C marker + initial output, then silence beyond the old 120s cap
 			pushStream.push("]633;Cdownloading...\n");

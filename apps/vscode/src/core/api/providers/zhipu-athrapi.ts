@@ -2,13 +2,20 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { Tool as AnthropicTool } from "@anthropic-ai/sdk/resources/index"
 import { Stream as AnthropicStream } from "@anthropic-ai/sdk/streaming"
 import { buildExternalBasicHeaders } from "@/services/EnvUtils"
-import { CLAUDE_SONNET_1M_SUFFIX, ZhipuAthrapiModelId, ModelInfo, zhipuAthrapiDefaultModelId, zhipuAthrapiModels } from "@/shared/api"
+import {
+	CLAUDE_SONNET_1M_SUFFIX,
+	ModelInfo,
+	ZhipuAthrapiModelId,
+	zhipuAthrapiDefaultModelId,
+	zhipuAthrapiModels,
+} from "@/shared/api"
 import { ClineStorageMessage } from "@/shared/messages/content"
 import { fetch } from "@/shared/net"
 import { ClineTool } from "@/shared/tools"
 import { ApiHandler, CommonApiHandlerOptions } from "../index"
 import { withRetry } from "../retry"
 import { ApiStream } from "../transform/stream"
+import { createAnthropicStreamUsageTracker } from "../utils/anthropic-usage-tracker"
 
 interface ZhipuAthrapiHandlerOptions extends CommonApiHandlerOptions {
 	zhipuAthrapiKey?: string
@@ -72,27 +79,28 @@ export class ZhipuAthrapiHandler implements ApiHandler {
 		})
 
 		const lastStartedToolCall = { id: "", name: "", arguments: "" }
+		// GLM's Anthropic-compatible endpoint reports zeros in message_start and
+		// only returns the real input/cache usage in the final message_delta event.
+		// The tracker takes the max of both events and emits deltas, which keeps
+		// downstream additive accumulation correct for either timing.
+		const usageTracker = createAnthropicStreamUsageTracker()
 
 		for await (const chunk of stream) {
 			switch (chunk?.type) {
 				case "message_start": {
-					const usage = chunk.message.usage
-					yield {
-						type: "usage",
-						inputTokens: usage.input_tokens || 0,
-						outputTokens: usage.output_tokens || 0,
-						cacheWriteTokens: usage.cache_creation_input_tokens || undefined,
-						cacheReadTokens: usage.cache_read_input_tokens || undefined,
+					const usageChunk = usageTracker.track(chunk.message.usage)
+					if (usageChunk) {
+						yield usageChunk
 					}
 					break
 				}
-				case "message_delta":
-					yield {
-						type: "usage",
-						inputTokens: 0,
-						outputTokens: chunk.usage.output_tokens || 0,
+				case "message_delta": {
+					const usageChunk = usageTracker.track(chunk.usage)
+					if (usageChunk) {
+						yield usageChunk
 					}
 					break
+				}
 				case "message_stop":
 					break
 				case "content_block_start":
