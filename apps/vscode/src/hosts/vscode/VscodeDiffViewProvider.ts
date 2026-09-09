@@ -1,4 +1,9 @@
 import { DiffViewProvider } from "@integrations/editor/DiffViewProvider";
+import {
+	TIMEOUTS,
+	scaleTimeoutBySize,
+	withTimeout,
+} from "@utils/async-timeout";
 import * as path from "path";
 import * as vscode from "vscode";
 import { DecorationController } from "@/hosts/vscode/DecorationController";
@@ -7,6 +12,12 @@ import { Logger } from "@/shared/services/Logger";
 import { arePathsEqual } from "@/utils/path";
 
 export const DIFF_VIEW_URI_SCHEME = "cline-diff";
+
+/**
+ * How long we wait for the diff editor to report itself active before giving up.
+ * Generous because low-end machines legitimately take longer than the old 10s budget.
+ */
+const DIFF_EDITOR_OPEN_TIMEOUT_MS = 30_000;
 
 export class VscodeDiffViewProvider extends DiffViewProvider {
 	private activeDiffEditor?: vscode.TextEditor;
@@ -32,11 +43,7 @@ export class VscodeDiffViewProvider extends DiffViewProvider {
 			);
 		for (const tab of tabs) {
 			if (!tab.isDirty) {
-				try {
-					await vscode.window.tabGroups.close(tab);
-				} catch (error) {
-					Logger.warn("Tab close retry failed:", error.message);
-				}
+				await this.closeTabBestEffort(tab, String(this.absolutePath));
 			}
 			this.documentWasOpen = true;
 		}
@@ -90,13 +97,15 @@ export class VscodeDiffViewProvider extends DiffViewProvider {
 							preserveFocus: true,
 						},
 					);
-					// This may happen on very slow machines ie project idx
+					// This may happen on very slow machines ie project idx. The budget was
+					// raised from 10s -> 30s because the old value produced false failures on
+					// exactly those machines (the failure is fatal: it aborts the whole edit).
 					setTimeout(() => {
 						disposable.dispose();
 						reject(
 							new Error("Failed to open diff editor, please try again..."),
 						);
-					}, 10_000);
+					}, DIFF_EDITOR_OPEN_TIMEOUT_MS);
 				},
 			);
 		}
@@ -114,6 +123,25 @@ export class VscodeDiffViewProvider extends DiffViewProvider {
 			0,
 			this.activeDiffEditor.document.lineCount,
 		);
+	}
+
+	/**
+	 * Closes a tab without letting VS Code stall us. Closing tabs is UI-only, so timing
+	 * out merely leaves the tab around for the user to close manually.
+	 */
+	private async closeTabBestEffort(
+		tab: vscode.Tab,
+		detail: string,
+	): Promise<void> {
+		try {
+			await withTimeout(Promise.resolve(vscode.window.tabGroups.close(tab)), {
+				label: "关闭标签页",
+				detail,
+				timeout: TIMEOUTS.ui,
+			});
+		} catch (error) {
+			Logger.warn(`Tab close retry failed (${detail}):`, error.message);
+		}
 	}
 
 	override async replaceText(
@@ -143,7 +171,19 @@ export class VscodeDiffViewProvider extends DiffViewProvider {
 			0,
 		);
 		edit.replace(document.uri, range, content);
-		await vscode.workspace.applyEdit(edit);
+		// A-class write budget widened for large payloads. applyEdit has no cancellation
+		// API, so on timeout we report and let the caller roll back rather than replaying
+		// the same edit (which would corrupt offsets if it ever lands twice).
+		const editBudget = scaleTimeoutBySize(
+			TIMEOUTS.write,
+			content.length,
+			180_000,
+		);
+		await withTimeout(Promise.resolve(vscode.workspace.applyEdit(edit)), {
+			label: "应用编辑到文档",
+			detail: document.uri.fsPath,
+			timeout: editBudget,
+		});
 
 		// VS Code can normalize trailing newlines on full-document replacements.
 		// Only fix up when replacing to the end to avoid touching untouched content.
@@ -268,11 +308,7 @@ export class VscodeDiffViewProvider extends DiffViewProvider {
 		for (const tab of tabs) {
 			// trying to close dirty views results in save popup
 			if (!tab.isDirty) {
-				try {
-					await vscode.window.tabGroups.close(tab);
-				} catch (error) {
-					Logger.warn("Tab close retry failed:", error.message);
-				}
+				await this.closeTabBestEffort(tab, String(this.absolutePath));
 			}
 		}
 	}

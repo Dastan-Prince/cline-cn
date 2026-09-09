@@ -1,3 +1,4 @@
+import { TIMEOUTS, withTimeoutOrDefault } from "@utils/async-timeout"
 import type { PresentationPriority } from "./presentation-types"
 
 export type { PresentationPriority }
@@ -153,7 +154,19 @@ export class TaskPresentationScheduler {
 		// prevents *new* timer-driven flushes from firing on stale state.
 	}
 
-	async dispose(): Promise<void> {
+	/**
+	 * Mark the scheduler as disposed and stop accepting work.
+	 *
+	 * This used to await the in-flight flush unconditionally. When a tool call hangs
+	 * (for example a document save that never resolves) the flush never completes, so
+	 * `abortTask()` blocked here forever — clicking cancel became un-cancellable,
+	 * leaving the task spinning until the window was reloaded.
+	 *
+	 * We now wait briefly and then move on. The abandoned flush keeps running in the
+	 * background, which is safe because `disposed` prevents any further scheduling and
+	 * the task is being torn down anyway.
+	 */
+	async dispose(options?: { timeoutMs?: number }): Promise<void> {
 		this.disposed = true
 		if (this.scheduledTimer) {
 			this.clearTimeoutFn(this.scheduledTimer)
@@ -164,7 +177,14 @@ export class TaskPresentationScheduler {
 
 		const inFlightFlush = this.currentFlushCompletion
 		if (inFlightFlush) {
-			await inFlightFlush
+			await withTimeoutOrDefault(inFlightFlush, undefined, {
+				label: "等待流式内容呈现结束",
+				detail: "工具执行可能已卡住，放弃等待以完成取消",
+				timeout: {
+					slowAfterMs: options?.timeoutMs ?? TIMEOUTS.cleanup.slowAfterMs,
+					hardMs: options?.timeoutMs ?? TIMEOUTS.cleanup.hardMs,
+				},
+			})
 		}
 	}
 

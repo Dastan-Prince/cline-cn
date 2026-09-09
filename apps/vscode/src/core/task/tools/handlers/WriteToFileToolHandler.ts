@@ -24,6 +24,7 @@ import { captureAccepted, captureRejected, getModelInfo } from "../utils/AiOutpu
 import { applyModelContentFixes } from "../utils/ModelContentProcessor"
 import { ToolDisplayUtils } from "../utils/ToolDisplayUtils"
 import { ToolResultUtils } from "../utils/ToolResultUtils"
+import { REVERT_TIMEOUT } from "@utils/async-timeout"
 
 export class WriteToFileToolHandler implements IFullyManagedTool {
 	readonly name = ClineDefaultTool.FILE_NEW // This handler supports write_to_file, replace_in_file, and new_rule
@@ -303,7 +304,7 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 						filesCreated: fileExists ? 0 : 1,
 					})
 
-					await config.services.diffViewProvider.revertChanges()
+					await config.services.diffViewProvider.revertChanges(REVERT_TIMEOUT)
 					return `The user denied this operation. ${fileDeniedNote}`
 				}
 				// User hit the approve button, and may have provided feedback
@@ -354,7 +355,7 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 			} catch (error) {
 				const { PreToolUseHookCancellationError } = await import("@core/hooks/PreToolUseHookCancellationError")
 				if (error instanceof PreToolUseHookCancellationError) {
-					await config.services.diffViewProvider.revertChanges()
+					await config.services.diffViewProvider.revertChanges(REVERT_TIMEOUT)
 					await config.services.diffViewProvider.reset()
 					return formatResponse.toolDenied()
 				}
@@ -419,7 +420,9 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 		} catch (error) {
 			// Reset diff view on error. revertChanges itself can throw when the editor
 			// is already gone — never let that block the reset below.
-			await config.services.diffViewProvider.revertChanges().catch((revertError) => {
+			// REVERT_TIMEOUT keeps this bounded: on a hung save it will stop early and skip
+			// its destructive steps instead of compounding the delay.
+			await config.services.diffViewProvider.revertChanges(REVERT_TIMEOUT).catch((revertError) => {
 				Logger.warn("[WriteToFileToolHandler] revertChanges failed during execute cleanup", revertError)
 			})
 			await config.services.diffViewProvider.reset()

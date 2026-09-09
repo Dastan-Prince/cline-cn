@@ -12,6 +12,28 @@ import { Logger } from "@/shared/services/Logger"
 import { detectEncoding } from "../misc/extract-text"
 import { sanitizeNotebookForLLM } from "../misc/notebook-utils"
 import { openFile } from "../misc/open-file"
+import {
+	OperationTimeout,
+	OperationTimeoutError,
+	TIMEOUTS,
+	scaleTimeoutBySize,
+	withTimeout,
+	withTimeoutOrDefault,
+} from "@utils/async-timeout"
+
+/**
+ * Result of a best-effort save. "timeout" is deliberately distinguishable from
+ * "skipped": the former means the write may still land later, so destructive follow-up
+ * work must be avoided.
+ */
+type SaveOutcome = "saved" | "skipped" | "timeout"
+
+/**
+ * Budget for flushing an unrelated dirty document before we take ownership of the file.
+ * Shorter than {@link TIMEOUTS.write} because losing this save is recoverable — it only
+ * guards against reading stale content into `originalContent`.
+ */
+const FLUSH_OPEN_DOCUMENT_TIMEOUT: OperationTimeout = { slowAfterMs: 10_000, hardMs: 30_000 }
 
 export abstract class DiffViewProvider {
 	editType?: "create" | "modify" | "delete"
@@ -47,9 +69,20 @@ export abstract class DiffViewProvider {
 		try {
 			// if the file is already open, ensure it's not dirty before getting its contents
 			if (fileExists) {
-				await HostProvider.workspace.saveOpenDocumentIfDirty({
-					filePath: this.absolutePath!,
-				})
+				// Best-effort flush: if this never resolves we still carry on, because the
+				// only downside is possibly stale `originalContent`. We must not start a
+				// competing write here — see the notes in @utils/async-timeout.
+				await withTimeoutOrDefault(
+					HostProvider.workspace.saveOpenDocumentIfDirty({
+						filePath: this.absolutePath!,
+					}),
+					{},
+					{
+						label: "刷新已打开的脏文档",
+						detail: this.absolutePath,
+						timeout: FLUSH_OPEN_DOCUMENT_TIMEOUT,
+					},
+				)
 
 				const fileBuffer = await fs.readFile(this.absolutePath)
 				this.fileEncoding = await detectEncoding(fileBuffer)
@@ -65,7 +98,12 @@ export abstract class DiffViewProvider {
 				await fs.writeFile(this.absolutePath, "")
 			}
 			// get diagnostics before editing the file, we'll compare to diagnostics after editing to see if cline needs to fix anything
-			this.preDiagnostics = (await HostProvider.workspace.getDiagnostics({})).fileDiagnostics
+			// Read-only: abandoning this just means we report fewer "new problems" later.
+			const preDiagnosticsResponse = await withTimeoutOrDefault(HostProvider.workspace.getDiagnostics({}), undefined, {
+				label: "读取编辑前诊断信息",
+				timeout: TIMEOUTS.ui,
+			})
+			this.preDiagnostics = preDiagnosticsResponse?.fileDiagnostics ?? []
 
 			this.isEditing = true
 			this.editType = fileExists ? "modify" : "create"
@@ -163,7 +201,12 @@ export abstract class DiffViewProvider {
 	 */
 	private async getNewDiagnosticProblems(): Promise<string> {
 		// Get the diagnostics after changing the document.
-		const postDiagnostics = (await HostProvider.workspace.getDiagnostics({})).fileDiagnostics
+		// Read-only: abandoning this only costs us extra problem reporting, never content.
+		const diagnosticsResponse = await withTimeoutOrDefault(HostProvider.workspace.getDiagnostics({}), undefined, {
+			label: "读取编辑后诊断信息",
+			timeout: TIMEOUTS.ui,
+		})
+		const postDiagnostics = diagnosticsResponse?.fileDiagnostics ?? []
 
 		const newProblems = getNewDiagnostics(this.preDiagnostics, postDiagnostics)
 		// Only including errors since warnings can be distracting (if user wants to fix warnings they can use the @problems mention)
@@ -353,6 +396,53 @@ export abstract class DiffViewProvider {
 		return this.isNotebookFile() ? sanitizeNotebookForLLM(this.originalContent, true) : this.originalContent
 	}
 
+	/**
+	 * Default write budget for this edit, widened for large payloads so slow machines
+	 * are not punished for big files.
+	 */
+	private get writeBudget(): OperationTimeout {
+		return scaleTimeoutBySize(TIMEOUTS.write, this.newContent?.length)
+	}
+
+	/**
+	 * Awaits {@link saveDocument} under a write budget and rethrows on timeout.
+	 *
+	 * Timeouts are fatal on this path: the whole point of the call is to get the user's
+	 * content onto disk, so we cannot silently continue claiming success.
+	 */
+	private async saveDocumentOrThrow(timeout: OperationTimeout): Promise<boolean> {
+		const saved = await withTimeout(Promise.resolve(this.saveDocument()), {
+			label: "保存文件",
+			detail: this.relPath,
+			timeout,
+		})
+		return saved === true
+	}
+
+	/**
+	 * Same as {@link saveDocumentOrThrow} but reports failure instead of throwing, so
+	 * rollback paths can decide for themselves whether it is safe to continue.
+	 *
+	 * "skipped" means there was nothing dirty to save (a legitimate no-op), while
+	 * "timeout" means the save is still running in the background and its outcome is
+	 * unknown — callers must treat that very differently from "skipped".
+	 */
+	private async trySaveDocument(timeout: OperationTimeout): Promise<SaveOutcome> {
+		try {
+			const saved = await withTimeout(Promise.resolve(this.saveDocument()), {
+				label: "保存文件",
+				detail: this.relPath,
+				timeout,
+			})
+			return saved === true ? "saved" : "skipped"
+		} catch (error) {
+			if (error instanceof OperationTimeoutError) {
+				return "timeout"
+			}
+			throw error
+		}
+	}
+
 	async saveChanges(): Promise<{
 		newProblemsMessage: string | undefined
 		userEdits: string | undefined
@@ -371,12 +461,24 @@ export abstract class DiffViewProvider {
 			}
 		}
 
-		await this.saveDocument()
+		// A-class write: generous budget that grows with the payload. If this fails we
+		// throw so the tool reports it and the diff view keeps the content visible for the
+		// user to save manually. We never fall back to fs.writeFile — see @utils/async-timeout.
+		await this.saveDocumentOrThrow(this.writeBudget)
 		// get text after save in case there is any auto-formatting done by the editor
 		const postSaveContent = (await this.getDocumentText()) || ""
 
-		await this.showFile(this.absolutePath)
-		await this.closeAllDiffViews()
+		// Purely visual follow-ups — abandon them rather than stall the tool result.
+		await withTimeoutOrDefault(Promise.resolve(this.showFile(this.absolutePath)), undefined, {
+			label: "展示已保存的文件",
+			detail: this.absolutePath,
+			timeout: TIMEOUTS.ui,
+		})
+		await withTimeoutOrDefault(Promise.resolve(this.closeAllDiffViews()), undefined, {
+			label: "关闭 diff 视图",
+			detail: this.absolutePath,
+			timeout: TIMEOUTS.ui,
+		})
 
 		const newProblems = await this.getNewDiagnosticProblems()
 		const newProblemsMessage =
@@ -422,17 +524,37 @@ export abstract class DiffViewProvider {
 		}
 	}
 
-	async revertChanges(): Promise<void> {
+	/**
+	 * Undoes the pending edit: restores the original content of an existing file, or
+	 * deletes a file we created.
+	 *
+	 * @param saveTimeout Optional write budget. Callers tearing down an aborted task pass
+	 *                    a shorter budget so that cancelling does not block behind a hung
+	 *                    save (which is exactly what made cancel unresponsive before).
+	 *
+	 * IMPORTANT: this method contains destructive steps (deleting the file, writing the
+	 * original content back). If the preceding save cannot be confirmed we bail out
+	 * *before* those steps — leaving an unexpected file behind is far safer than
+	 * discarding content whose fate we could not determine.
+	 */
+	async revertChanges(saveTimeout?: OperationTimeout): Promise<void> {
 		if (!this.absolutePath || !this.isEditing) {
 			return
 		}
 		const fileExists = this.editType === "modify"
+		const budget = saveTimeout ?? this.writeBudget
 
 		try {
 			if (!fileExists) {
 				// This is a load-bearing save statement- even though the file is saved and then immediately deleted.
 				// In vscode, it will not close the diff editor correctly if the file is not saved.
-				await this.saveDocument()
+				const outcome = await this.trySaveDocument(budget)
+				if (outcome === "timeout") {
+					Logger.warn(
+						`DiffViewProvider.revertChanges: 保存超时，结果未知，跳过删除以保留现场：${this.absolutePath}`,
+					)
+					return
+				}
 				await this.closeAllDiffViews()
 				await fs.rm(this.absolutePath, { force: true })
 				Logger.log(`File ${this.absolutePath} has been deleted.`)
@@ -454,7 +576,13 @@ export abstract class DiffViewProvider {
 				const lineCount = (contents.match(/\n/g) || []).length + 1
 				await this.replaceText(this.originalContent ?? "", { startLine: 0, endLine: lineCount }, undefined)
 
-				await this.saveDocument()
+				const outcome = await this.trySaveDocument(budget)
+				if (outcome === "timeout") {
+					Logger.warn(
+						`DiffViewProvider.revertChanges: 保存超时，结果未知，跳过回滚收尾动作：${this.absolutePath}`,
+					)
+					return
+				}
 				Logger.log(`File ${this.absolutePath} has been reverted to its original content.`)
 				if (this.documentWasOpen) {
 					openFile(this.absolutePath, true)

@@ -17,6 +17,8 @@ import { type Settings } from "@shared/storage/state-keys";
 import type { Mode } from "@shared/storage/types";
 import type { TelemetrySetting } from "@shared/TelemetrySetting";
 import type { UserInfo } from "@shared/UserInfo";
+import type { OperationTimeout } from "@utils/async-timeout";
+import { withTimeoutOrDefault } from "@utils/async-timeout";
 import { fileExistsAtPath } from "@utils/fs";
 import axios from "axios";
 import fs from "fs/promises";
@@ -69,6 +71,21 @@ https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default
 https://github.com/KumarVariable/vscode-extension-sidebar-html/blob/master/src/customSidebarViewProvider.ts
 */
 
+/**
+ * If a cancellation has been running longer than this, we assume it is stuck and let the
+ * next cancel request through instead of ignoring it forever.
+ */
+const CANCEL_STALL_THRESHOLD_MS = 15_000;
+
+/**
+ * Hard cap for `Task.abortTask()`. Its internals are time-boxed too, but this guarantees
+ * the user always gets past the cancel action.
+ */
+const CANCEL_ABORT_TASK_TIMEOUT: OperationTimeout = {
+	slowAfterMs: 10_000,
+	hardMs: 45_000,
+};
+
 export class Controller {
 	task?: Task;
 
@@ -85,6 +102,8 @@ export class Controller {
 
 	// Flag to prevent duplicate cancellations from spam clicking
 	private cancelInProgress = false;
+	// When the in-progress cancellation started, used to detect a stalled cancellation
+	private cancelStartedAt?: number;
 
 	// Timer for periodic remote config fetching
 	private remoteConfigTimer?: NodeJS.Timeout;
@@ -469,12 +488,24 @@ export class Controller {
 	}
 
 	async cancelTask() {
-		// Prevent duplicate cancellations from spam clicking
+		// Prevent duplicate cancellations from spam clicking — but never trap the user.
+		// If a previous cancellation has been running far longer than any sane teardown
+		// could take, treat this request as a forced cancellation and proceed anyway.
 		if (this.cancelInProgress) {
-			Logger.log(
-				`[Controller.cancelTask] Cancellation already in progress, ignoring duplicate request`,
+			const elapsedMs = Date.now() - (this.cancelStartedAt ?? Date.now());
+			if (elapsedMs < CANCEL_STALL_THRESHOLD_MS) {
+				Logger.log(
+					`[Controller.cancelTask] Cancellation already in progress, ignoring duplicate request`,
+				);
+				return;
+			}
+			Logger.error(
+				`[Controller.cancelTask] 上一次取消已耗时 ${elapsedMs}ms 仍未完成，可能卡住；本次取消强制执行`,
 			);
-			return;
+			HostProvider.window.showMessage({
+				type: ShowMessageType.WARNING,
+				message: `取消任务耗时异常，正在强制执行。若界面仍无响应，请执行「Developer: Reload Window」。`,
+			});
 		}
 
 		if (!this.task) {
@@ -483,15 +514,21 @@ export class Controller {
 
 		// Set flag to prevent concurrent cancellations
 		this.cancelInProgress = true;
+		this.cancelStartedAt = Date.now();
 
 		try {
 			this.updateBackgroundCommandState(false);
 
-			try {
-				await this.task.abortTask();
-			} catch (error) {
-				Logger.error("Failed to abort task", error);
-			}
+			// Hard cap on the teardown itself. abortTask() is now internally time-boxed, but
+			// nothing should be able to hold the cancel action hostage indefinitely.
+			await withTimeoutOrDefault(
+				Promise.resolve(this.task.abortTask()),
+				undefined,
+				{
+					label: "中止任务",
+					timeout: CANCEL_ABORT_TASK_TIMEOUT,
+				},
+			);
 
 			await pWaitFor(
 				() =>
@@ -545,6 +582,7 @@ export class Controller {
 		} finally {
 			// Always clear the flag, even if cancellation fails
 			this.cancelInProgress = false;
+			this.cancelStartedAt = undefined;
 		}
 	}
 

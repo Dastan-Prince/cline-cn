@@ -71,6 +71,7 @@ import {
 	isNextGenModelFamily,
 	isParallelToolCallingEnabled,
 } from "@utils/model-utils"
+import { REVERT_TIMEOUT, TIMEOUTS, type OperationTimeout, withTimeoutOrDefault } from "@utils/async-timeout"
 import { arePathsEqual, getDesktopDir } from "@utils/path"
 import { filterExistingFiles } from "@utils/tabFiltering"
 import cloneDeep from "clone-deep"
@@ -155,6 +156,12 @@ type TaskParams = {
 	taskId: string
 	taskLockAcquired: boolean
 }
+
+/**
+ * Upper bound for the whole revert step during cancellation. Beyond this we simply stop
+ * cleaning up and finish the abort — the user asked to stop, and they are waiting.
+ */
+const ABORT_REVERT_TOTAL_TIMEOUT: OperationTimeout = { slowAfterMs: 3_000, hardMs: 30_000 }
 
 export class Task {
 	// Core task variables
@@ -1684,21 +1691,40 @@ export class Task {
 				this.FocusChainManager.checkIncompleteProgressOnCompletion(currentModelId, currentProvider)
 			}
 
-			// PHASE 7: Clean up resources
+			// PHASE 7: Clean up resources.
+			//
+			// Every step here is best-effort and time-boxed. This is the path a user reaches by
+			// clicking cancel, so a single unresponsive resource used to stall the entire
+			// cancellation: `abortTask()` never returned, which latched `cancelInProgress` in
+			// the controller and turned every subsequent cancel click into a no-op.
 			this.terminalManager.disposeAll()
 			this.urlContentFetcher.closeBrowser()
-			await this.browserSession.dispose()
+			await withTimeoutOrDefault(Promise.resolve(this.browserSession.dispose()), undefined, {
+				label: "释放浏览器会话",
+				timeout: TIMEOUTS.cleanup,
+			})
 			this.clineIgnoreController.dispose()
-			this.fileContextTracker.dispose()
+			await withTimeoutOrDefault(Promise.resolve(this.fileContextTracker.dispose()), undefined, {
+				label: "释放文件上下文监听",
+				timeout: TIMEOUTS.cleanup,
+			})
 			// need to await for when we want to make sure directories/files are reverted before
-			// re-starting the task from a checkpoint
-			await this.diffViewProvider.revertChanges()
+			// re-starting the task from a checkpoint. Reverting writes to disk, so it gets the
+			// generous end of the cleanup budget — but it stays bounded, and it will refuse to
+			// delete anything whose save it could not confirm.
+			await withTimeoutOrDefault(this.diffViewProvider.revertChanges(REVERT_TIMEOUT), undefined, {
+				label: "回滚未完成的编辑",
+				timeout: ABORT_REVERT_TOTAL_TIMEOUT,
+			})
 			// Clear the notification callback when task is aborted
 			this.mcpHub.clearNotificationCallback()
 			if (this.FocusChainManager) {
 				this.FocusChainManager.dispose()
 			}
-			await this.presentationScheduler.dispose()
+			await withTimeoutOrDefault(Promise.resolve(this.presentationScheduler.dispose()), undefined, {
+				label: "释放呈现调度器",
+				timeout: TIMEOUTS.cleanup,
+			})
 		} finally {
 			// Release task folder lock
 			if (this.taskLockAcquired) {
@@ -3245,7 +3271,21 @@ export class Task {
 				// 	this.userMessageContentReady = true
 				// }
 
-				await pWaitFor(() => this.taskState.userMessageContentReady)
+				// Wait for the presentation layer to signal that every tool in this response
+				// has finished executing. This must always honour cancellation: previously the
+				// abort flag was not part of the condition, so a tool stuck in an uninterruptible
+				// await (e.g. a hung document save) left this spinning even after the user hit
+				// cancel.
+				//
+				// Deliberately no timeout here: this wait also covers time spent waiting for the
+				// user to press an approval button, which is legitimately unbounded.
+				await pWaitFor(() => this.taskState.userMessageContentReady || this.taskState.abort, {
+					interval: 100,
+				})
+
+				if (this.taskState.abort) {
+					throw new Error("Cline instance aborted")
+				}
 
 				// Save checkpoint after all tools in this response have finished executing
 				await this.checkpointManager?.saveCheckpoint()
