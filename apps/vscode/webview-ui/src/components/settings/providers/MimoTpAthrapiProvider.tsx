@@ -80,6 +80,48 @@ export const MimoTpAthrapiProvider = ({ showModelOptions, isPopup, currentMode }
 						}
 					/>
 
+					{/* Context window switcher for mimo-v2.6-flash */}
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="mimo-v2.6-flash"
+						base1mModelId={`mimo-v2.6-flash${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
+					/>
+
+					{/* Context window switcher for mimo-v2.6-pro */}
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="mimo-v2.6-pro"
+						base1mModelId={`mimo-v2.6-pro${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
+					/>
+
+					{/* Context window switcher for mimo-v2.6-pro-ultraspeed */}
+					<ContextWindowSwitcher
+						selectedModelId={selectedModelId}
+						base200kModelId="mimo-v2.6-pro-ultraspeed"
+						base1mModelId={`mimo-v2.6-pro-ultraspeed${CLAUDE_SONNET_1M_SUFFIX}`}
+						onModelChange={(modelId) =>
+							handleModeFieldChange(
+								{ plan: "planModeApiModelId", act: "actModeApiModelId" },
+								modelId,
+								currentMode,
+							)
+						}
+					/>
+
 					{selectedModelInfo?.supportsReasoning && (
 						<ThinkingBudgetSlider currentMode={currentMode} showEnableToggle={false} />
 					)}

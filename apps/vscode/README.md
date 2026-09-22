@@ -24,6 +24,9 @@ Xiaomi Mimo AthrAPI  | API Key接口（Anthropic兼容）|
 Mimo TP AthrAPI  |Token Plan接口（Anthropic兼容）|
 |  |  |
 
+- mimo-v2.6-pro（默认）
+- mimo-v2.6-flash
+- mimo-v2.6-pro-ultraspeed
 - mimo-v2.5-pro
 - mimo-v2.5
 

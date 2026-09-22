@@ -1,6 +1,10 @@
 {
 	"list": [
 		{
+			"value": "cline",
+			"label": "Cline"
+		},
+		{
 			"value": "deepseek",
 			"label": "DeepSeek"
 		},
@@ -11,10 +15,6 @@
 		{
 			"value": "xiaomi-athrapi",
 			"label": "Xiaomi Mimo AthrAPI"
-		},
-		{
-			"value": "mimo-tp-athrapi",
-			"label": "Mimo TP AthrAPI"
 		},
 		{
 			"value": "dots-studio-athrapi",
@@ -31,10 +31,6 @@
 		{
 			"value": "anthropic-comp",
 			"label": "Anthropic Compatible"
-		},
-		{
-			"value": "cline",
-			"label": "Cline"
 		},
 		{
 			"value": "openai-codex",
@@ -189,12 +185,16 @@
 			"label": "W&B Inference by CoreWeave"
 		},
 		{
-			"value": "mimo-tp",
-			"label": "MiMo Token Plan"
-		},
-		{
 			"value": "xiaomi",
 			"label": "Xiaomi MiMo"
+		},
+		{
+			"value": "mimo-tp",
+			"label": "Xiaomi MiMo Token Plan"
+		},
+		{
+			"value": "mimo-tp-athrapi",
+			"label": "Xiaomi Mimo TP AthrAPI"
 		},
 		{
 			"value": "zai",

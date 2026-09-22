@@ -5490,7 +5490,7 @@ export const nousResearchModels = {
 // Xiaomi Mimo
 // https://platform.xiaomimimo.com/#/docs/welcome
 export type XiaomiModelId = keyof typeof xiaomiModels
-export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2.5"
+export const xiaomiDefaultModelId: XiaomiModelId = "mimo-v2.6-pro"
 export const xiaomiModels = {
 	"mimo-v2.5": {
 		maxTokens: 131072,
@@ -5518,12 +5518,51 @@ export const xiaomiModels = {
 		cacheReadsPrice: 0.0036,
 		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
+	"mimo-v2.6-flash": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		inputPrice: 0.14,
+		outputPrice: 0.28,
+		cacheWritesPrice: 0.14,
+		cacheReadsPrice: 0.0028,
+		description: "Xiaomi Mimo V2.6 Flash - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，轻量高效，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.6-pro": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-pro-ultraspeed": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro UltraSpeed - 超高速推理版本，原生全模态 + 1M 超长上下文，兼顾极致 Agent 性能与响应速度。",
+	},
 } as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 // MiMo Token Plan
 // https://token-plan-cn.xiaomimimo.com/
 export type MimoTokenPlanModelId = keyof typeof mimoTokenPlanModels
-export const mimoTokenPlanDefaultModelId: MimoTokenPlanModelId = "mimo-v2.5"
+export const mimoTokenPlanDefaultModelId: MimoTokenPlanModelId = "mimo-v2.6-pro"
 export const mimoTokenPlanModels = {
 	"mimo-v2.5": {
 		maxTokens: 131072,
@@ -5551,13 +5590,52 @@ export const mimoTokenPlanModels = {
 		cacheReadsPrice: 0.0036,
 		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
+	"mimo-v2.6-flash": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		inputPrice: 0.14,
+		outputPrice: 0.28,
+		cacheWritesPrice: 0.14,
+		cacheReadsPrice: 0.0028,
+		description: "Xiaomi Mimo V2.6 Flash - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，轻量高效，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.6-pro": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-pro-ultraspeed": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+        supportsTools: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro UltraSpeed - 超高速推理版本，原生全模态 + 1M 超长上下文，兼顾极致 Agent 性能与响应速度。",
+	},
 
 } as const satisfies Record<string, OpenAiCompatibleModelInfo>
 
 // Xiaomi Mimo AthrAPI (Anthropic-compatible)
 // https://api.xiaomimimo.com/anthropic
 export type XiaomiAthrapiModelId = keyof typeof xiaomiAthrapiModels
-export const xiaomiAthrapiDefaultModelId: XiaomiAthrapiModelId = "mimo-v2.5"
+export const xiaomiAthrapiDefaultModelId: XiaomiAthrapiModelId = "mimo-v2.6-pro"
 export const xiaomiAthrapiModels = {
 	"mimo-v2.5": {
 		maxTokens: 131072,
@@ -5607,12 +5685,84 @@ export const xiaomiAthrapiModels = {
 		cacheReadsPrice: 0.0036,
 		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
 	},
+	"mimo-v2.6-flash": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.14,
+		outputPrice: 0.28,
+		cacheWritesPrice: 0.14,
+		cacheReadsPrice: 0.0028,
+		description: "Xiaomi Mimo V2.6 Flash - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，轻量高效，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.6-flash:1m": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.14,
+		outputPrice: 0.28,
+		cacheWritesPrice: 0.14,
+		cacheReadsPrice: 0.0028,
+		description: "Xiaomi Mimo V2.6 Flash - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，轻量高效，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.6-pro": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-pro:1m": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-pro-ultraspeed": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro UltraSpeed - 超高速推理版本，原生全模态 + 1M 超长上下文，兼顾极致 Agent 性能与响应速度。",
+	},
+	"mimo-v2.6-pro-ultraspeed:1m": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro UltraSpeed - 超高速推理版本，原生全模态 + 1M 超长上下文，兼顾极致 Agent 性能与响应速度。",
+	},
 } as const satisfies Record<string, ModelInfo>
 
 // Mimo TP AthrAPI (Anthropic-compatible)
 // https://token-plan-cn.xiaomimimo.com/anthropic
 export type MimoTpAthrapiModelId = keyof typeof mimoTpAthrapiModels
-export const mimoTpAthrapiDefaultModelId: MimoTpAthrapiModelId = "mimo-v2.5-pro"
+export const mimoTpAthrapiDefaultModelId: MimoTpAthrapiModelId = "mimo-v2.6-pro"
 export const mimoTpAthrapiModels = {
 	"mimo-v2.5": {
 		maxTokens: 131072,
@@ -5661,6 +5811,78 @@ export const mimoTpAthrapiModels = {
 		cacheWritesPrice: 0.435,
 		cacheReadsPrice: 0.0036,
 		description: "Xiaomi Mimo V2.5 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-flash": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.14,
+		outputPrice: 0.28,
+		cacheWritesPrice: 0.14,
+		cacheReadsPrice: 0.0028,
+		description: "Xiaomi Mimo V2.6 Flash - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，轻量高效，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.6-flash:1m": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.14,
+		outputPrice: 0.28,
+		cacheWritesPrice: 0.14,
+		cacheReadsPrice: 0.0028,
+		description: "Xiaomi Mimo V2.6 Flash - 原生全模态感知 + 1M 上下文： 支持图像、视频、音频、文本的原生理解，轻量高效，综合感知能力跻身行业前沿。",
+	},
+	"mimo-v2.6-pro": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-pro:1m": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro - 万亿参数，高效架构 ： 1T 总参数 | 42B 激活 | 1M 超长上下文。极致 Agent 性能： 在高强度智能体场景下，表现媲美 Claude Opus4.6 。",
+	},
+	"mimo-v2.6-pro-ultraspeed": {
+		maxTokens: 131072,
+		contextWindow: 262144,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro UltraSpeed - 超高速推理版本，原生全模态 + 1M 超长上下文，兼顾极致 Agent 性能与响应速度。",
+	},
+	"mimo-v2.6-pro-ultraspeed:1m": {
+		maxTokens: 131072,
+		contextWindow: 1048576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoning: true,
+		inputPrice: 0.435,
+		outputPrice: 0.87,
+		cacheWritesPrice: 0.435,
+		cacheReadsPrice: 0.0036,
+		description: "Xiaomi Mimo V2.6 Pro UltraSpeed - 超高速推理版本，原生全模态 + 1M 超长上下文，兼顾极致 Agent 性能与响应速度。",
 	},
 } as const satisfies Record<string, ModelInfo>
 
