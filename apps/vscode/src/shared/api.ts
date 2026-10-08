@@ -76,6 +76,13 @@ export interface ModelInfo {
 	supportsImages?: boolean
 	supportsPromptCache: boolean // this value is hardcoded for now
 	supportsReasoning?: boolean // Whether the model supports reasoning/thinking mode
+	// Whether the model can be driven with native tool calling. Already consulted by the
+	// openai-native provider to decide whether tool definitions are sent at all.
+	// Catalog lookups only ever set `true` or leave this undefined: an absent capability
+	// list must not be read as an authoritative denial (upstream needed three consecutive
+	// releases to undo that regression), so the prompt variant resolver treats only `true`
+	// as a positive signal and falls back to provider/model-family rules otherwise.
+	supportsTools?: boolean
 	inputPrice?: number // Keep for non-tiered input models
 	outputPrice?: number // Keep for non-tiered output models
 	thinkingConfig?: {

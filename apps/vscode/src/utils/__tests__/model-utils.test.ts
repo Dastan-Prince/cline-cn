@@ -1,16 +1,19 @@
 import { describe, it } from "mocha"
 import "should"
 import type { ApiHandlerModel, ApiProviderInfo } from "@core/api"
+import type { ModelInfo } from "@shared/api"
 import {
 	GEMINI_FLASH_MAX_OUTPUT_TOKENS,
 	isAnthropicCompatibleProvider,
 	isClaude4PlusModelFamily,
+	isClineProvider,
 	isGeminiFlashModel,
 	isGLMModelFamily,
 	isGPT5ModelFamily,
 	isGptOssModelFamily,
 	isNativeOpenAiCompatibleProvider,
 	isNativeToolCallingConfig,
+	isNativeToolCapableModel,
 	isNextGenModelFamily,
 	isPoolsideModelFamily,
 	modelDoesntSupportWebp,
@@ -18,10 +21,13 @@ import {
 } from "../model-utils"
 
 // Minimal helper — modelDoesntSupportWebp only reads apiHandlerModel.id
-const m = (id: string): ApiHandlerModel => ({ id, info: { supportsPromptCache: false } })
-const providerInfo = (providerId: string, modelId: string): ApiProviderInfo => ({
+const m = (id: string, info: Partial<ModelInfo> = {}): ApiHandlerModel => ({
+	id,
+	info: { supportsPromptCache: false, ...info },
+})
+const providerInfo = (providerId: string, modelId: string, info: Partial<ModelInfo> = {}): ApiProviderInfo => ({
 	providerId,
-	model: m(modelId),
+	model: m(modelId, info),
 	mode: "act",
 })
 
@@ -191,10 +197,25 @@ describe("isNativeOpenAiCompatibleProvider", () => {
 	})
 })
 
+describe("isClineProvider", () => {
+	it("should return true for the cline provider", () => {
+		isClineProvider(providerInfo("cline", "cline-free/mimo-v2.6-flash")).should.equal(true)
+		isClineProvider(providerInfo("Cline", "kwaipilot/kat-coder-pro")).should.equal(true)
+		isClineProvider(providerInfo("CLINE", "cline-pass/glm-5.3")).should.equal(true)
+	})
+
+	it("should return false for other providers", () => {
+		isClineProvider(providerInfo("openrouter", "anthropic/claude-sonnet-4.6")).should.equal(false)
+		isClineProvider(providerInfo("openai", "gpt-5")).should.equal(false)
+		isClineProvider(providerInfo("", "fast")).should.equal(false)
+	})
+})
+
 describe("isNativeToolCallingConfig", () => {
 	it("should return false when native tool calls are disabled", () => {
 		isNativeToolCallingConfig(providerInfo("anthropic", "claude-sonnet-4"), false).should.equal(false)
 		isNativeToolCallingConfig(providerInfo("zhipu-athrapi", "glm-5.2"), false).should.equal(false)
+		isNativeToolCallingConfig(providerInfo("cline", "cline-free/mimo-v2.6-flash"), false).should.equal(false)
 	})
 
 	it("should return true for Anthropic-compatible providers when native tool calls are enabled", () => {
@@ -215,6 +236,15 @@ describe("isNativeToolCallingConfig", () => {
 		isNativeToolCallingConfig(providerInfo("dots-studio", "dots3-note-prev"), true).should.equal(true)
 	})
 
+	it("should return true for every model served by the cline provider", () => {
+		// The cline gateway drives its whole catalog with native tool calls, so the
+		// model-family heuristic must not gate it (e.g. cline-free/mimo-v2.6-flash).
+		isNativeToolCallingConfig(providerInfo("cline", "cline-free/mimo-v2.6-flash"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("cline", "solar-mini4"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("cline", "cline-pass/qwen3.7-plus"), true).should.equal(true)
+		isNativeToolCallingConfig(providerInfo("cline", "unknown-cline-model"), true).should.equal(true)
+	})
+
 	it("should return true for next-gen models on non-Anthropic-compatible providers", () => {
 		isNativeToolCallingConfig(providerInfo("anthropic", "claude-sonnet-4"), true).should.equal(true)
 		isNativeToolCallingConfig(providerInfo("openai", "gpt-5"), true).should.equal(true)
@@ -224,6 +254,64 @@ describe("isNativeToolCallingConfig", () => {
 	it("should return false for non-next-gen models on non-Anthropic-compatible providers", () => {
 		isNativeToolCallingConfig(providerInfo("openai", "gpt-4"), true).should.equal(false)
 		isNativeToolCallingConfig(providerInfo("test", "fast"), true).should.equal(false)
+	})
+
+	it("should return true for a model whose catalog entry advertises tools", () => {
+		isNativeToolCallingConfig(providerInfo("openrouter", "some-new-model", { supportsTools: true }), true).should.equal(true)
+	})
+})
+
+describe("isNextGenModelFamily", () => {
+	it("should cover the newer tool-capable model families", () => {
+		// These used to drop to the generic XML prompt because the whitelist only knew
+		// about the previous generation of names.
+		isNextGenModelFamily("openai/gpt-6.1-sol").should.equal(true)
+		isNextGenModelFamily("openai/gpt-6-astra").should.equal(true)
+		isNextGenModelFamily("qwen/qwen3-coder").should.equal(true)
+		isNextGenModelFamily("qwen3.7-plus").should.equal(true)
+		isNextGenModelFamily("cline-pass/mimo-v2.6-pro").should.equal(true)
+		isNextGenModelFamily("cline-free/muse-spark-1.3-contributor").should.equal(true)
+		isNextGenModelFamily("moonshotai/kimi-k3").should.equal(true)
+		isNextGenModelFamily("deepseek/deepseek-v4.1-flash").should.equal(true)
+		isNextGenModelFamily("anthropic/claude-fable-5").should.equal(true)
+		// Covered before this change; kept as regression guards
+		isNextGenModelFamily("spacexai/grok-4.7").should.equal(true)
+		isNextGenModelFamily("moonshotai/kimi-k2").should.equal(true)
+	})
+
+	it("should leave out the families whose XML variants are deliberately kept", () => {
+		isNextGenModelFamily("z-ai/glm-4.6").should.equal(false)
+		isNextGenModelFamily("nous/hermes-4").should.equal(false)
+		isNextGenModelFamily("mistral/devstral").should.equal(false)
+		isNextGenModelFamily("arcee-ai/trinity-large-preview").should.equal(false)
+	})
+})
+
+describe("isNativeToolCapableModel", () => {
+	it("should trust a catalog entry that advertises tools", () => {
+		// Provider without a native guarantee and a model outside the whitelist:
+		// the catalog capability is the deciding signal.
+		isNativeToolCapableModel(providerInfo("openrouter", "some-new-model", { supportsTools: true })).should.equal(true)
+		isNativeToolCapableModel(providerInfo("openai", "some-new-model", { supportsTools: true })).should.equal(true)
+	})
+
+	it("should fall back to provider guarantees when the catalog is silent", () => {
+		isNativeToolCapableModel(providerInfo("cline", "some-new-model")).should.equal(true)
+		isNativeToolCapableModel(providerInfo("zai", "glm-5.2")).should.equal(true)
+		isNativeToolCapableModel(providerInfo("xiaomi", "mimo-v2.6-flash")).should.equal(true)
+		isNativeToolCapableModel(providerInfo("zhipu-athrapi", "glm-5.2")).should.equal(true)
+	})
+
+	it("should fall back to the model-family whitelist when the catalog is silent", () => {
+		isNativeToolCapableModel(providerInfo("openrouter", "qwen/qwen3-coder")).should.equal(true)
+		isNativeToolCapableModel(providerInfo("openrouter", "some-legacy-model")).should.equal(false)
+	})
+
+	it("should not read an absent or negative catalog entry as a reason to withdraw native tools", () => {
+		// Additive-only by design: `undefined` means "not advertised", never "denied",
+		// and a provider-level guarantee outranks a catalog that says nothing useful.
+		isNativeToolCapableModel(providerInfo("cline", "some-new-model", { supportsTools: undefined })).should.equal(true)
+		isNativeToolCapableModel(providerInfo("cline", "some-new-model", { supportsTools: false })).should.equal(true)
 	})
 })
 

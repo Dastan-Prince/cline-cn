@@ -1,0 +1,32 @@
+----
+2aea1456be6cd1682324d82b12278641670d48c6
+v3.89.14
+2026-09-22
+----
+437fc5cda898aced80e8d1f2bacf5044572a9b68
+## 已修改文件
+2026-09-22
+----
+b0a6e770bd9f46081ed328534450706e3314446c
+开始实施。先确认依赖与代码约定。 约定清楚了（tab 缩进、宽 130、无分号）。先建通用超时工具。 现在改 `DiffViewProvider`：写入加长超时、回滚改为"保存不成功就绝不删除"。 Now the rollback itself —超时就不再推进删除/回写。 Now update the tool handler's rollback call sites to use the bounded revert budget. 实施完成。
+2026-09-10
+----
+6e31245931a75314f5cdc8f19ef119ab0e79fe70
+## 崩溃原因（已确认）
+2026-09-09
+----
+16cf7686fb73e47a55c34425771dd86d3c1efbf7
+## 修复完成：GLM（Zhipu AthrAPI）上下文窗口用量显示偏小问题
+2026-09-08
+----
+304c9ad6fb3021cb08d80fb19d315b1b0c5aefac
+## 修复完成：GLM（Zhipu AthrAPI）上下文窗口用量显示偏小问题
+2026-09-08
+----
+ea622c6f29c84a1538ff32aa723e184c729c64a6
+## 任务完成
+2026-09-02
+----
+0a8843d2ce2e01ccdc615aa615d9744c3ec44a75
+## 问题诊断与修复完成
+2026-09-02

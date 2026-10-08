@@ -1,4 +1,5 @@
 import {
+	isClineProvider,
 	isGLMModelFamily,
 	isLocalModel,
 	isNextGenModelFamily,
@@ -37,7 +38,9 @@ export const config = createVariant(ModelFamily.GENERIC)
 			// Not a GLM model
 			!isGLMModelFamily(modelId) &&
 			// Not a Trinity model
-			!isTrinityModelFamily(modelId)
+			!isTrinityModelFamily(modelId) &&
+			// Cline provider models are driven by the native-next-gen variant instead
+			!isClineProvider(providerInfo)
 		)
 	})
 	.template(baseTemplate)

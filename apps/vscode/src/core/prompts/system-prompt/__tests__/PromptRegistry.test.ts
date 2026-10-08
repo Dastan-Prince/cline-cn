@@ -51,7 +51,13 @@ describe("PromptRegistry", () => {
 		it("should extract correct model families", async () => {
 			const registry = PromptRegistry.getInstance()
 			await registry.load()
-			const testCases = [
+			const testCases: Array<{
+				id: string
+				expected: ModelFamily
+				provider?: string
+				useNativeTools?: boolean
+				supportsTools?: boolean
+			}> = [
 				{ id: "claude-3-5-sonnet", expected: ModelFamily.GENERIC },
 				{ id: "gpt-4-turbo", expected: ModelFamily.GENERIC },
 				{ id: "gemini-pro", expected: ModelFamily.GENERIC },
@@ -67,13 +73,59 @@ describe("PromptRegistry", () => {
 				{ id: "gpt-5-1", provider: "openai-native", expected: ModelFamily.NATIVE_GPT_5_1, useNativeTools: true },
 				{ id: "openai/gpt-5", expected: ModelFamily.NEXT_GEN },
 				{ id: "gemini3", provider: "vertex", expected: ModelFamily.GEMINI_3, useNativeTools: true },
+				// Every model served by the cline gateway is driven with native tool calls,
+				// regardless of the model-family heuristics (see isClineProvider).
+				{
+					id: "cline-free/mimo-v2.6-flash",
+					provider: "cline",
+					expected: ModelFamily.NATIVE_NEXT_GEN,
+					useNativeTools: true,
+				},
+				{ id: "solar-mini4", provider: "cline", expected: ModelFamily.NATIVE_NEXT_GEN, useNativeTools: true },
+				{ id: "cline-pass/glm-5.3", provider: "cline", expected: ModelFamily.NATIVE_NEXT_GEN, useNativeTools: true },
+				// With native tool calls disabled the cline provider falls back to the generic XML prompt.
+				{ id: "solar-mini4", provider: "cline", expected: ModelFamily.GENERIC, useNativeTools: false },
+				// Newer families that used to fall through to the generic XML prompt.
+				{
+					id: "openai/gpt-6.1-sol",
+					provider: "openrouter",
+					expected: ModelFamily.NATIVE_NEXT_GEN,
+					useNativeTools: true,
+				},
+				{ id: "qwen/qwen3-coder", provider: "openrouter", expected: ModelFamily.NATIVE_NEXT_GEN, useNativeTools: true },
+				{
+					id: "anthropic/claude-fable-5",
+					provider: "openrouter",
+					expected: ModelFamily.NATIVE_NEXT_GEN,
+					useNativeTools: true,
+				},
+				// A catalog entry that advertises tools selects the native variant for an
+				// otherwise unknown model, without any code change.
+				{
+					id: "brand-new-model",
+					provider: "openrouter",
+					expected: ModelFamily.NATIVE_NEXT_GEN,
+					useNativeTools: true,
+					supportsTools: true,
+				},
+				// GLM deliberately keeps its tuned XML variant.
+				{ id: "z-ai/glm-4.6", provider: "openrouter", expected: ModelFamily.GLM, useNativeTools: true },
 				{ id: "unknown-model", expected: ModelFamily.GENERIC },
 			]
 
-			for (const { id, expected, provider, useNativeTools } of testCases) {
+			for (const { id, expected, provider, useNativeTools, supportsTools } of testCases) {
 				const providerId = provider ?? "random"
 				const customPrompt = provider === "lmstudio" ? "compact" : undefined
-				const providerInfo = { ...mockProviderInfo, providerId, model: { ...mockProviderInfo.model, id }, customPrompt }
+				const providerInfo = {
+					...mockProviderInfo,
+					providerId,
+					model: {
+						...mockProviderInfo.model,
+						id,
+						info: { ...mockProviderInfo.model.info, supportsTools },
+					},
+					customPrompt,
+				}
 				const result = registry.getModelFamily({
 					...mockContext,
 					providerInfo,
@@ -130,6 +182,33 @@ describe("PromptRegistry", () => {
 
 			expect(toolNames).to.not.include("focus_chain")
 			expect(JSON.stringify(nativeTools)).to.not.include('"focus_chain"')
+		})
+
+		it("should expose OpenAI-style function tools for every cline provider model", async () => {
+			const clineContext: SystemPromptContext = {
+				...mockContext,
+				enableNativeToolCalls: true,
+				providerInfo: {
+					...mockProviderInfo,
+					providerId: "cline",
+					model: { ...mockProviderInfo.model, id: "cline-free/mimo-v2.6-flash" },
+				},
+			}
+
+			await registry.get(clineContext)
+			const nativeTools = registry.nativeTools
+
+			expect(nativeTools).to.be.an("array").that.is.not.empty
+			const toolNames = (nativeTools as any[]).map((tool) => {
+				if (tool?.type === "function") {
+					return tool.function?.name
+				}
+				return tool?.name
+			})
+			expect(toolNames).to.include("execute_command")
+			expect(toolNames).to.include("read_file")
+			expect(toolNames).to.include("attempt_completion")
+			expect(toolNames).to.not.include("focus_chain")
 		})
 	})
 

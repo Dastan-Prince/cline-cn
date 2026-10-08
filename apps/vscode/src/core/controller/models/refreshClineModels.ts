@@ -169,6 +169,12 @@ async function fetchAndCacheClineModels(): Promise<Record<string, ModelInfo>> {
 			const supportThinking = rawModel.supported_parameters?.some(
 				(p) => p === "include_reasoning" || p === "reasoning",
 			);
+			// The catalog advertises native tool calling through supported_parameters.
+			// Only an explicit "tools" entry grants native tools; an absent/empty list
+			// stays undefined so the provider and model-family rules still apply.
+			const supportsTools = rawModel.supported_parameters?.includes("tools")
+				? true
+				: undefined;
 
 			// Handle modality which can be a string or array
 			const modality = rawModel.architecture?.modality;
@@ -182,6 +188,7 @@ async function fetchAndCacheClineModels(): Promise<Record<string, ModelInfo>> {
 				contextWindow: rawModel.context_length ?? 0,
 				supportsImages,
 				supportsPromptCache: false,
+				supportsTools,
 				inputPrice: parsePrice(rawModel.pricing?.prompt) ?? 0,
 				outputPrice: parsePrice(rawModel.pricing?.completion) ?? 0,
 				cacheWritesPrice: parsePrice(rawModel.pricing?.input_cache_write),

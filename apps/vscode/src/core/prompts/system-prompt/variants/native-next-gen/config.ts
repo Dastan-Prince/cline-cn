@@ -1,4 +1,5 @@
 import {
+	isClineProvider,
 	isGPT5ModelFamily,
 	isNativeOpenAiCompatibleProvider,
 	isNextGenModelFamily,
@@ -32,9 +33,18 @@ export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
 			return false
 		}
 		const modelId = providerInfo.model.id.toLowerCase()
-		// Native-capable OpenAI-compatible providers with fixed model catalogs
-		// (xiaomi, mimo-tp, zai, deepseek) bypass the model-family heuristic.
-		return !isGPT5ModelFamily(modelId) && (isNextGenModelFamily(modelId) || isNativeOpenAiCompatibleProvider(providerInfo))
+		// Native-capable providers with a server-defined catalog (cline, xiaomi,
+		// mimo-tp, zai, deepseek) bypass the model-family heuristic, and a model whose
+		// catalog entry advertises `tools` selects this variant outright.
+		// Anthropic-compatible providers are intentionally absent here: they are served
+		// by the dedicated NATIVE_ATHRAPI variant.
+		return (
+			!isGPT5ModelFamily(modelId) &&
+			(isNextGenModelFamily(modelId) ||
+				isNativeOpenAiCompatibleProvider(providerInfo) ||
+				isClineProvider(providerInfo) ||
+				providerInfo.model.info.supportsTools === true)
+		)
 	})
 	.template(TEMPLATE_OVERRIDES.BASE)
 	.components(

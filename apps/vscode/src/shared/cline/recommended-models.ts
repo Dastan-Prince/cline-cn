@@ -12,46 +12,70 @@ export interface ClineRecommendedModelsData {
 
 /**
  * Hardcoded fallback shown when upstream recommended models are not enabled or unavailable.
+ *
+ * Mirrors the catalog shipped by upstream Cline 4.1.23. Free ids must keep the
+ * `cline-free/` prefix because `ClineHandler` matches them verbatim (via
+ * normalizeModelId) against the selected model id to decide whether to zero out
+ * the reported cost.
  */
 export const CLINE_RECOMMENDED_MODELS_FALLBACK: ClineRecommendedModelsData = {
 	recommended: [
 		{
-			id: "google/gemini-3.1-pro-preview",
-			name: "Google Gemini 3.1 Pro Preview",
-			description: "Latest Gemini release with 1m ctx window and strong coding performance",
+			id: "anthropic/claude-sonnet-5.5",
+			name: "claude-sonnet-5.5",
+			description: "",
 			tags: ["NEW"],
 		},
 		{
-			id: "anthropic/claude-sonnet-4.6",
-			name: "Anthropic Claude Sonnet 4.6",
-			description: "Latest Sonnet release with strong coding and agent performance",
+			id: "anthropic/claude-opus-5.5",
+			name: "claude-opus-5.5",
+			description: "",
 			tags: ["NEW"],
 		},
 		{
-			id: "anthropic/claude-opus-4.6",
-			name: "Anthropic Claude Opus 4.6",
-			description: "Most intelligent model for agents and coding",
-			tags: ["BEST"],
+			id: "spacexai/grok-4.7",
+			name: "grok-4.7",
+			description: "",
+			tags: ["NEW"],
 		},
 		{
-			id: "openai/gpt-5.3-codex",
-			name: "OpenAI GPT-5.3 Codex",
-			description: "OpenAI's latest with strong coding abilities",
+			id: "openai/gpt-6-astra",
+			name: "gpt-6-astra",
+			description: "",
+			tags: ["NEW"],
+		},
+		{
+			id: "openai/gpt-6.1-sol",
+			name: "gpt-6.1-sol",
+			description: "",
+			tags: ["NEW"],
+		},
+		{
+			id: "moonshotai/kimi-k3",
+			name: "kimi-k3",
+			description: "Kimi K3 is Moonshot AI's new flagship MoE model for agentic coding",
 			tags: ["NEW"],
 		},
 	],
 	free: [
 		{
-			id: "kwaipilot/kat-coder-pro",
-			name: "KwaiKAT Kat Coder Pro",
-			description: "KwaiKAT's most advanced agentic coding model in the KAT-Coder series",
-			tags: ["FREE"],
+			id: "cline-free/solar-mini4",
+			name: "Solar Mini 4",
+			description: "Compact 35-billion parameter mixture-of-experts",
+			tags: [],
 		},
 		{
-			id: "arcee-ai/trinity-large-preview:free",
-			name: "Arcee AI Trinity Large Preview",
-			description: "Arcee AI's advanced large preview model in the Trinity series",
-			tags: ["FREE"],
+			id: "cline-free/mimo-v2.6-flash",
+			name: "Mimo V2.6 Flash",
+			description: "Mixture-of-Experts architecture with 309B total parameters",
+			tags: [],
+		},
+		{
+			id: "cline-free/muse-spark-1.3-contributor",
+			name: "Muse Spark 1.3 Contributor",
+			description:
+				"Meta's multimodal reasoning model for experimentation, learning, and early-stage agentic, multi-agent, and coding workflows.",
+			tags: [],
 		},
 	],
 }

@@ -1,8 +1,37 @@
 import { ClineDefaultTool, getToolUseNames } from "@shared/tools"
 import { nanoid } from "nanoid"
-import { AssistantMessageContent, TextStreamContent, ToolParamName, ToolUse, toolParamNames } from "."; // Assuming types are defined in index.ts or a similar file
+import { AssistantMessageContent, TextStreamContent, ToolParamName, ToolUse, toolParamNames } from "." // Assuming types are defined in index.ts or a similar file
 
 // parseAssistantmessageV1 removed in https://github.com/cline/cline/pull/5425
+
+/**
+ * Markers that indicate a model emitted a non-standard, hybrid tool-call syntax
+ * instead of the documented XML tags. Observed in practice (e.g. the
+ * cline-free/mimo-v2.6-flash output that motivated this fallback):
+ *
+ *   <tool_call><function=execute_command>
+ *   <command>git status</parameter><parameter=requires_approval>false</parameter></function>
+ *   </tool_call>
+ *
+ * The lenient superset of the parser is only enabled when one of these markers is
+ * present so the documented format keeps its exact previous behaviour.
+ */
+const LENIENT_TOOL_SYNTAX_MARKER = /<tool_call>|<function=[a-z_]+>|<parameter[= ]/
+
+/** `<parameter name="foo">` -- supported in every mode (used by e.g. dots models). */
+const PARAMETER_NAME_ATTR_PATTERN = /<parameter\s+name="([^"]+)">\s*$/
+
+/** `<parameter=foo>` / `<parameter="foo">` -- lenient-mode only alias. */
+const PARAMETER_EQUALS_PATTERN = /<parameter\s*=\s*"?([^"\s>]+)"?>\s*$/
+
+/** Closing tag accepted for every parameter in lenient mode. */
+const LENIENT_PARAMETER_CLOSE_TAG = "</parameter>"
+
+/** Tool closers accepted in lenient mode, on top of `</toolName>`. */
+const LENIENT_TOOL_CLOSE_TAGS = ["</function>", "</tool_call>"]
+
+/** Wrapper tags that carry no payload and must not leak into assistant text. */
+const LENIENT_NOISE_TAGS = ["<tool_call>", "</tool_call>", "</function>"]
 
 /**
  * @description **Version 2**
@@ -45,26 +74,83 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 		toolParamOpenTags.set(`<${name}>`, name)
 	}
 
+	// Lenient superset (see LENIENT_TOOL_SYNTAX_MARKER) only kicks in for hybrid
+	// tool-call syntax. `<function=name>` is an alias for the documented `<name>`
+	// open tag; params may then be closed with a bare `</parameter>`.
+	const lenientMode = LENIENT_TOOL_SYNTAX_MARKER.test(assistantMessage)
+	const lenientToolUseOpenTags = new Map<string, string>()
+	if (lenientMode) {
+		for (const name of toolUseOpenTags.values()) {
+			lenientToolUseOpenTags.set(`<function=${name}>`, name)
+			lenientToolUseOpenTags.set(`<function="${name}">`, name)
+		}
+	}
+
+	// Push the pending text block (if any) that ends right before `endExclusive`.
+	const flushPendingText = (endExclusive: number) => {
+		const text = assistantMessage.slice(currentTextContentStart, endExclusive).trim()
+		if (text.length > 0) {
+			contentBlocks.push({
+				type: "text",
+				content: text,
+				partial: false,
+			})
+		}
+		currentTextContent = undefined
+	}
+
+	// Flush pending text and open a new tool use whose opening tag spans
+	// [`tagStart`, `tagEnd`] (both inclusive).
+	const startToolUse = (toolName: string, tagStart: number, tagEnd: number) => {
+		flushPendingText(tagStart)
+		currentToolUse = {
+			type: "tool_use",
+			name: toolName as ClineDefaultTool,
+			params: {},
+			partial: true, // Assume partial until closing tag is found
+			call_id: nanoid(8),
+			isNativeToolCall: false,
+		}
+		currentToolUseStart = tagEnd + 1 // Tool content starts after the opening tag
+	}
+
 	const len = assistantMessage.length
 	for (let i = 0; i < len; i++) {
 		const currentCharIndex = i
 
 		// --- State: Parsing a Tool Parameter ---
 		if (currentToolUse && currentParamName) {
-			const closeTag = currentParamCloseTag || `</${currentParamName}>`
+			const primaryCloseTag = currentParamCloseTag || `</${currentParamName}>`
+			let matchedCloseTag: string | undefined
 			// Check if the string *ending* at index `i` matches the closing tag
 			if (
-				currentCharIndex >= closeTag.length - 1 &&
+				currentCharIndex >= primaryCloseTag.length - 1 &&
 				assistantMessage.startsWith(
-					closeTag,
-					currentCharIndex - closeTag.length + 1, // Start checking from potential start of tag
+					primaryCloseTag,
+					currentCharIndex - primaryCloseTag.length + 1, // Start checking from potential start of tag
 				)
 			) {
+				matchedCloseTag = primaryCloseTag
+			} else if (
+				// Lenient mode: hybrid syntax opens params as `<command>` but closes them
+				// with a bare `</parameter>`, so accept that as an extra closing tag too.
+				lenientMode &&
+				primaryCloseTag !== LENIENT_PARAMETER_CLOSE_TAG &&
+				currentCharIndex >= LENIENT_PARAMETER_CLOSE_TAG.length - 1 &&
+				assistantMessage.startsWith(
+					LENIENT_PARAMETER_CLOSE_TAG,
+					currentCharIndex - LENIENT_PARAMETER_CLOSE_TAG.length + 1,
+				)
+			) {
+				matchedCloseTag = LENIENT_PARAMETER_CLOSE_TAG
+			}
+
+			if (matchedCloseTag) {
 				// Found the closing tag for the parameter
 				const value = assistantMessage
 					.slice(
 						currentParamValueStart, // Start after the opening tag
-						currentCharIndex - closeTag.length + 1, // End before the closing tag
+						currentCharIndex - matchedCloseTag.length + 1, // End before the closing tag
 					)
 					.trim()
 				currentToolUse.params[currentParamName] = value
@@ -90,11 +176,14 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 				}
 			}
 
-			// Also check for <parameter name="..."> format (used by some models like dots-3-note-preview)
+			// Also check for <parameter name="..."> format (used by some models like
+			// dots-3-note-preview) and, in lenient mode, the <parameter=...> alias.
 			if (!startedNewParam && assistantMessage[currentCharIndex] === ">") {
 				const searchStart = Math.max(0, currentCharIndex - 60)
 				const preceding = assistantMessage.slice(searchStart, currentCharIndex + 1)
-				const paramMatch = preceding.match(/<parameter\s+name="([^"]+)">\s*$/)
+				const paramMatch =
+					preceding.match(PARAMETER_NAME_ATTR_PATTERN) ??
+					(lenientMode ? preceding.match(PARAMETER_EQUALS_PATTERN) : null)
 				if (paramMatch) {
 					const extractedName = paramMatch[1]
 					if ((toolParamNames as readonly string[]).includes(extractedName)) {
@@ -111,11 +200,27 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 			}
 
 			// Check if closing the current tool use
-			const toolCloseTag = `</${currentToolUse.name}>`
+			const primaryToolCloseTag = `</${currentToolUse.name}>`
+			let toolCloseTag: string | undefined
 			if (
-				currentCharIndex >= toolCloseTag.length - 1 &&
-				assistantMessage.startsWith(toolCloseTag, currentCharIndex - toolCloseTag.length + 1)
+				currentCharIndex >= primaryToolCloseTag.length - 1 &&
+				assistantMessage.startsWith(primaryToolCloseTag, currentCharIndex - primaryToolCloseTag.length + 1)
 			) {
+				toolCloseTag = primaryToolCloseTag
+			} else if (lenientMode) {
+				// Lenient mode: the `<tool_call><function=name>` wrapper is closed either
+				// by `</function>` or by the trailing `</tool_call>`.
+				for (const tag of LENIENT_TOOL_CLOSE_TAGS) {
+					if (
+						currentCharIndex >= tag.length - 1 &&
+						assistantMessage.startsWith(tag, currentCharIndex - tag.length + 1)
+					) {
+						toolCloseTag = tag
+						break
+					}
+				}
+			}
+			if (toolCloseTag) {
 				// End of the tool use found
 				// Special handling for content params *before* finalizing the tool
 				const toolContentSlice = assistantMessage.slice(
@@ -159,53 +264,49 @@ export function parseAssistantMessageV2(assistantMessage: string): AssistantMess
 			let startedNewTool = false
 			for (const [tag, toolName] of toolUseOpenTags.entries()) {
 				if (currentCharIndex >= tag.length - 1 && assistantMessage.startsWith(tag, currentCharIndex - tag.length + 1)) {
-					// End current text block if one was active
-					if (currentTextContent) {
-						currentTextContent.content = assistantMessage
-							.slice(
-								currentTextContentStart, // From where text started
-								currentCharIndex - tag.length + 1, // To before the tool tag starts
-							)
-							.trim()
-						currentTextContent.partial = false // Ended because tool started
-						if (currentTextContent.content.length > 0) {
-							contentBlocks.push(currentTextContent)
-						}
-						currentTextContent = undefined
-					} else {
-						// Check for any text between the last block and this tag
-						const potentialText = assistantMessage
-							.slice(
-								currentTextContentStart, // From where text *might* have started
-								currentCharIndex - tag.length + 1, // To before the tool tag starts
-							)
-							.trim()
-						if (potentialText.length > 0) {
-							contentBlocks.push({
-								type: "text",
-								content: potentialText,
-								partial: false,
-							})
-						}
-					}
-
-					// Start the new tool use
-					currentToolUse = {
-						type: "tool_use",
-						name: toolName as ClineDefaultTool,
-						params: {},
-						partial: true, // Assume partial until closing tag is found
-						call_id: nanoid(8),
-						isNativeToolCall: false,
-					}
-					currentToolUseStart = currentCharIndex + 1 // Tool content starts after the opening tag
+					startToolUse(toolName, currentCharIndex - tag.length + 1, currentCharIndex)
 					startedNewTool = true
 					break
 				}
 			}
 
+			// Lenient mode: `<function=name>` (quoted or not) is an alias for the
+			// documented `<name>` opening tag.
+			if (!startedNewTool && lenientMode && assistantMessage[currentCharIndex] === ">") {
+				for (const [tag, toolName] of lenientToolUseOpenTags.entries()) {
+					if (
+						currentCharIndex >= tag.length - 1 &&
+						assistantMessage.startsWith(tag, currentCharIndex - tag.length + 1)
+					) {
+						startToolUse(toolName, currentCharIndex - tag.length + 1, currentCharIndex)
+						startedNewTool = true
+						break
+					}
+				}
+			}
+
 			if (startedNewTool) {
 				continue // Handled start of tool, move to next char
+			}
+
+			// Lenient mode: swallow the `<tool_call>` / `</tool_call>` wrappers so they
+			// never leak into the assistant text presented to the user.
+			if (lenientMode) {
+				let skippedNoise = false
+				for (const tag of LENIENT_NOISE_TAGS) {
+					if (
+						currentCharIndex >= tag.length - 1 &&
+						assistantMessage.startsWith(tag, currentCharIndex - tag.length + 1)
+					) {
+						flushPendingText(currentCharIndex - tag.length + 1)
+						currentTextContentStart = currentCharIndex + 1
+						skippedNoise = true
+						break
+					}
+				}
+				if (skippedNoise) {
+					continue
+				}
 			}
 
 			// If not starting a tool, it must be text content

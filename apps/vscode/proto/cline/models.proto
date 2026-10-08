@@ -110,6 +110,8 @@ message OpenRouterModelInfo {
   optional double temperature = 14;
   optional bool supports_reasoning = 15;
   optional ApiFormat api_format = 16;
+  // Whether the model catalog declares native tool calling support for this model.
+  optional bool supports_tools = 17;
 }
 
 // Shared response message for model information

@@ -139,4 +139,68 @@ describe("refreshClineModels", () => {
 		expect(fable1m.contextWindow).to.equal(1_000_000);
 		expect(fable1m.tiers).to.not.equal(undefined);
 	});
+
+	it("marks a model tool-capable only when the catalog advertises the tools parameter", async () => {
+		sandbox
+			.stub(getFeatureFlagsService(), "getBooleanFlagEnabled")
+			.callsFake((flag) => {
+				return flag === FeatureFlag.EXTENSION_CLINE_MODELS_ENDPOINT;
+			});
+		sandbox.stub(ClineEnv, "config").returns({
+			environment: Environment.production,
+			appBaseUrl: "https://app.cline-mock.bot",
+			apiBaseUrl: "https://api.cline-mock.bot",
+			mcpBaseUrl: "https://api.cline-mock.bot/v1/mcp",
+		});
+		sandbox.stub(StateManager, "get").returns({
+			getModelsCache: () => null,
+			setModelsCache: () => {},
+		} as unknown as StateManager);
+		sandbox.stub(disk, "ensureCacheDirectoryExists").resolves("/tmp");
+		sandbox.stub(fs, "writeFile").resolves();
+		sandbox.stub(axios, "get").resolves({
+			data: {
+				data: [
+					{
+						id: "cline-free/mimo-v2.6-flash",
+						name: "Mimo V2.6 Flash",
+						description: null,
+						context_length: 1_048_576,
+						top_provider: { max_completion_tokens: 131_072, context_length: 1_048_576, is_moderated: false },
+						architecture: { modality: ["text", "image"] },
+						pricing: { prompt: "0.00000014", completion: "0.00000028" },
+						supported_parameters: ["tools", "include_reasoning", "reasoning"],
+					},
+					{
+						id: "text-only-model",
+						name: "Text Only",
+						description: null,
+						context_length: 128_000,
+						top_provider: { max_completion_tokens: 8_192, context_length: 128_000, is_moderated: false },
+						architecture: { modality: "text->text" },
+						pricing: { prompt: "0.0000001", completion: "0.0000002" },
+						supported_parameters: ["include_reasoning"],
+					},
+					{
+						id: "no-capabilities-model",
+						name: "No Capabilities",
+						description: null,
+						context_length: 128_000,
+						top_provider: { max_completion_tokens: 8_192, context_length: 128_000, is_moderated: false },
+						architecture: { modality: "text->text" },
+						pricing: { prompt: "0.0000001", completion: "0.0000002" },
+						supported_parameters: null,
+					},
+				],
+			},
+		});
+
+		const models = await refreshClineModels({} as Controller);
+
+		expect(models["cline-free/mimo-v2.6-flash"].supportsTools).to.equal(true);
+		// A capability list without "tools", and an absent list, both stay undefined:
+		// an absent capability list must never be read as an authoritative denial.
+		expect(models["text-only-model"].supportsTools).to.equal(undefined);
+		expect(models["no-capabilities-model"].supportsTools).to.equal(undefined);
+	});
 });

@@ -40,6 +40,19 @@ export function isNativeOpenAiCompatibleProvider(providerInfo: ApiProviderInfo):
 	)
 }
 
+/**
+ * The Cline provider is a gateway that fronts a server-defined model catalog.
+ * Every model it serves is driven the same way the upstream runtime drives them
+ * -- through native function calling -- so provider membership, not the
+ * model-family heuristic, is the meaningful capability signal here. Without this
+ * the newer catalog entries (e.g. cline-free/mimo-v2.6-flash) fall back to the
+ * XML text prompt and models that were only trained on native tool calls produce
+ * unparseable output.
+ */
+export function isClineProvider(providerInfo: ApiProviderInfo): boolean {
+	return normalize(providerInfo.providerId) === "cline"
+}
+
 export function isNextGenModelProvider(providerInfo: ApiProviderInfo): boolean {
 	const providerId = normalize(providerInfo.providerId)
 	return [
@@ -109,6 +122,16 @@ export function isClaude4PlusModelFamily(id: string): boolean {
 	return version >= 4
 }
 
+/**
+ * Claude model families whose id carries neither a sonnet/opus/haiku token nor a
+ * version number (e.g. `anthropic/claude-fable-5`), so `isAnthropicModelId` and
+ * the version regex in `isClaude4PlusModelFamily` both fail to recognise them.
+ */
+export function isClaudeFableModelFamily(id: string): boolean {
+	const modelId = normalize(id)
+	return modelId.includes("claude-fable") || modelId.includes("fable")
+}
+
 export function isGemini2dot5ModelFamily(id: string): boolean {
 	const modelId = normalize(id)
 	return modelId.includes("gemini-2.5")
@@ -122,6 +145,16 @@ export function isGrok4ModelFamily(id: string): boolean {
 export function isGPT5ModelFamily(id: string): boolean {
 	const modelId = normalize(id)
 	return modelId.includes("gpt-5") || modelId.includes("gpt5")
+}
+
+/**
+ * GPT-6 and later namespaces. `isGPT5ModelFamily` only matches the literal
+ * `gpt-5`/`gpt5` substring, so without this newer models fall through to the
+ * generic XML prompt.
+ */
+export function isGPT6ModelFamily(id: string): boolean {
+	const modelId = normalize(id)
+	return modelId.includes("gpt-6") || modelId.includes("gpt6")
 }
 
 export function isGptOssModelFamily(id: string): boolean {
@@ -188,7 +221,22 @@ export function isHermesModelFamily(id: string): boolean {
 
 export function isNextGenOpenSourceModelFamily(id: string): boolean {
 	const modelId = normalize(id)
-	return ["kimi-k2"].some((substring) => modelId.includes(substring))
+	return ["kimi-k2", "kimi-k3"].some((substring) => modelId.includes(substring))
+}
+
+export function isQwen3ModelFamily(id: string): boolean {
+	const modelId = normalize(id)
+	return modelId.includes("qwen3") || modelId.includes("qwen-3")
+}
+
+export function isMimoModelFamily(id: string): boolean {
+	const modelId = normalize(id)
+	return modelId.includes("mimo")
+}
+
+export function isMuseSparkModelFamily(id: string): boolean {
+	const modelId = normalize(id)
+	return modelId.includes("muse-spark") || modelId.includes("musespark")
 }
 
 export function isDevstralModelFamily(id: string): boolean {
@@ -224,25 +272,42 @@ export function isDeepSeekNativeModelFamily(id: string): boolean {
 	return modelId.includes("deepseek-chat") || modelId.includes("deepseek-reasoner")
 }
 
+export function isDeepSeekV4ModelFamily(id: string): boolean {
+	const modelId = normalize(id)
+	return modelId.includes("deepseek") && modelId.includes("v4")
+}
+
 export function isPoolsideModelFamily(id: string): boolean {
 	const modelId = normalize(id)
 	return modelId.includes("laguna")
 }
 
+/**
+ * Models capable enough to be driven with the next-gen prompt and native tool
+ * calling. This is the fallback signal for providers whose catalog does not
+ * declare per-model tool support (see isNativeToolCapableModel); keep it in sync
+ * with the model catalog, otherwise a model silently drops to the XML prompt.
+ */
 export function isNextGenModelFamily(id: string): boolean {
 	const modelId = normalize(id)
 	return (
 		isClaude4PlusModelFamily(modelId) ||
+		isClaudeFableModelFamily(modelId) ||
 		isGemini2dot5ModelFamily(modelId) ||
 		isGrok4ModelFamily(modelId) ||
 		isGPT5ModelFamily(modelId) ||
+		isGPT6ModelFamily(modelId) ||
 		isGptOssModelFamily(modelId) ||
 		isMinimaxModelFamily(modelId) ||
 		isGemini3ModelFamily(modelId) ||
 		isNextGenOpenSourceModelFamily(modelId) ||
 		isDeepSeek32ModelFamily(modelId) ||
 		isDeepSeekNativeModelFamily(modelId) ||
-		isPoolsideModelFamily(modelId)
+		isDeepSeekV4ModelFamily(modelId) ||
+		isPoolsideModelFamily(modelId) ||
+		isQwen3ModelFamily(modelId) ||
+		isMimoModelFamily(modelId) ||
+		isMuseSparkModelFamily(modelId)
 	)
 }
 
@@ -269,18 +334,22 @@ export function parsePrice(priceString: string | undefined): number {
 }
 
 /**
- * Determines if the given provider and model combination will use native tool calling.
- * Helpful if we need to quickly check this for prompts or other logic.
- * @param providerInfo The provider and model information
- * @param enableNativeToolCalls Whether the native tool calls setting is enabled
- * @returns true if the model will use native tool calling, false otherwise
+ * Whether the model is expected to support native tool calling.
+ *
+ * Resolution order:
+ * 1. the model catalog explicitly advertises `tools` for it;
+ * 2. providers that guarantee function calling for their whole catalog;
+ * 3. the model-family fallback, for providers whose catalog carries no
+ *    per-model capability metadata.
+ *
+ * An absent catalog declaration is never read as a denial. Upstream needed three
+ * consecutive releases (4.1.12 / 4.1.13 / 4.1.17) to undo regressions where an
+ * empty capability list was treated as an authoritative denial and stripped every
+ * tool from the request, so this signal can only ever add native tool calling.
  */
-export function isNativeToolCallingConfig(providerInfo: ApiProviderInfo, enableNativeToolCalls: boolean): boolean {
-	if (!enableNativeToolCalls) {
-		return false
-	}
-	if (!isNextGenModelProvider(providerInfo)) {
-		return false
+export function isNativeToolCapableModel(providerInfo: ApiProviderInfo): boolean {
+	if (providerInfo.model.info.supportsTools === true) {
+		return true
 	}
 	// Anthropic-compatible endpoints use a fixed protocol dictated by the SDK/endpoint,
 	// so provider capability is the meaningful signal -- we don't need the model-family
@@ -294,8 +363,29 @@ export function isNativeToolCallingConfig(providerInfo: ApiProviderInfo, enableN
 	if (isNativeOpenAiCompatibleProvider(providerInfo)) {
 		return true
 	}
-	const modelId = providerInfo.model.id.toLowerCase()
-	return isNextGenModelFamily(modelId)
+	// The Cline provider fronts its catalog through a single native tool-calling
+	// gateway, so every model it serves uses native tool calls.
+	if (isClineProvider(providerInfo)) {
+		return true
+	}
+	return isNextGenModelFamily(providerInfo.model.id)
+}
+
+/**
+ * Determines if the given provider and model combination will use native tool calling.
+ * Helpful if we need to quickly check this for prompts or other logic.
+ * @param providerInfo The provider and model information
+ * @param enableNativeToolCalls Whether the native tool calls setting is enabled
+ * @returns true if the model will use native tool calling, false otherwise
+ */
+export function isNativeToolCallingConfig(providerInfo: ApiProviderInfo, enableNativeToolCalls: boolean): boolean {
+	if (!enableNativeToolCalls) {
+		return false
+	}
+	if (!isNextGenModelProvider(providerInfo)) {
+		return false
+	}
+	return isNativeToolCapableModel(providerInfo)
 }
 
 /**

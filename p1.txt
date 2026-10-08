@@ -1,0 +1,70 @@
+diff --git a/apps/vscode/package.json b/apps/vscode/package.json
+index 8431aed9f..48c892e2f 100644
+--- a/apps/vscode/package.json
++++ b/apps/vscode/package.json
+@@ -2,7 +2,7 @@
+ 	"name": "cline-cn-ai",
+ 	"displayName": "Cline CN",
+ 	"description": "%cline.description%",
+-	"version": "3.89.12",
++	"version": "3.89.14",
+ 	"icon": "assets/icons/icon.png",
+ 	"engines": {
+ 		"vscode": "^1.84.0"
+diff --git a/apps/vscode/src/shared/providers/providers.json b/apps/vscode/src/shared/providers/providers.json
+index 39d25a070..04b671a3f 100644
+--- a/apps/vscode/src/shared/providers/providers.json
++++ b/apps/vscode/src/shared/providers/providers.json
+@@ -1,5 +1,9 @@
+ {
+ 	"list": [
++		{
++			"value": "cline",
++			"label": "Cline"
++		},
+ 		{
+ 			"value": "deepseek",
+ 			"label": "DeepSeek"
+@@ -12,10 +16,6 @@
+ 			"value": "xiaomi-athrapi",
+ 			"label": "Xiaomi Mimo AthrAPI"
+ 		},
+-		{
+-			"value": "mimo-tp-athrapi",
+-			"label": "Mimo TP AthrAPI"
+-		},
+ 		{
+ 			"value": "dots-studio-athrapi",
+ 			"label": "Dots Studio AthrAPI"
+@@ -32,10 +32,6 @@
+ 			"value": "anthropic-comp",
+ 			"label": "Anthropic Compatible"
+ 		},
+-		{
+-			"value": "cline",
+-			"label": "Cline"
+-		},
+ 		{
+ 			"value": "openai-codex",
+ 			"label": "ChatGPT Subscription"
+@@ -188,13 +184,17 @@
+ 			"value": "wandb",
+ 			"label": "W&B Inference by CoreWeave"
+ 		},
++		{
++			"value": "xiaomi",
++			"label": "Xiaomi MiMo"
++		},
+ 		{
+ 			"value": "mimo-tp",
+-			"label": "MiMo Token Plan"
++			"label": "Xiaomi MiMo Token Plan"
+ 		},
+ 		{
+-			"value": "xiaomi",
+-			"label": "Xiaomi MiMo"
++			"value": "mimo-tp-athrapi",
++			"label": "Xiaomi Mimo TP AthrAPI"
+ 		},
+ 		{
+ 			"value": "zai",

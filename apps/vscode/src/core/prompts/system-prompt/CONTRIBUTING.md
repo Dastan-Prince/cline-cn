@@ -63,6 +63,20 @@ Modern approach where tools are sent to the model via the provider's native API 
 
 **Supported providers:** OpenAI, Anthropic, Gemini, OpenRouter, Minimax
 
+#### How "can this model use native tools?" is decided
+
+`isNativeToolCapableModel()` in [`src/utils/model-utils.ts`](../../../utils/model-utils.ts) resolves it in this order:
+
+1. **Model catalog capability.** If the catalog entry for the model advertises `tools` (the `supported_parameters` entry returned by `/api/v1/ai/cline/models` and the OpenRouter model list), the model is tool-capable. The flag travels as `ModelInfo.supportsTools`.
+2. **Provider guarantee.** Anthropic-compatible providers (`xiaomi-athrapi`, `zhipu-athrapi`, …), fixed-catalog OpenAI-compatible providers (`xiaomi`, `mimo-tp`, `zai`, `deepseek`, `dots-studio`) and the `cline` gateway are assumed tool-capable for their whole catalog.
+3. **Model-family fallback.** For providers whose catalog carries no capability metadata, `isNextGenModelFamily()` is consulted.
+
+**Add a new model — prefer the catalog, patch the whitelist only as a last resort.** An explicit catalog entry needs no code change; adding the model to `isNextGenModelFamily()` is only required when its provider has no catalog metadata, and the model would otherwise silently drop to the generic XML prompt.
+
+**Resolution is additive-only.** Only `supportsTools === true` grants native tools; an absent or negative capability entry never withdraws them. Upstream needed three consecutive releases (4.1.12 / 4.1.13 / 4.1.17) to undo regressions where an empty capability list was treated as an authoritative denial and stripped every tool from the request, so keep it that way. Catalog lookups therefore only ever write `true` or leave the field `undefined`.
+
+**Not every model should be native.** GLM, Hermes, Devstral and Trinity keep their tuned XML variants on purpose; they intentionally stay out of the native resolution path.
+
 ### XML (Text-Based) Tool Calling
 Traditional approach where tools are described in the system prompt and the model outputs tool calls as XML tags in text.
 
